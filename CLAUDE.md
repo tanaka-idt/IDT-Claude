@@ -46,6 +46,18 @@ python create_google_doc.py      # Create formatted Google Docs analysis with em
 - Google Drive folder created: "IDT Stock Analysis"
 - Google Doc URL printed and opened in browser
 
+## Git & GitHub Workflow
+
+**IMPORTANT: Always commit and push to GitHub regularly.** This ensures no work is ever lost and provides a complete history of the project.
+
+- Make commits after completing meaningful work (new features, bug fixes, documentation updates)
+- Use clear, descriptive commit messages in imperative form (e.g., "Add IDT vs S&P 500 comparison chart" not "added stuff")
+- Push to GitHub immediately after committing: `git push origin main`
+- Before starting new work, verify the repository is up to date with `git status`
+- If reverting changes is needed, use `git log --oneline` to find commits and `git revert <commit-hash>` or `git reset`
+
+**Repository:** https://github.com/tanaka-idt/IDT-Claude
+
 ## Key Conventions
 
 - All data processing is 10-year rolling window (present day - 10 years)
