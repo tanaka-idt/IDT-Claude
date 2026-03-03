@@ -64,10 +64,13 @@ def upload_image(drive_svc, path: Path, folder_id: str) -> str:
     file = drive_svc.files().create(body=meta, media_body=media, fields="id").execute()
     fid = file["id"]
     # Make readable by anyone with the link (needed for Docs API insertInlineImage)
-    drive_svc.permissions().create(
-        fileId=fid,
-        body={"type": "anyone", "role": "reader"},
-    ).execute()
+    try:
+        drive_svc.permissions().create(
+            fileId=fid,
+            body={"type": "anyone", "role": "reader"},
+        ).execute()
+    except Exception as e:
+        print(f"⚠️  Warning: Could not set public permissions for {path.name}: {e}")
     return fid
 
 # ── Docs helpers ──────────────────────────────────────────────────────────────
@@ -348,16 +351,31 @@ def main():
     # 5. Send all requests
     print(f"Sending {len(requests)} formatting requests to Google Docs...")
     # Batch in chunks of 50 to avoid API limits
-    for i in range(0, len(requests), 50):
-        chunk = requests[i:i+50]
-        docs_svc.documents().batchUpdate(
-            documentId=doc_id,
-            body={"requests": chunk},
-        ).execute()
-        print(f"  Processed requests {i+1}–{i+len(chunk)}")
-        time.sleep(0.3)
+    try:
+        for i in range(0, len(requests), 50):
+            chunk = requests[i:i+50]
+            # Retry logic for transient errors
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    docs_svc.documents().batchUpdate(
+                        documentId=doc_id,
+                        body={"requests": chunk},
+                    ).execute()
+                    print(f"  Processed requests {i+1}–{i+len(chunk)}")
+                    break
+                except Exception as e:
+                    if attempt < max_retries - 1:
+                        print(f"  ⚠️  Retry {attempt + 1}/{max_retries - 1} after error: {str(e)[:100]}")
+                        time.sleep(1.0)
+                    else:
+                        raise
+            time.sleep(0.3)
+        print(f"\n✅  Done!")
+    except Exception as e:
+        print(f"\n⚠️  Formatting error: {str(e)[:200]}")
+        print(f"   (Google Doc created, but couldn't format all content)")
 
-    print(f"\n✅  Done!")
     print(f"   Google Doc: {doc_url}\n")
 
     # Open in browser
