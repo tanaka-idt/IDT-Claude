@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="boss.css">
+<style>
+.stage { text-align:center; margin-top:6px; }
+.h1 { font-size:25px; font-weight:800; margin-top:12px; }
+.rrow { padding:7px 0; }
+.sub { color:var(--muted); font-size:14.5px; font-weight:600; margin-top:4px; }
+.check-wrap { width:92px; height:92px; }
+.check-inner { width:66px; height:66px; }
+.saved { text-align:center; font-size:15px; font-weight:700; margin-top:14px; }
+</style></head>
+<body>
+  <div class="statusbar">
+    <div class="sb-time">00:24</div>
+    <div class="sb-icons">
+      <svg width="20" height="13" viewBox="0 0 20 13" fill="#17181A"><rect x="0" y="8" width="3.4" height="5" rx="1"/><rect x="5.2" y="5.5" width="3.4" height="7.5" rx="1"/><rect x="10.4" y="2.8" width="3.4" height="10.2" rx="1"/><rect x="15.6" y="0" width="3.4" height="13" rx="1"/></svg>
+      <svg width="17" height="13" viewBox="0 0 16 13" fill="#17181A"><circle cx="8" cy="11" r="1.7"/><path d="M8 6.1c1.7 0 3.2.6 4.4 1.7L10.9 9.4A4.3 4.3 0 0 0 8 8.3c-1.1 0-2.1.4-2.9 1.1L3.6 7.8A6.5 6.5 0 0 1 8 6.1z"/><path d="M8 1.9c2.8 0 5.4 1.1 7.3 2.9l-1.5 1.5A8.4 8.4 0 0 0 8 4.1c-2.2 0-4.3.9-5.8 2.2L.7 4.8A10.6 10.6 0 0 1 8 1.9z"/></svg>
+      <svg width="31" height="14"><rect x="0" y="0" width="27" height="14" rx="7" fill="#17181A"/><text x="13.5" y="10.5" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle" font-family="Nunito, sans-serif">33</text><rect x="28.4" y="4.5" width="2.4" height="5" rx="1.2" fill="#17181A" opacity=".45"/></svg>
+    </div>
+  </div>
+  <div class="header">
+    <div class="h-side"></div>
+    <div class="h-title">Order confirmation</div>
+    <div class="h-side" style="justify-content:flex-end"><svg width="17" height="17" viewBox="0 0 18 18"><path d="M2 2l14 14M16 2 2 16" stroke="#17181A" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+  </div>
+
+  <div class="stage">
+    <div class="check-wrap"><div class="check-inner">
+      <svg width="32" height="25" viewBox="0 0 36 28" fill="none"><path d="M3 15l10 10L33 3" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div></div>
+    <div class="h1">Top up delivered! 🎉</div>
+    <div class="sub">IDT Guatemala Tigo · +502 3194 8402</div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="rrow"><span class="k">Bundle</span><span class="v">Soccer Paquetigo · 25 GB</span></div>
+    <div class="rrow"><span class="k">Bundle price</span><span class="v">$25.00</span></div>
+    <div class="rrow"><span class="k">Service fee</span><span class="v">$3.75</span></div>
+    <div class="rrow"><span class="k" style="color:var(--purple);font-weight:800">Discount</span><span class="v" style="color:var(--purple)">-$2.50</span></div>
+    <div class="divider"></div>
+    <div class="rrow"><span class="k" style="color:var(--ink);font-weight:800;font-size:17px">Total</span><span class="v" style="font-size:19px">$26.25</span></div>
+    <div class="rrow"><span class="k">Paid with</span><span class="v">Crypto · 26.38 USDC (Base)</span></div>
+    <div class="rrow"><span class="k">Reference</span><span class="v">TA-8F3C21</span></div>
+    <div class="rrow"><span class="k">Status</span><span class="v" style="color:#237A42">Delivered</span></div>
+  </div>
+
+  <div class="saved">🎉 You saved $2.50 using BOSS</div>
+
+  <div style="position:absolute;left:20px;right:20px;bottom:26px">
+    <div class="cta">Done</div>
+    <div class="btn-outline" style="margin-top:12px;height:58px">Share receipt</div>
+  </div>
+</body></html>

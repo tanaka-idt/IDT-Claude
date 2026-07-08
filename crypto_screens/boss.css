@@ -1,0 +1,88 @@
+/* BOSS Revolution design language — extracted from real app screenshots */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+html, body { width: 390px; height: 844px; overflow: hidden; }
+body {
+  font-family: 'Nunito', -apple-system, 'Helvetica Neue', sans-serif;
+  background: #F2F3F5;
+  color: #17181A;
+  position: relative;
+}
+:root {
+  --ink: #17181A;
+  --muted: #83878D;
+  --purple: #5B3DF0;
+  --purple-soft: #EFECFE;
+  --teal: #17677D;
+  --green-ink: #237A42;
+  --green-bg: #DFF3E5;
+  --sel-border: #3FA65C;
+  --sel-bg: #F1FAF3;
+  --yellow: #F8E58C;
+  --line: #ECEDEF;
+}
+
+/* status bar */
+.statusbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 30px 4px; }
+.sb-time { font-weight: 800; font-size: 17px; letter-spacing: .2px; }
+.sb-icons { display: flex; gap: 7px; align-items: center; }
+
+/* nav header */
+.header { display: flex; align-items: center; height: 60px; padding: 0 22px; }
+.h-side { width: 30px; display: flex; align-items: center; }
+.h-title { flex: 1; text-align: center; font-size: 21px; font-weight: 700; }
+
+/* cards */
+.card { background: #fff; border-radius: 22px; margin: 0 20px 14px; padding: 18px 20px; }
+
+/* chips + links */
+.chip { display: inline-flex; align-items: center; border-radius: 8px; padding: 3px 10px; font-size: 14px; font-weight: 700; }
+.chip.green { background: var(--green-bg); color: var(--green-ink); }
+.chip.yellow { background: var(--yellow); color: #4d3f00; font-size: 12.5px; font-weight: 800; letter-spacing: .4px; }
+.chip.purple-soft { background: var(--purple-soft); color: var(--purple); }
+.link { color: var(--teal); font-weight: 700; }
+
+/* buttons */
+.cta { display: flex; align-items: center; justify-content: center; height: 58px; border-radius: 999px;
+       background: var(--teal); color: #fff; font-size: 19px; font-weight: 800; }
+.btn-outline { display: flex; align-items: center; justify-content: center; height: 54px; border-radius: 999px;
+       background: #fff; border: 1.5px solid #DDDFE3; color: var(--ink); font-size: 17px; font-weight: 800; }
+
+/* payment / list rows */
+.prow { background: #F5F6F7; border-radius: 16px; padding: 15px 16px; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.prow.selected { background: var(--sel-bg); border: 2px solid var(--sel-border); }
+.prow .grow { flex: 1; min-width: 0; }
+
+/* small brand icons */
+.brand { border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;
+         color: #fff; font-weight: 800; flex: none; }
+.visa { background: #2E4BC6; font-style: italic; font-size: 10px; letter-spacing: .3px; }
+.mc { background: #fff; border: 1px solid #ECEDEF; }
+.amex { background: #3F7DC4; font-size: 8px; }
+
+/* bottom sheet */
+.dim { position: absolute; inset: 0; background: rgba(23, 24, 28, .5); z-index: 5; }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: #fff; z-index: 6;
+         border-radius: 28px 28px 0 0; padding: 12px 24px 26px; }
+.handle { width: 56px; height: 5px; border-radius: 3px; background: #E3E4E7; margin: 0 auto 18px; }
+.sheet-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.sheet-title { font-size: 28px; font-weight: 800; }
+.sec-label { font-size: 16px; font-weight: 700; color: var(--ink); margin: 14px 0 10px; }
+
+/* Triple-A hosted checkout accents */
+.taa-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--purple-soft); color: var(--purple);
+            border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 800; white-space: nowrap; }
+.coin { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 8px 14px;
+        background: #fff; border: 1.5px solid #DDDFE3; font-size: 14px; font-weight: 800; color: var(--ink); }
+.coin.sel { border: 2px solid var(--purple); color: var(--purple); background: var(--purple-soft); }
+
+/* success check */
+.check-wrap { width: 104px; height: 104px; border-radius: 50%; background: var(--green-bg);
+              display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+.check-inner { width: 74px; height: 74px; border-radius: 50%; background: #34A853;
+               display: flex; align-items: center; justify-content: center; }
+
+/* receipt rows */
+.rrow { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 9px 0; }
+.rrow .k { color: var(--muted); font-size: 15px; font-weight: 600; }
+.rrow .v { font-size: 15px; font-weight: 800; text-align: right; }
+.divider { height: 1px; background: var(--line); margin: 10px 0; }

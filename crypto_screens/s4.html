@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="boss.css">
+<style>
+.merchant { display:flex; align-items:center; justify-content:space-between; margin:2px 22px 12px; }
+.amount { text-align:center; padding:20px; }
+.amount .l { color:var(--muted); font-size:14px; font-weight:700; }
+.amount .usd { font-size:36px; font-weight:800; margin-top:2px; }
+.amount .usdc { color:var(--purple); font-size:17.5px; font-weight:800; margin-top:4px; }
+.coins { display:flex; justify-content:center; gap:8px; margin:0 20px 12px; }
+.net { text-align:center; color:var(--muted); font-size:13.5px; font-weight:600; margin-bottom:12px; }
+.qrcard { text-align:center; padding:18px 20px 14px; }
+.qrbox { display:inline-block; padding:10px; border:1.5px solid var(--line); border-radius:16px; }
+.addr { display:flex; align-items:center; justify-content:center; gap:10px; margin-top:12px; }
+.addr .a { font-size:15.5px; font-weight:800; letter-spacing:.3px; }
+.copy { background:var(--purple-soft); color:var(--purple); border-radius:999px; padding:5px 14px; font-size:13.5px; font-weight:800; }
+.scanhint { color:var(--muted); font-size:13px; font-weight:600; margin-top:9px; }
+</style></head>
+<body>
+  <div class="statusbar">
+    <div class="sb-time">00:23</div>
+    <div class="sb-icons">
+      <svg width="20" height="13" viewBox="0 0 20 13" fill="#17181A"><rect x="0" y="8" width="3.4" height="5" rx="1"/><rect x="5.2" y="5.5" width="3.4" height="7.5" rx="1"/><rect x="10.4" y="2.8" width="3.4" height="10.2" rx="1"/><rect x="15.6" y="0" width="3.4" height="13" rx="1"/></svg>
+      <svg width="17" height="13" viewBox="0 0 16 13" fill="#17181A"><circle cx="8" cy="11" r="1.7"/><path d="M8 6.1c1.7 0 3.2.6 4.4 1.7L10.9 9.4A4.3 4.3 0 0 0 8 8.3c-1.1 0-2.1.4-2.9 1.1L3.6 7.8A6.5 6.5 0 0 1 8 6.1z"/><path d="M8 1.9c2.8 0 5.4 1.1 7.3 2.9l-1.5 1.5A8.4 8.4 0 0 0 8 4.1c-2.2 0-4.3.9-5.8 2.2L.7 4.8A10.6 10.6 0 0 1 8 1.9z"/></svg>
+      <svg width="31" height="14"><rect x="0" y="0" width="27" height="14" rx="7" fill="#17181A"/><text x="13.5" y="10.5" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle" font-family="Nunito, sans-serif">33</text><rect x="28.4" y="4.5" width="2.4" height="5" rx="1.2" fill="#17181A" opacity=".45"/></svg>
+    </div>
+  </div>
+  <div class="header">
+    <div class="h-side"><svg width="12" height="22" viewBox="0 0 12 22" fill="none"><path d="M10.5 1.5 2 11l8.5 9.5" stroke="#17181A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="h-title">Secure checkout</div>
+    <div class="h-side" style="justify-content:flex-end"><svg width="17" height="17" viewBox="0 0 18 18"><path d="M2 2l14 14M16 2 2 16" stroke="#17181A" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+  </div>
+
+  <div class="merchant">
+    <div>
+      <div style="font-size:16px;font-weight:800">BOSS Revolution</div>
+      <div style="color:var(--muted);font-size:12.5px;font-weight:600">Order TA-8F3C21</div>
+    </div>
+    <span class="taa-chip">Powered by Triple-A</span>
+  </div>
+
+  <div class="card amount">
+    <div class="l">Total to pay</div>
+    <div class="usd">USD $26.25</div>
+    <div class="usdc">Send exactly 26.38 USDC</div>
+    <div style="margin-top:10px"><span class="chip purple-soft" style="padding:6px 14px">⏱ Rate locked · 14:59</span></div>
+  </div>
+
+  <div class="coins">
+    <span class="coin sel">USDC</span><span class="coin">USDT</span><span class="coin">BTC</span><span class="coin">ETH</span>
+  </div>
+  <div class="net">Network: <b>Base</b> · low fees, fast confirmation</div>
+
+  <div class="card qrcard">
+    <div class="qrbox"><svg id="qr" width="168" height="168"></svg></div>
+    <div class="addr"><span class="a">0x8f3C…9aE2</span><span class="copy">Copy</span></div>
+    <div class="scanhint">Scan with your crypto wallet app to pay</div>
+  </div>
+
+  <div style="position:absolute;left:20px;right:20px;bottom:26px">
+    <div class="cta">Open in wallet app</div>
+  </div>
+
+<script>
+// deterministic QR-look pattern
+const svg = document.getElementById('qr');
+const N = 25, S = 168 / N;
+let seed = 42;
+const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+function rect(cx, cy, w, h, fill) {
+  const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  r.setAttribute('x', cx * S); r.setAttribute('y', cy * S);
+  r.setAttribute('width', w * S); r.setAttribute('height', h * S);
+  r.setAttribute('fill', fill);
+  svg.appendChild(r);
+}
+function finder(cx, cy) {
+  rect(cx, cy, 7, 7, '#17181A'); rect(cx + 1, cy + 1, 5, 5, '#fff'); rect(cx + 2, cy + 2, 3, 3, '#17181A');
+}
+for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+  const inFinder = (x < 8 && y < 8) || (x > N - 9 && y < 8) || (x < 8 && y > N - 9);
+  if (!inFinder && rnd() < 0.42) rect(x, y, 1, 1, '#17181A');
+}
+finder(0, 0); finder(N - 7, 0); finder(0, N - 7);
+</script>
+</body></html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="boss.css">
+<style>
+.stage { text-align:center; margin-top:74px; }
+.h1 { font-size:27px; font-weight:800; margin-top:22px; }
+.sub { color:var(--muted); font-size:14.5px; font-weight:600; margin:8px 46px 0; line-height:1.5; }
+.steps { margin:28px 20px 0; }
+.srow { display:flex; align-items:center; gap:13px; padding:12px 2px; }
+.srow .t { flex:1; text-align:left; font-size:15.5px; font-weight:700; }
+.pending { color:var(--muted); font-weight:600; }
+.spin { width:22px; height:22px; border-radius:50%; border:3px solid #E3E4E7; border-top-color:var(--purple); flex:none; }
+</style></head>
+<body>
+  <div class="statusbar">
+    <div class="sb-time">00:23</div>
+    <div class="sb-icons">
+      <svg width="20" height="13" viewBox="0 0 20 13" fill="#17181A"><rect x="0" y="8" width="3.4" height="5" rx="1"/><rect x="5.2" y="5.5" width="3.4" height="7.5" rx="1"/><rect x="10.4" y="2.8" width="3.4" height="10.2" rx="1"/><rect x="15.6" y="0" width="3.4" height="13" rx="1"/></svg>
+      <svg width="17" height="13" viewBox="0 0 16 13" fill="#17181A"><circle cx="8" cy="11" r="1.7"/><path d="M8 6.1c1.7 0 3.2.6 4.4 1.7L10.9 9.4A4.3 4.3 0 0 0 8 8.3c-1.1 0-2.1.4-2.9 1.1L3.6 7.8A6.5 6.5 0 0 1 8 6.1z"/><path d="M8 1.9c2.8 0 5.4 1.1 7.3 2.9l-1.5 1.5A8.4 8.4 0 0 0 8 4.1c-2.2 0-4.3.9-5.8 2.2L.7 4.8A10.6 10.6 0 0 1 8 1.9z"/></svg>
+      <svg width="31" height="14"><rect x="0" y="0" width="27" height="14" rx="7" fill="#17181A"/><text x="13.5" y="10.5" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle" font-family="Nunito, sans-serif">33</text><rect x="28.4" y="4.5" width="2.4" height="5" rx="1.2" fill="#17181A" opacity=".45"/></svg>
+    </div>
+  </div>
+  <div class="header">
+    <div class="h-side"></div>
+    <div class="h-title">Secure checkout</div>
+    <div class="h-side" style="justify-content:flex-end"><svg width="17" height="17" viewBox="0 0 18 18"><path d="M2 2l14 14M16 2 2 16" stroke="#17181A" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+  </div>
+  <div style="text-align:center"><span class="taa-chip">Powered by Triple-A</span></div>
+
+  <div class="stage">
+    <div class="check-wrap"><div class="check-inner">
+      <svg width="36" height="28" viewBox="0 0 36 28" fill="none"><path d="M3 15l10 10L33 3" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div></div>
+    <div class="h1">Payment received</div>
+    <div class="sub">Confirming on the network — usually just a few seconds for stablecoins.</div>
+  </div>
+
+  <div class="card steps">
+    <div class="srow">
+      <svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#34A853"/><path d="M6.8 12.4l3.2 3.2 7-7" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="t">Sent from your wallet</div>
+      <div style="color:var(--muted);font-size:13px;font-weight:700">00:04</div>
+    </div>
+    <div class="divider" style="margin:2px 0"></div>
+    <div class="srow">
+      <svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#34A853"/><path d="M6.8 12.4l3.2 3.2 7-7" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="t">Detected &amp; validated by Triple-A</div>
+      <div style="color:var(--muted);font-size:13px;font-weight:700">00:06</div>
+    </div>
+    <div class="divider" style="margin:2px 0"></div>
+    <div class="srow">
+      <div class="spin"></div>
+      <div class="t pending">Confirming your BOSS Revolution order…</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;color:var(--muted);font-size:13px;font-weight:600;margin-top:18px">
+    You can safely close your wallet app.
+  </div>
+</body></html>

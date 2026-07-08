@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="boss.css">
+<style>
+.big { text-align:center; margin:26px 20px 4px; font-size:31px; font-weight:800; }
+.sub { text-align:center; color:var(--muted); font-size:14.5px; font-weight:600; margin-bottom:22px; }
+.wrow { background:#fff; border-radius:18px; padding:15px 18px; display:flex; align-items:center; gap:14px; margin:0 20px 12px; }
+.wrow .ic { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; flex:none; }
+.wrow .n { flex:1; font-size:17.5px; font-weight:800; }
+.orline { display:flex; align-items:center; gap:14px; margin:16px 34px; color:var(--muted); font-size:14px; font-weight:700; }
+.orline::before, .orline::after { content:""; flex:1; height:1px; background:#E0E2E5; }
+</style></head>
+<body>
+  <div class="statusbar">
+    <div class="sb-time">00:23</div>
+    <div class="sb-icons">
+      <svg width="20" height="13" viewBox="0 0 20 13" fill="#17181A"><rect x="0" y="8" width="3.4" height="5" rx="1"/><rect x="5.2" y="5.5" width="3.4" height="7.5" rx="1"/><rect x="10.4" y="2.8" width="3.4" height="10.2" rx="1"/><rect x="15.6" y="0" width="3.4" height="13" rx="1"/></svg>
+      <svg width="17" height="13" viewBox="0 0 16 13" fill="#17181A"><circle cx="8" cy="11" r="1.7"/><path d="M8 6.1c1.7 0 3.2.6 4.4 1.7L10.9 9.4A4.3 4.3 0 0 0 8 8.3c-1.1 0-2.1.4-2.9 1.1L3.6 7.8A6.5 6.5 0 0 1 8 6.1z"/><path d="M8 1.9c2.8 0 5.4 1.1 7.3 2.9l-1.5 1.5A8.4 8.4 0 0 0 8 4.1c-2.2 0-4.3.9-5.8 2.2L.7 4.8A10.6 10.6 0 0 1 8 1.9z"/></svg>
+      <svg width="31" height="14"><rect x="0" y="0" width="27" height="14" rx="7" fill="#17181A"/><text x="13.5" y="10.5" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle" font-family="Nunito, sans-serif">33</text><rect x="28.4" y="4.5" width="2.4" height="5" rx="1.2" fill="#17181A" opacity=".45"/></svg>
+    </div>
+  </div>
+  <div class="header">
+    <div class="h-side"><svg width="12" height="22" viewBox="0 0 12 22" fill="none"><path d="M10.5 1.5 2 11l8.5 9.5" stroke="#17181A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="h-title">Secure checkout</div>
+    <div class="h-side" style="justify-content:flex-end"><svg width="17" height="17" viewBox="0 0 18 18"><path d="M2 2l14 14M16 2 2 16" stroke="#17181A" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+  </div>
+  <div style="text-align:center"><span class="taa-chip">Powered by Triple-A</span></div>
+
+  <div class="big">Pay 26.38 USDC</div>
+  <div class="sub">≈ USD $26.25 · to BOSS Revolution via Triple-A</div>
+
+  <div class="wrow">
+    <div class="ic" style="background:#FFF3E8">🦊</div>
+    <div class="n">MetaMask</div>
+    <svg width="9" height="16" viewBox="0 0 9 16" fill="none"><path d="M1.5 1.5 7.5 8l-6 6.5" stroke="#B4B8BE" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <div class="wrow">
+    <div class="ic" style="background:#EAF0FE"><div style="width:26px;height:26px;border-radius:50%;background:#1652F0;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900">C</div></div>
+    <div class="n">Coinbase Wallet</div>
+    <svg width="9" height="16" viewBox="0 0 9 16" fill="none"><path d="M1.5 1.5 7.5 8l-6 6.5" stroke="#B4B8BE" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <div class="wrow">
+    <div class="ic" style="background:#E8F4FE">🛡️</div>
+    <div class="n">Trust Wallet</div>
+    <svg width="9" height="16" viewBox="0 0 9 16" fill="none"><path d="M1.5 1.5 7.5 8l-6 6.5" stroke="#B4B8BE" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+
+  <div class="orline">or</div>
+  <div class="btn-outline" style="margin:0 20px">Copy address &amp; amount</div>
+
+  <div style="text-align:center;color:var(--muted);font-size:13px;font-weight:600;margin:18px 40px 0;line-height:1.45">
+    Paying from another device? Scan the QR code from the previous step.
+  </div>
+
+  <div style="position:absolute;left:0;right:0;bottom:30px;text-align:center">
+    <span class="chip purple-soft" style="padding:7px 16px;font-size:14px">⏱ Rate locked · 12:40</span>
+  </div>
+</body></html>

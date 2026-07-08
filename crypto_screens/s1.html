@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="boss.css">
+<style>
+.promo { display:flex; align-items:center; justify-content:space-between; overflow:hidden; position:relative; }
+.promo h2 { font-size:20px; font-weight:800; line-height:1.25; width:250px; }
+.promo .details { display:flex; align-items:center; gap:6px; color:var(--muted); font-size:13.5px; font-weight:700; letter-spacing:.6px; margin-top:14px; }
+.tickets { font-size:44px; transform:rotate(-12deg); filter:hue-rotate(255deg) saturate(1.5); }
+.rec { display:flex; align-items:center; gap:13px; }
+.avatar { width:56px; height:56px; border-radius:50%; background:#F0F1F3; position:relative; flex:none;
+          display:flex; align-items:center; justify-content:center; color:#B9BDC3; font-size:22px; font-weight:700; }
+.avatar .flag { position:absolute; right:-4px; bottom:-4px; width:26px; height:26px; border-radius:50%;
+                background:#fff; display:flex; align-items:center; justify-content:center; font-size:17px; }
+.rec .name { font-size:18.5px; font-weight:800; margin-top:3px; white-space:nowrap; }
+.rec .phone { color:var(--muted); font-size:14.5px; font-weight:600; }
+.carrier { display:flex; align-items:center; gap:14px; padding-top:14px; }
+.tigo { width:46px; height:46px; border-radius:50%; background:#12327F; color:#fff; display:flex; align-items:center;
+        justify-content:center; font-weight:900; font-size:14.5px; flex:none; }
+.feat-wrap { margin:6px 20px 12px; }
+.feat-tab { display:inline-block; background:var(--purple); color:#fff; font-weight:800; font-size:13px;
+            letter-spacing:.8px; padding:8px 18px 14px; border-radius:12px 12px 0 0; position:relative; top:6px; }
+.feat-card { background:#fff; border:2.5px solid var(--purple); border-radius:20px; padding:16px 16px 12px; position:relative; }
+.fc-title { display:flex; align-items:center; gap:8px; flex-wrap:nowrap; }
+.fc-title .n { font-size:18.5px; font-weight:700; white-space:nowrap; }
+.fc-title .chip.yellow { font-size:10.5px; white-space:nowrap; padding:3px 8px; }
+.fc-gb { margin-top:7px; font-size:25px; font-weight:800; }
+.fc-gb span { color:var(--muted); font-size:17px; font-weight:600; }
+.price-pill { margin-top:10px; background:var(--purple); border-radius:12px; height:44px; display:flex;
+              align-items:center; justify-content:center; gap:8px; color:#fff; }
+.price-pill .was { opacity:.55; text-decoration:line-through; font-size:17px; font-weight:600; }
+.price-pill .now { font-size:21px; font-weight:800; }
+.fc-foot { display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--line);
+           margin-top:12px; padding-top:11px; }
+.minis { display:flex; gap:5px; align-items:center; }
+.mini { width:20px; height:20px; border-radius:6px; color:#fff; font-size:6.5px; font-weight:800;
+        display:flex; align-items:center; justify-content:center; flex:none; }
+.plus2 { background:#EDEEF0; color:#7c8087; font-size:10px; font-weight:800; }
+.fc-foot .desc { font-size:13px; font-weight:700; white-space:nowrap; }
+.seg { margin:2px 20px 14px; background:#DEE9EE; border-radius:999px; display:flex; padding:4px; }
+.seg div { flex:1; text-align:center; font-size:16.5px; font-weight:800; padding:11px 0; border-radius:999px; }
+.seg .on { background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+.prod { position:relative; }
+.prod .top { display:flex; justify-content:space-between; }
+.prod .gb { font-size:24px; font-weight:800; margin-top:6px; }
+.prod .gb span { color:var(--muted); font-size:16px; font-weight:600; }
+.pp { position:relative; background:var(--purple); color:#fff; border-radius:12px; padding:9px 22px;
+      font-size:19px; font-weight:800; margin-top:6px; }
+.pp .flame { position:absolute; top:-10px; right:-8px; background:#fff; border-radius:50%; width:24px; height:24px;
+             display:flex; align-items:center; justify-content:center; font-size:13px; }
+.was-sm { color:var(--muted); font-size:13px; font-weight:600; text-decoration:line-through; text-align:right; }
+</style></head>
+<body>
+  <div class="statusbar">
+    <div class="sb-time">00:23</div>
+    <div class="sb-icons">
+      <svg width="20" height="13" viewBox="0 0 20 13" fill="#17181A"><rect x="0" y="8" width="3.4" height="5" rx="1"/><rect x="5.2" y="5.5" width="3.4" height="7.5" rx="1"/><rect x="10.4" y="2.8" width="3.4" height="10.2" rx="1"/><rect x="15.6" y="0" width="3.4" height="13" rx="1"/></svg>
+      <svg width="17" height="13" viewBox="0 0 16 13" fill="#17181A"><circle cx="8" cy="11" r="1.7"/><path d="M8 6.1c1.7 0 3.2.6 4.4 1.7L10.9 9.4A4.3 4.3 0 0 0 8 8.3c-1.1 0-2.1.4-2.9 1.1L3.6 7.8A6.5 6.5 0 0 1 8 6.1z"/><path d="M8 1.9c2.8 0 5.4 1.1 7.3 2.9l-1.5 1.5A8.4 8.4 0 0 0 8 4.1c-2.2 0-4.3.9-5.8 2.2L.7 4.8A10.6 10.6 0 0 1 8 1.9z"/></svg>
+      <svg width="31" height="14"><rect x="0" y="0" width="27" height="14" rx="7" fill="#17181A"/><text x="13.5" y="10.5" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle" font-family="Nunito, sans-serif">33</text><rect x="28.4" y="4.5" width="2.4" height="5" rx="1.2" fill="#17181A" opacity=".45"/></svg>
+    </div>
+  </div>
+  <div class="header">
+    <div class="h-side"><svg width="12" height="22" viewBox="0 0 12 22" fill="none"><path d="M10.5 1.5 2 11l8.5 9.5" stroke="#17181A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="h-title">Send top up</div>
+    <div class="h-side" style="justify-content:flex-end"><svg width="17" height="17" viewBox="0 0 18 18"><path d="M2 2l14 14M16 2 2 16" stroke="#17181A" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+  </div>
+
+  <div class="card promo">
+    <div>
+      <h2>Get 10% off your first mobile top up</h2>
+      <div class="details">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.7" stroke="#83878D" stroke-width="1.4"/><path d="M7.5 6.7v3.6M7.5 4.4v.2" stroke="#83878D" stroke-width="1.5" stroke-linecap="round"/></svg>
+        DETAILS
+      </div>
+    </div>
+    <div class="tickets">🎟️</div>
+  </div>
+
+  <div class="card">
+    <div class="rec">
+      <div class="avatar">IT<div class="flag">🇬🇹</div></div>
+      <div style="flex:1">
+        <span class="chip green">Recipient</span>
+        <div class="name">IDT Guatemala Tigo</div>
+        <div class="phone">+502 3194 8402</div>
+      </div>
+      <span class="link" style="font-size:17px">Edit</span>
+    </div>
+    <div style="height:1px;background:var(--line);margin:14px 0 0"></div>
+    <div class="carrier">
+      <div class="tigo">tigo</div>
+      <div style="flex:1;font-size:20px;font-weight:700">Tigo</div>
+      <span class="link" style="font-size:17px">Edit</span>
+    </div>
+  </div>
+
+  <div class="feat-wrap">
+    <div class="feat-tab">FEATURED</div>
+    <div class="feat-card">
+      <div class="fc-title"><span class="n">Soccer Paquetigo</span><span class="chip yellow">SOCCER PAQUETIGO</span></div>
+      <div class="fc-gb">25 GB <span>/ 30 Days</span></div>
+      <div class="price-pill"><span class="was">25.00</span><span class="now">$22.50</span><span>🔥</span></div>
+      <div class="fc-foot">
+        <div class="minis">
+          <div class="mini" style="background:#12327F">tigo</div>
+          <div class="mini" style="background:#25D366; font-size:12px">✆</div>
+          <div class="mini" style="background:linear-gradient(135deg,#7B2BF9,#ED0C6E,#FFB03A); font-size:11px">◎</div>
+          <div class="mini plus2">+2</div>
+        </div>
+        <div class="desc">Unlimited mins · 25 GB · 30 Days
+          <svg width="12" height="8" viewBox="0 0 12 8" fill="none" style="margin-left:2px"><path d="M1.5 1.5 6 6l4.5-4.5" stroke="#17181A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="seg"><div class="on">Bundle</div><div>Data</div><div>Top up</div></div>
+
+  <div class="card prod">
+    <div class="top">
+      <div style="font-size:18px;font-weight:700">Paquetigo</div>
+      <div>
+        <div class="was-sm">Was $10.00</div>
+        <div class="pp">$9.00<span class="flame">🔥</span></div>
+      </div>
+    </div>
+    <div class="gb" style="margin-top:-26px">8 GB <span>/ 7 Days</span></div>
+    <div class="fc-foot" style="margin-top:16px">
+      <div class="minis">
+        <div class="mini" style="background:#25D366; font-size:12px">✆</div>
+        <div class="mini" style="background:linear-gradient(135deg,#7B2BF9,#ED0C6E,#FFB03A); font-size:11px">◎</div>
+        <div class="mini" style="background:#1877F2; font-size:11px">f</div>
+        <div class="mini" style="background:#111; font-size:10px">♪</div>
+      </div>
+      <div class="desc">8 GB · 200 Mins · 200 SMS · 7 Days
+        <svg width="12" height="8" viewBox="0 0 12 8" fill="none" style="margin-left:2px"><path d="M1.5 1.5 6 6l4.5-4.5" stroke="#17181A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+  </div>
+</body></html>
