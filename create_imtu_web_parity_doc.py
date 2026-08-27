@@ -23,6 +23,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
+from linkify_jira_refs import linkify
+
 SCOPES = [
     "https://www.googleapis.com/auth/documents",
     "https://www.googleapis.com/auth/drive",
@@ -411,6 +413,9 @@ def main():
     for marker, data in TABLES:
         ok = insert_table(docs, doc_id, marker, data)
         print(f"  table {marker}: {'ok' if ok else 'FAILED'} ({len(data) - 1} rows)")
+
+    # Every Jira key becomes a clickable link to idtjira.
+    linkify(docs, doc_id)
 
     drive.permissions().create(
         fileId=doc_id,
