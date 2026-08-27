@@ -46,11 +46,38 @@ Always follow the DCS team's Jira template guidelines when creating tickets:
 Key rules:
 - Summary prefix must match role: `[BE]`, `[APP]`, `[DESIGN]`, `[TPM]`, `[QA]`
 - Description structure: TL;DR → Spec link → What needs to be done → (optional sections)
-- Acceptance Criteria goes in `customfield_18938` only, never in the description — **always populate this field on every ticket**
-- On creation, pass `customfield_18938` in `additional_fields`; if the API rejects it (field not on screen), immediately follow up with an `editJiraIssue` call to set it
-- If both attempts fail due to screen configuration, include the AC items in the response so the user can paste them manually
-- Required fields on every story: Epic link, Assignee, Priority, Story Points, Team Type (`customfield_18836`)
+- Acceptance Criteria goes in its dedicated field (ADF format), never in the description — **always populate it on every ticket**
+- Required fields on every story: Epic link, Assignee, Priority, Story Points, Team Type
 - Default project: DCS
+
+**Field IDs differ by issue type — using the wrong one fails with "not on the appropriate
+screen".** Verified against DCS create metadata 2026-08-26:
+
+| Field | Story (`12257`) | Task (`12258`) |
+| --- | --- | --- |
+| Acceptance Criteria | `customfield_18937` | `customfield_18938` |
+| Team Type | `customfield_18836` | `customfield_18936` |
+| Team Type option IDs | App `22229`, BE `22230`, Design `22231`, PM/TPM `22232`, QA `22233` | App `22301`, BE `22302`, Design `22303`, PM/TPM `22304`, QA `22305` |
+
+Both fields are **required** on both issue types. Pass Team Type as `{"id": "<id>"}` —
+matching by value works only when the label is exact, so `{"value": "TPM"}` fails
+(the label is "PM/TPM"). When unsure, read `getJiraIssueTypeMetaWithFields` for the
+issue type and grep for the field name rather than guessing.
+
+- **Bugs** (`12259`) have **no** Acceptance Criteria field — both custom fields are
+  rejected. Use the description's "Expected result" section as the pass/fail criteria.
+  Bug creation also requires Severity (`customfield_11403`), Testing Stage
+  (`customfield_18035`), and Components (`customfield_13266`, a string array — not the
+  built-in `components`).
+- AC is often not on the *create* screen. If creation rejects it, create first and then
+  set it with `editJiraIssue` — the edit succeeds where the create failed.
+- Editing an issue's `description` via `editJiraIssue` can silently clear the `assignee`.
+  Re-set the assignee after any description edit; AC-only edits are safe.
+- Sprint is `customfield_10571` (DCS board `2057`), set by numeric sprint id. Find it with
+  `project = DCS AND Sprint = "DCS Sprint <N>"`. Sprint ids are **not** sequential with
+  sprint numbers — always look the id up rather than inferring it.
+- If every attempt fails due to screen configuration, include the AC items in the response
+  so they can be pasted manually.
 
 ## Document Conventions
 
