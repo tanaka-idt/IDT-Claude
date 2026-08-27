@@ -52,8 +52,45 @@ Key rules:
 - Required fields on every story: Epic link, Assignee, Priority, Story Points, Team Type (`customfield_18836`)
 - Default project: DCS
 
+## Document Conventions
+
+**IMPORTANT: Every reference in every document must be a clickable link.** This applies to
+all deliverables — Google Docs, Claude artifacts, Confluence pages, and chat replies.
+Never leave a bare identifier or name a source in plain text.
+
+| Reference type | Must link to |
+| --- | --- |
+| Jira key (`DCS-1234`, `OMTU-7551`, `BAT-7936`) | `https://idtjira.atlassian.net/browse/<KEY>` |
+| Confluence page named in text | its page URL |
+| Figma file or frame | the node URL (including `?node-id=…`) |
+| Amplitude chart or dashboard | its chart/dashboard URL |
+| Google Doc or Sheet named in text | its document URL |
+| A URL written as plain text | itself, as a real anchor |
+
+**Why:** documents are reviewed by jumping straight from a reference into the source.
+A bare key forces a manual copy-paste-search for every one, which makes a document with
+dozens of references unusable.
+
+**How to apply:**
+
+- **Google Docs** — use `linkify_refs.py`. It auto-links Jira keys by pattern, links bare
+  URLs, and links named sources from a phrase→URL map. It walks body paragraphs *and*
+  table cells, skips runs that already carry a link (so it is idempotent), and applies
+  everything in one pass since text-style requests do not shift indices.
+  ```bash
+  python linkify_refs.py <doc_id> [<doc_id> ...] [--map refs.json]
+  ```
+  New `create_*.py` generators should `from linkify_refs import linkify` and call it
+  before sharing. `create_imtu_web_parity_doc.py` is the reference implementation.
+  Add newly-cited Confluence pages to `LINK_MAP` so they link automatically next time.
+
+- **Artifacts / HTML** — `<a href="…" target="_blank" rel="noopener">`. Split the source
+  on tags before regex-replacing so attributes are never rewritten.
+
+- **Chat replies** — markdown links.
+
 ## Key Conventions
 
 - Google Doc requests sent in batches of 50 to avoid API rate limits
 - Ensure internet connectivity for Google API calls
-- Google credentials (`token.json`) auto-saved after first authorization; `credentials.json` required (git-ignored)
+- Google credentials (`token.json`) auto-saved after first authorization; `credentials.json` required
