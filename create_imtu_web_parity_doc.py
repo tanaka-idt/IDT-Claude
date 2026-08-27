@@ -23,7 +23,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
-from linkify_jira_refs import linkify
+from linkify_refs import linkify
 
 SCOPES = [
     "https://www.googleapis.com/auth/documents",
