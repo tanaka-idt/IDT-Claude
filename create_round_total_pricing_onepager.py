@@ -70,9 +70,7 @@ TABLES = [("VALUE", VALUE)]
 
 BLOCKS = [
     ("h1", TITLE),
-    ("cap", "One-page decision summary  ·  IMTU · BOSS Revolution app · DCS  ·  "
-            "28 August 2026  ·  Condensed from the full deep dive, "
-            "The $11.99 Question"),
+    ("cap", "One-pager  ·  IMTU · DCS  ·  28 August 2026  ·  Joao Tanaka"),
 
     ("h2", "Recommendation"),
     ("p", "Adopt target-total pricing: set what the customer pays to a charm price by "
@@ -82,8 +80,6 @@ BLOCKS = [
           "changes only what we keep; the recipient's top-up and the itemised fee line "
           "are unchanged. Six rungs qualify under a ceiling of 5% on the customer-facing "
           "rise, together worth about $1.28M a year at an assumed 2% volume loss."),
-    ("b", "Charm, not whole-dollar  —  the two readings carry opposite revenue signs: on "
-          "the $10 rung $11.99 is a rise, $11.00 a 33% fee cut."),
 
     ("h2", "What it is worth"),
     ("table", "VALUE"),
