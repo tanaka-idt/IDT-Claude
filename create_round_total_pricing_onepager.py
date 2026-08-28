@@ -50,7 +50,7 @@ EXTRA_LINKS = {
 
 VALUE = [
     ["Rung → new total", "Eligible orders / mo", "Fee now → target", "Δ on total",
-     "Break-even loss", "Annual @ 2% loss"],
+     "Break-even volume loss", "Added revenue / yr (at 2% volume loss)"],
     ["$10 → $11.99", "112,143", "$1.50 → $1.99", "+4.26%", "24.6%", "$605,846"],
     ["$15 → $17.99", "31,304", "$2.25 → $2.99", "+4.29%", "24.7%", "$255,516"],
     ["$25 → $28.99", "23,303", "$3.22 → $3.99", "+2.73%", "19.3%", "$193,008"],
@@ -89,9 +89,14 @@ BLOCKS = [
             "predictable total today — the only population a target-total rule can "
             "address. That share is measured for $10 (79.6%), $5 (69.8%) and $20 "
             "(79.5%); the $15, $25, $12 and $6 rows assume 75%, which is inside the "
-            "observed band but not measured. Figures are gross of processing; the two "
-            "lead rungs are ~$723k net of the 2.9% card cost on the increment. "
-            "Break-even is the volume loss at which incremental revenue reaches zero."),
+            "observed band but not measured. Break-even volume loss = the share of "
+            "orders we could lose before the rise stops adding anything, since a lost "
+            "order forfeits the original fee as well as the increase; it is a safety "
+            "margin, not a forecast. Added revenue is money gained, not lost, and "
+            "assumes we shed 2% of orders — the only figure here that is assumed rather "
+            "than measured, and the one the experiment exists to settle. Figures are "
+            "gross of processing; the two lead rungs are ~$723k net of the 2.9% card "
+            "cost on the increment."),
 
     ("h2", "Scope guardrail"),
     ("p", "$20 is excluded — 79.5% of those orders already total exactly $23.00, so "
