@@ -76,6 +76,8 @@ issue type and grep for the field name rather than guessing.
 - Sprint is `customfield_10571` (DCS board `2057`), set by numeric sprint id. Find it with
   `project = DCS AND Sprint = "DCS Sprint <N>"`. Sprint ids are **not** sequential with
   sprint numbers — always look the id up rather than inferring it.
+- Story Points is `customfield_11666` ("Story point estimate"), a plain number. Epic link on
+  DCS is the `parent` field (DCS is a team-managed project), not `customfield_*`.
 - If every attempt fails due to screen configuration, include the AC items in the response
   so they can be pasted manually.
 
