@@ -49,11 +49,19 @@ EXTRA_LINKS = {
 #          Δ on total | Break-even | Annual @ 2%
 
 VALUE = [
-    ["Rung", "Eligible orders / mo", "Fee now → target", "Δ on total",
+    ["Rung → new total", "Eligible orders / mo", "Fee now → target", "Δ on total",
      "Break-even loss", "Annual @ 2% loss"],
     ["$10 → $11.99", "112,143", "$1.50 → $1.99", "+4.26%", "24.6%", "$605,846"],
+    ["$15 → $17.99", "31,304", "$2.25 → $2.99", "+4.29%", "24.7%", "$255,516"],
+    ["$25 → $28.99", "23,303", "$3.22 → $3.99", "+2.73%", "19.3%", "$193,008"],
     ["$5 → $5.99", "52,571", "$0.75 → $0.99", "+4.17%", "24.2%", "$138,913"],
-    ["Total", "164,714", "—", "—", "—", "$744,759"],
+    ["$12 → $13.99", "26,814", "$1.80 → $1.99", "+1.38%", "9.5%", "$48,324"],
+    ["$6 → $6.99", "41,099", "$0.90 → $0.99", "+1.30%", "9.1%", "$34,620"],
+    ["In scope, total", "287,234", "—", "—", "—", "$1,276,227"],
+    ["$20", "—", "already totals $23.00", "—", "—", "excluded"],
+    ["$8 → $9.99", "—", "$1.20 → $1.99", "+8.59%", "—", "excluded"],
+    ["$4 → $4.99", "—", "$0.60 → $0.99", "+8.48%", "—", "excluded"],
+    ["$7 → $8.99", "—", "$1.05 → $1.99", "+11.68%", "—", "excluded"],
 ]
 
 TABLES = [("VALUE", VALUE)]
@@ -77,39 +85,13 @@ BLOCKS = [
 
     ("h2", "What it is worth"),
     ("table", "VALUE"),
-    ("cap", "Gross of processing; ~$723k net of the 2.9% card cost on the increment. "
-            "Eligible = the share of each rung landing on a predictable total today "
-            "(79.6% of 140,883 $10 orders; 69.8% of 75,316 $5 orders) — the only "
-            "population a target-total rule can address."),
-
-    ("h2", "Why the downside is bounded"),
-    ("b", "Break-even is far away  —  Incremental revenue reaches zero only at a 24.6% "
-          "volume collapse, from a price move of 4.26%."),
-    ("b", "Nine live price points say that is implausible  —  Across $4–$25, a 6× range "
-          "in what the customer pays, completion moves about six points (84%–90%) — an "
-          "inverted U, not a price ramp; the cheapest rung converts worst, which points "
-          "to payment capacity, not price sensitivity. Rungs are user-chosen, so this "
-          "bounds the risk rather than estimating elasticity — the test does that."),
-
-    ("h2", "What blocks it today"),
-    ("b", "The result cannot be read  —  Order events carry fee_amount and total_amount "
-          "but no fee_rate, target_total or pricing_variant, so no variant can be "
-          "attributed. One sprint of BE work, and it gates everything downstream."),
-    ("b", "The fee is not one global number  —  It already resolves per offer or market; "
-          "Jamaica runs 18% today. A ~2-week BE spike must first find where the rate "
-          "lives and whether it can take a target total instead of a percentage."),
-
-    ("h2", "Risks, taken seriously"),
-    ("b", "Trust sequencing  —  DCS-5277 (consentless subscriptions, Critical) and "
-          "DCS-5001 are open. Raising a fee in the same quarter as that remediation is a "
-          "sequencing decision, not a pricing one."),
-    ("b", "Liquidity  —  58.4% of orders are $10 or less, against ~35,849 "
-          "insufficient-funds declines a month. Hence $10 first, $5 second, cheapest "
-          "rungs excluded."),
-    ("b", "Overlap  —  Variable Fees (S5) owns fee-tiering and is committed. Run this as "
-          "an input to that programme, not in parallel."),
-    ("b", "Finance owns the price  —  The experiment answers what a rise costs in "
-          "volume, not whether we should charge more."),
+    ("cap", "Ordered by annual value. Eligible = the share of each rung landing on a "
+            "predictable total today — the only population a target-total rule can "
+            "address. That share is measured for $10 (79.6%), $5 (69.8%) and $20 "
+            "(79.5%); the $15, $25, $12 and $6 rows assume 75%, which is inside the "
+            "observed band but not measured. Figures are gross of processing; the two "
+            "lead rungs are ~$723k net of the 2.9% card cost on the increment. "
+            "Break-even is the volume loss at which incremental revenue reaches zero."),
 
     ("h2", "Scope guardrail"),
     ("p", "$20 is excluded — 79.5% of those orders already total exactly $23.00, so "
@@ -117,11 +99,6 @@ BLOCKS = [
           "their charm price, which is a price increase wearing a charm price as cover. "
           "A six-rung rollout computes to ~$1.28M a year, but four of those rungs rest "
           "on an assumed 75% clean-total share — a ceiling, not a plan."),
-
-    ("h2", "Decision requested"),
-    ("p", "Approve the Phase 0 backend spike (~2 weeks): where is the service fee "
-          "resolved, and can that point accept a target-total input? The answer decides "
-          "whether this is a configuration change or a catalog migration."),
 
     ("cap", "Caveat: every figure is service-fee only. Carrier commission scales with "
             "face value and is unmeasured — and this idea holds face value constant, so "
@@ -247,13 +224,15 @@ def insert_table(docs, doc_id, marker, data):
         for c, cell in enumerate(row["tableCells"]):
             cells.append((cell["content"][0]["startIndex"], r, c))
 
-    last = len(data) - 1
+    # Bold the header and any subtotal row, wherever it sits.
+    bold_rows = {0} | {r for r, row in enumerate(data)
+                       if row[0].lower().startswith("in scope")}
     reqs = []
     for start, r, c in sorted(cells, reverse=True):   # reverse keeps indices valid
         txt = data[r][c]
         reqs.append({"insertText": {"location": {"index": start}, "text": txt}})
         style, fields = {"fontSize": {"magnitude": 9, "unit": "PT"}}, "fontSize"
-        if r == 0 or r == last:
+        if r in bold_rows:
             style["bold"] = True
             fields += ",bold"
         reqs.append({"updateTextStyle": {
