@@ -77,21 +77,13 @@ BLOCKS = [
     ("h2", "Recommendation"),
     ("p", "Adopt target-total pricing: set what the customer pays to a charm price by "
           "adjusting the service fee, holding face value constant. Because the fee is a "
-          "percentage of face value, the total is a number we choose rather than one we "
-          "inherit — and today it mostly lands on untidy figures like $11.50 and $17.25. "
-          "Moving those to $11.99 and $17.99 changes only what we keep: the recipient "
-          "still receives the full top-up, and the fee stays itemised on its own line."),
-    ("b", "Charm, not whole-dollar  —  “Round total” admits both readings and they carry "
-          "opposite revenue signs: on the $10 rung $11.99 is a rise, while $11.00 would "
-          "be a 33% fee cut."),
-    ("p", "Six rungs qualify under a discipline of no more than a 5% rise in what the "
-          "customer pays, together worth about $1.28M a year at an assumed 2% volume "
-          "loss. Sequence them rather than shipping together: put the highest-value rung "
-          "behind a flag, read completion against control for 4–6 weeks, and let that "
-          "result decide whether the rest follow. The timing makes the first step cheap "
-          "— DCS-5297 is rebuilding the Total and price-breakdown sections now and "
-          "DCS-5303 already provisions the flag and A/B harness, so this is one extra "
-          "variant on a component being written anyway."),
+          "percentage of face value, the total is ours to choose — today it lands on "
+          "untidy figures like $11.50 and $17.25. Moving those to $11.99 and $17.99 "
+          "changes only what we keep; the recipient's top-up and the itemised fee line "
+          "are unchanged. Six rungs qualify under a ceiling of 5% on the customer-facing "
+          "rise, together worth about $1.28M a year at an assumed 2% volume loss."),
+    ("b", "Charm, not whole-dollar  —  the two readings carry opposite revenue signs: on "
+          "the $10 rung $11.99 is a rise, $11.00 a 33% fee cut."),
 
     ("h2", "What it is worth"),
     ("table", "VALUE"),
