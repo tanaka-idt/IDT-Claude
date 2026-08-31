@@ -41,7 +41,7 @@ TITLE = "IMTU — How Promotions Interact in a Transaction"
 
 MARGIN_PT = 40
 PAGE_W = 612 - 2 * MARGIN_PT          # 532pt of usable width
-IMG_W = 505.0                          # figures sit just inside the text block
+IMG_W = 490.0                          # figures sit just inside the text block
 
 # --------------------------------------------------------------- figures ----
 
@@ -54,15 +54,12 @@ IMAGES = {
 # Read a cell as: this Fee-slot promotion together with this Amount-slot one.
 
 MATRIX = [
-    ["Fee slot ↓   Amount slot →", "Automatic", "Manual", "Subscription", "No promo"],
-    ["Automatic", "✓  two automatics", "✓  auto fee + manual amount",
-     "✗  exclusive", "✓  fee discount only"],
-    ["Manual", "✓  manual fee + auto amount", "?  two manual codes at once",
-     "✗  exclusive", "✓  manual fee only"],
-    ["Subscription", "✗  exclusive", "✗  exclusive",
-     "✓  the only promotion — replaces both slots", "✗  exclusive"],
-    ["No promo", "✓  auto amount only", "✓  manual amount only",
-     "✗  exclusive", "—  no promotion"],
+    ["Fee slot ↓   Amount slot →", "Automatic", "Manual", "Subscription", "None"],
+    ["Automatic", "✓  both apply", "✓  both apply", "✗  not possible", "✓  fee only"],
+    ["Manual", "✓  both apply", "?  needs a decision", "✗  not possible", "✓  fee only"],
+    ["Subscription", "✗  not possible", "✗  not possible",
+     "✓  replaces both slots", "✗  not possible"],
+    ["None", "✓  amount only", "✓  amount only", "✗  not possible", "—  no promotion"],
 ]
 
 TABLES = [("MATRIX", MATRIX)]
@@ -85,38 +82,33 @@ BLOCKS = [
             "Joao Tanaka  ·  Context: DCS-2846"),
 
     ("h2", "The model"),
-    ("p", "A transaction has two promotion slots — Fee and Top-up amount — and each "
-          "slot holds at most one promotion. Automatic and manual promotions compete "
-          "for those slots. A subscription promotion is not a slot-filler: it takes "
-          "over the whole transaction. Colours are fixed throughout this page — "
-          "blue is automatic, amber is manual, violet is subscription."),
+    ("p", "Two promotion slots per transaction — Fee and Top-up amount — each holding "
+          "one promotion at most. Automatic and manual promos compete for slots; a "
+          "subscription is not a slot-filler, it takes the whole transaction. "
+          "Blue = automatic, amber = manual, violet = subscription."),
 
     ("img", "flow"),
 
     ("h2", "Every combination"),
     ("table", "MATRIX"),
-    ("cap", "✓ valid  ·  ✗ not possible  ·  ? needs a product decision. "
-            "Each cell is one transaction holding both promotions."),
 
     ("h2", "Three journeys to design for"),
     ("img", "examples"),
 
     ("h2", "Open questions for product"),
-    ("b", "Two manual codes  —  the rules allow two promotions on different targets, "
-          "but only ever illustrate automatic + manual. Can a manual fee code and a "
-          "manual amount code apply at the same time?"),
-    ("b", "Restoration scope  —  switching the subscription off restores the original "
-          "automatic promos, but not the manual code. Intended? And is the customer "
-          "told what came back?"),
-    ("b", "Manual code while a subscription is on  —  is the field disabled, hidden, "
-          "or does entering a code silently switch the subscription off?"),
-    ("b", "A manual promo worth less  —  a code can replace a larger automatic "
-          "discount. Do we warn, or let the customer lose value silently?"),
-    ("b", "Automatic no longer eligible  —  if it expired during the session, what "
-          "fills the slot when the subscription is switched off?"),
+    ("b", "Two manual codes  —  can a manual fee code and a manual amount code apply "
+          "at the same time?"),
+    ("b", "Restoration  —  the manual code does not return with the automatics. "
+          "Intended? Is the customer told?"),
+    ("b", "Manual code while a subscription is on  —  field disabled, hidden, or does "
+          "it switch the subscription off?"),
+    ("b", "A weaker manual promo  —  a code can replace a bigger automatic discount. "
+          "Do we warn before value is lost?"),
+    ("b", "Automatic expired mid-session  —  what fills the slot when the subscription "
+          "is switched off?"),
 ]
 
-SIZE_MAP = {"h1": 15, "h2": 10.5, "p": 9, "b": 9, "cap": 7.5}
+SIZE_MAP = {"h1": 15, "h2": 10.5, "p": 9, "b": 8.5, "cap": 7.5}
 STYLE_MAP = {"h1": "HEADING_1", "h2": "HEADING_2",
              "p": "NORMAL_TEXT", "b": "NORMAL_TEXT", "cap": "NORMAL_TEXT"}
 
@@ -154,7 +146,7 @@ def build_requests(blocks):
         line = text + "\n"
         reqs.append({"insertText": {"location": {"index": cur}, "text": line}})
         # Named styles ship generous space-above/below; a one-pager cannot afford it.
-        above, below = (7, 2) if kind == "h2" else (0, 2)
+        above, below = (5, 2) if kind == "h2" else (0, 2)
         para = {"namedStyleType": STYLE_MAP[kind],
                 "spaceAbove": {"magnitude": above, "unit": "PT"},
                 "spaceBelow": {"magnitude": below, "unit": "PT"},

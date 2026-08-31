@@ -104,16 +104,13 @@ def legend_chips(ax, y, extra=None):
                 fontsize=7.8, color="#9A9A9A", zorder=3)
 
 
-def canvas(h, title, subtitle):
+def canvas(h):
+    """No in-figure title - the document heading above each figure carries it."""
     fig_w = 13.0
     fig, ax = plt.subplots(figsize=(fig_w, fig_w * h / XMAX))
     ax.set_xlim(0, XMAX)
     ax.set_ylim(0, h)
     ax.axis("off")
-    ax.text(XMAX / 2, h - 0.42, title, ha="center", va="center",
-            fontsize=15, fontweight="bold", color="#232320")
-    ax.text(XMAX / 2, h - 1.02, subtitle, ha="center", va="center",
-            fontsize=9.0, color="#6A6A6A")
     return fig, ax
 
 
@@ -126,14 +123,9 @@ def save(fig, path):
 # ------------------------------------------------------------------ fig 1 ---
 
 def fig_flow():
-    H = 10.4
-    fig, ax = canvas(
-        H,
-        "How the three promotion types interact",
-        "A transaction has two promotion slots - Fee and Top-up amount. "
-        "Each slot holds one promotion. A subscription takes the whole transaction.")
-
-    y = 5.5
+    H = 8.85
+    fig, ax = canvas(H)
+    y = 5.20
 
     box(ax, 2.35, y, 3.9, 1.35, "Transaction opens",
         "two slots: Fee · Amount", GRAY)
@@ -173,7 +165,7 @@ def fig_flow():
     elbow_return(ax, (20.35, y - 3.10), 1.45, (7.15, y - 0.68),
                  "toggle OFF  →  the original AUTOMATIC promos are restored")
 
-    legend_chips(ax, 0.62,
+    legend_chips(ax, 0.72,
                  "Only one promotion per target. Two automatic promos may coexist "
                  "when one is on Fee and the other on Amount.")
     return fig
@@ -238,16 +230,12 @@ def note(ax, cy, text, warn=False):
 
 
 def fig_examples():
-    H = 9.9
-    fig, ax = canvas(
-        H,
-        "What the customer ends up with",
-        "The same two slots, tracked through each action. "
-        "This is the state the screen has to show at every step.")
+    H = 8.25
+    fig, ax = canvas(H)
 
     x1, x2, x3 = 5.2, 10.3, 15.4
     gap = CARD_W / 2 + 0.14
-    ra, rb, rc = 7.25, 4.65, 2.05
+    ra, rb, rc = 7.05, 4.45, 1.85
 
     def step(cy, xa, xb, label):
         arrow(ax, (xa + gap, cy), (xb - gap, cy), label=label, ldy=0.50, lsize=7.0)
