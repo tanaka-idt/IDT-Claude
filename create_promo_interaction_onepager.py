@@ -47,7 +47,7 @@ IMG_W = 495.0                          # figures sit just inside the text block
 
 IMAGES = {
     "flow": ("promo_interaction_flow.png", 505.0),
-    "examples": ("promo_interaction_examples.png", 465.0),
+    "examples": ("promo_interaction_examples.png", 505.0),
 }
 
 # ---------------------------------------------------------------- matrix ----
@@ -152,22 +152,6 @@ BLOCKS = [
           "off, the previous promotions reappear in place. Nothing to confirm, but the "
           "change should be visible in the price breakdown."),
 
-    ("h2", "Decisions taken 31 August 2026"),
-    ("b", "Two manual codes  —  not allowed. One manual code per transaction."),
-    ("b", "Restoration  —  the manual code comes back with the automatics. Making the "
-          "customer re-enter it was judged worse than letting them remove it in one "
-          "tap."),
-    ("b", "Code while subscribed  —  the field stays available; applying a code "
-          "switches the subscription off automatically."),
-    ("b", "A weaker manual promo  —  no warning. Manual always has priority, so the "
-          "customer keeps the choice."),
-    ("b", "Automatic expired mid-session  —  out of scope. Edge case, not designed "
-          "for."),
-
-    ("cap", "Two mechanics follow from the rules but were not stated outright — confirm "
-            "before build: removing a code with ✕ brings back the automatic it "
-            "displaced, and a second manual code replaces the first rather than being "
-            "rejected."),
 ]
 
 SIZE_MAP = {"h1": 15, "h2": 10.5, "p": 9, "b": 9, "cap": 7.5}
