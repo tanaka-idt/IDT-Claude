@@ -2,13 +2,13 @@
 """
 Creates ONE Google Doc: "IMTU — How Promotions Interact in a Transaction".
 
-A one-page visual reference for the design team covering the three promotion
+A two-page visual reference for the design team covering the three promotion
 types (instant automatic, manual, subscription), the two targets they can apply
 to (fee, top-up amount), and what the customer should see at every transition.
 
-Structure: the model in two sentences, a flowchart, the full combination
-matrix, three worked journeys, and the combinations that still need a product
-decision.
+Page 1 is the model, the rules, and the state diagram. Page 2 is the full
+combination matrix, four worked journeys, the screen implications, and the
+product decisions of 31 Aug 2026 that closed every open question.
 
 Figures come from generate_promo_interaction_diagrams.py and are served from
 the public GitHub repo - the Docs API fetches image URIs server-side and IDT
@@ -41,7 +41,7 @@ TITLE = "IMTU — How Promotions Interact in a Transaction"
 
 MARGIN_PT = 40
 PAGE_W = 612 - 2 * MARGIN_PT          # 532pt of usable width
-IMG_W = 470.0                          # figures sit just inside the text block
+IMG_W = 495.0                          # figures sit just inside the text block
 
 # --------------------------------------------------------------- figures ----
 
@@ -55,11 +55,11 @@ IMAGES = {
 
 MATRIX = [
     ["Fee ↓  /  Amount →", "Automatic", "Manual", "Subscription", "None"],
-    ["Automatic", "✓  both apply", "✓  both apply", "✗  not possible", "✓  fee only"],
-    ["Manual", "✓  both apply", "?  needs a decision", "✗  not possible", "✓  fee only"],
-    ["Subscription", "✗  not possible", "✗  not possible",
-     "✓  replaces both slots", "✗  not possible"],
-    ["None", "✓  amount only", "✓  amount only", "✗  not possible", "—  no promotion"],
+    ["Automatic", "✓  both apply", "✓  both apply", "✗  exclusive", "✓  fee only"],
+    ["Manual", "✓  both apply", "✗  one code only", "✗  exclusive", "✓  fee only"],
+    ["Subscription", "✗  exclusive", "✗  exclusive",
+     "✓  replaces both slots", "✗  exclusive"],
+    ["None", "✓  amount only", "✓  amount only", "✗  exclusive", "—  no promotion"],
 ]
 
 TABLES = [("MATRIX", MATRIX)]
@@ -78,37 +78,100 @@ LABEL_FILL = [C_NONE, C_AUTO, C_MANUAL, C_SUB, C_NONE]   # by row / column index
 
 BLOCKS = [
     ("h1", TITLE),
-    ("cap", "One-pager for Design  ·  IMTU · DCS  ·  31 August 2026  ·  "
+    ("cap", "Design reference  ·  IMTU · DCS  ·  31 August 2026  ·  "
             "Joao Tanaka  ·  Context: DCS-2846"),
 
     ("h2", "The model"),
-    ("p", "Two slots per transaction — Fee and Top-up amount — each holds one promotion "
-          "at most. Automatic and manual promos compete for slots; a subscription takes "
-          "the whole transaction. Blue = automatic, amber = manual, violet = subscription."),
+    ("p", "Every IMTU transaction has exactly two places a promotion can land: the "
+          "fee and the top-up amount. Think of them as two slots. Each slot holds at "
+          "most one promotion, which is what keeps the rules below short — there is "
+          "never a question of two discounts competing over the same line. Three kinds "
+          "of promotion compete for those slots, and they are colour-coded the same "
+          "way everywhere on this page."),
+    ("b", "Instant automatic  —  applied by the system the moment the customer "
+          "qualifies, with no action from them. Blue."),
+    ("b", "Manual  —  a promo code the customer types in. Amber. At most one per "
+          "transaction."),
+    ("b", "Subscription  —  attached to turning a one-off top-up into a recurring "
+          "one. Violet. It is not a slot-filler: it takes the whole transaction."),
 
+    ("h2", "The rules"),
+    ("p", "Five rules cover every case. The first two describe how the slots work; "
+          "the last three are the product decisions taken on 31 August."),
+    ("b", "One promotion per target  —  the fee slot and the amount slot each hold a "
+          "single promotion."),
+    ("b", "Two promotions, but only on different targets  —  an automatic fee discount "
+          "and a manual amount discount ride together. So can two automatics, one on "
+          "each slot."),
+    ("b", "One manual code per transaction  —  a fee code and an amount code cannot "
+          "both be active. Whichever the customer applies is the only code on the "
+          "transaction."),
+    ("b", "Manual outranks automatic  —  a code always takes the slot, even when the "
+          "automatic it displaces was worth more. The customer decides, and we do not "
+          "warn them off it."),
+    ("b", "Subscription is exclusive, and fully reversible  —  turning it on clears "
+          "both slots and remembers what was there. Turning it off puts all of it "
+          "back, the manual code included."),
+
+    ("h2", "The three states, and every way to move between them"),
+    ("p", "There are only three states a transaction can be in, and six transitions "
+          "between them. Every one of the six is a moment the customer sees something "
+          "change, so each needs a designed state. Note the two that are not "
+          "symmetrical: removing a code with ✕ brings back the automatic underneath "
+          "it, and typing a code while subscribed switches the subscription off on "
+          "the customer's behalf."),
     ("img", "flow"),
+
+    ("pagebreak", ""),
 
     ("h2", "Every combination"),
     ("table", "MATRIX"),
+    ("p", "Read a cell as one transaction holding both promotions: the row is what "
+          "sits on the fee, the column what sits on the top-up amount. Every "
+          "combination is now decided — nothing in this grid is open. The red band is "
+          "the subscription's exclusivity, plus the one cell where two manual codes "
+          "would have met."),
 
-    ("h2", "Three journeys to design for"),
+    ("h2", "Four journeys to design for"),
+    ("p", "The same two slots, tracked through each sequence of actions. This is the "
+          "state the screen has to show at every step. Journeys 3 and 4 are the ones "
+          "worth reading closely: they are where the transaction changes without the "
+          "customer directly asking it to."),
     ("img", "examples"),
 
-    ("h2", "Open questions for product"),
-    ("b", "Two manual codes  —  can a manual fee code and a manual amount code apply "
-          "at the same time?"),
-    ("b", "Restoration  —  the manual code does not return with the automatics. "
-          "Intended? Is the customer told?"),
-    ("b", "Manual code while a subscription is on  —  field disabled, hidden, or does "
-          "it switch the subscription off?"),
-    ("b", "A weaker manual promo  —  a code can replace a bigger automatic discount. "
-          "Do we warn before value is lost?"),
-    ("b", "Automatic expired mid-session  —  what fills the slot when the subscription "
-          "is switched off?"),
+    ("h2", "What this changes on screen"),
+    ("b", "The applied code needs an ✕  —  it is the only route back to the automatic "
+          "promotion it displaced, and the only way to undo a restore the customer "
+          "did not want."),
+    ("b", "The promo-code field stays live while a subscription is on  —  not "
+          "disabled, not hidden."),
+    ("b", "Applying a code while subscribed flips the subscription off  —  the "
+          "customer did not ask for that, so the screen has to say it happened rather "
+          "than let the toggle change quietly."),
+    ("b", "Restoration is automatic but must be legible  —  when the subscription goes "
+          "off, the previous promotions reappear in place. Nothing to confirm, but the "
+          "change should be visible in the price breakdown."),
+
+    ("h2", "Decisions taken 31 August 2026"),
+    ("b", "Two manual codes  —  not allowed. One manual code per transaction."),
+    ("b", "Restoration  —  the manual code comes back with the automatics. Making the "
+          "customer re-enter it was judged worse than letting them remove it in one "
+          "tap."),
+    ("b", "Code while subscribed  —  the field stays available; applying a code "
+          "switches the subscription off automatically."),
+    ("b", "A weaker manual promo  —  no warning. Manual always has priority, so the "
+          "customer keeps the choice."),
+    ("b", "Automatic expired mid-session  —  out of scope. Edge case, not designed "
+          "for."),
+
+    ("cap", "Two mechanics follow from the rules but were not stated outright — worth "
+            "confirming before build: removing a code with ✕ brings back the automatic "
+            "it displaced (automatics apply by default), and applying a second manual "
+            "code replaces the first rather than being rejected."),
 ]
 
-SIZE_MAP = {"h1": 15, "h2": 10.5, "p": 8.5, "b": 8.5, "cap": 7.5}
-STYLE_MAP = {"h1": "HEADING_1", "h2": "HEADING_2",
+SIZE_MAP = {"h1": 15, "h2": 10.5, "p": 9, "b": 9, "cap": 7.5}
+STYLE_MAP = {"h1": "HEADING_1", "h2": "HEADING_2", "pagebreak": "NORMAL_TEXT",
              "p": "NORMAL_TEXT", "b": "NORMAL_TEXT", "cap": "NORMAL_TEXT"}
 
 
@@ -136,7 +199,7 @@ def hexrgb(h):
 def build_requests(blocks):
     reqs, cur = [], 1
     for kind, text in blocks:
-        if kind in ("table", "img"):
+        if kind in ("table", "img", "pagebreak"):
             line = f"[[{kind.upper()}:{text}]]\n"
             reqs.append({"insertText": {"location": {"index": cur}, "text": line}})
             cur += len(line)
@@ -145,7 +208,7 @@ def build_requests(blocks):
         line = text + "\n"
         reqs.append({"insertText": {"location": {"index": cur}, "text": line}})
         # Named styles ship generous space-above/below; a one-pager cannot afford it.
-        above, below = (3, 2) if kind == "h2" else (0, 2)
+        above, below = (8, 3) if kind == "h2" else (0, 2)
         para = {"namedStyleType": STYLE_MAP[kind],
                 "spaceAbove": {"magnitude": above, "unit": "PT"},
                 "spaceBelow": {"magnitude": below, "unit": "PT"},
@@ -198,6 +261,22 @@ def find_placeholder(docs, doc_id, marker):
         if para_text(el).strip() == marker:
             return el["startIndex"], len(para_text(el))
     return None, None
+
+
+def insert_pagebreak(docs, doc_id):
+    """Swap the [[PAGEBREAK:]] placeholder for a real page break."""
+    idx, plen = find_placeholder(docs, doc_id, "[[PAGEBREAK:]]")
+    if idx is None:
+        print("  ! placeholder PAGEBREAK not found")
+        return False
+    docs.documents().batchUpdate(documentId=doc_id, body={"requests": [
+        {"deleteContentRange": {"range": {"startIndex": idx,
+                                          "endIndex": idx + plen - 1}}},
+        {"insertPageBreak": {"location": {"index": idx}}},
+    ]}).execute()
+    time.sleep(0.5)
+    print("  page break: ok")
+    return True
 
 
 def insert_image(docs, doc_id, key):
@@ -360,6 +439,8 @@ def main(doc_id=None):
 
     for key in IMAGES:
         insert_image(docs, doc_id, key)
+
+    insert_pagebreak(docs, doc_id)
 
     linkify(docs, doc_id, dict(LINK_MAP))
     print("Linkified references")

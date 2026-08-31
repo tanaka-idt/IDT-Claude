@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
 """
-Two figures for the IMTU promotion-interaction one-pager (design team).
+Two figures for the IMTU promotion-interaction reference (design team).
 
-  1. promo_interaction_flow.png      - step-by-step interaction logic
-  2. promo_interaction_examples.png  - replacement, stacking, restoration
+  1. promo_interaction_flow.png      - the three states and every transition
+  2. promo_interaction_examples.png  - four worked journeys
 
 The mental model both figures encode: a transaction has exactly two promotion
 SLOTS - Fee and Top-up amount - and each slot holds at most one promotion.
 Automatic and manual promotions compete for slots; a subscription promotion is
-not a slot-filler at all, it takes over the whole transaction.
+not a slot-filler at all, it takes over the whole transaction and remembers
+what it displaced.
+
+Product decisions of 31 Aug 2026 folded in:
+  - one manual code per transaction (never two)
+  - turning the subscription off restores the previous state IN FULL,
+    manual code included
+  - the promo-code field stays live while subscribed; entering a code switches
+    the subscription off automatically
+  - manual always outranks automatic - the customer decides, no warning
 
 Colour language is fixed and must match the doc:
-  Automatic   = blue      Manual = amber      Subscription = violet
+  Automatic = blue      Manual = amber      Subscription = violet
 
 Visual language matches generate_subscription_flow_diagrams.py.
 """
@@ -19,7 +28,7 @@ Visual language matches generate_subscription_flow_diagrams.py.
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyBboxPatch, Polygon, FancyArrowPatch
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 
 GRAY = dict(fill="#EEEBE5", edge="#A8A29A", text="#454340")
 BLUE = dict(fill="#E6EEF7", edge="#3F6FA8", text="#2C5384")    # AUTOMATIC
@@ -32,59 +41,19 @@ ARROW = "#7A7A7A"
 XMAX = 22.0
 
 
-def box(ax, cx, cy, w, h, title, sub=None, style=GRAY, ts=9.6, ss=7.6):
-    ax.add_patch(FancyBboxPatch(
-        (cx - w / 2, cy - h / 2), w, h,
-        boxstyle="round,pad=0,rounding_size=0.14",
-        linewidth=1.4, facecolor=style["fill"], edgecolor=style["edge"], zorder=2))
-    if sub:
-        ax.text(cx, cy + h * 0.20, title, ha="center", va="center",
-                fontsize=ts, fontweight="bold", color=style["text"], zorder=3)
-        ax.text(cx, cy - h * 0.24, sub, ha="center", va="center",
-                fontsize=ss, color=style["text"], alpha=0.88, zorder=3)
-    else:
-        ax.text(cx, cy, title, ha="center", va="center",
-                fontsize=ts, fontweight="bold", color=style["text"], zorder=3)
-
-
-def diamond(ax, cx, cy, w, h, label, size=9.0, style=WHITE):
-    ax.add_patch(Polygon(
-        [(cx, cy + h / 2), (cx + w / 2, cy), (cx, cy - h / 2), (cx - w / 2, cy)],
-        closed=True, linewidth=1.4,
-        facecolor=style["fill"], edgecolor=style["edge"], zorder=2))
-    ax.text(cx, cy, label, ha="center", va="center",
-            fontsize=size, color=style["text"], zorder=3)
-
-
 def arrow(ax, p0, p1, label=None, lpos=0.5, ldx=0.0, ldy=0.16, dashed=False,
           lsize=7.6, rad=0.0, color=None):
     ax.add_patch(FancyArrowPatch(
         p0, p1, arrowstyle="-|>", mutation_scale=11,
-        linewidth=1.2, color=color or ARROW, zorder=1,
-        linestyle="--" if dashed else "-",
+        linewidth=1.2, color=color or ARROW, zorder=3,
+        linestyle=(0, (4, 3)) if dashed else "solid",
         connectionstyle=f"arc3,rad={rad}"))
     if label:
         mx = p0[0] + (p1[0] - p0[0]) * lpos + ldx
         my = p0[1] + (p1[1] - p0[1]) * lpos + ldy
         ax.text(mx, my, label, ha="center", va="center", fontsize=lsize,
-                color="#6A6A6A", zorder=4,
-                bbox=dict(boxstyle="round,pad=0.18", fc="white", ec="none", alpha=0.94))
-
-
-def elbow_return(ax, start, corridor, end, label, lsize=8.0):
-    """Dashed return path routed down, across a clear corridor, then up."""
-    x0, y0 = start
-    x1, y1 = end
-    ax.plot([x0, x0], [y0, corridor], color=ARROW, linewidth=1.2,
-            linestyle=(0, (4, 3)), zorder=1)
-    ax.plot([x0, x1], [corridor, corridor], color=ARROW, linewidth=1.2,
-            linestyle=(0, (4, 3)), zorder=1)
-    ax.add_patch(FancyArrowPatch(
-        (x1, corridor), (x1, y1), arrowstyle="-|>", mutation_scale=11,
-        linewidth=1.2, color=ARROW, zorder=1, linestyle=(0, (4, 3))))
-    ax.text((x0 + x1) / 2, corridor + 0.27, label, ha="center", va="center",
-            fontsize=lsize, color="#6A6A6A", zorder=4,
-            bbox=dict(boxstyle="round,pad=0.20", fc="white", ec="none", alpha=0.95))
+                color="#6A6A6A", zorder=5,
+                bbox=dict(boxstyle="round,pad=0.20", fc="white", ec="none", alpha=0.95))
 
 
 def legend_chips(ax, y, extra=None):
@@ -120,72 +89,128 @@ def save(fig, path):
     print(f"  wrote {path}")
 
 
-# ------------------------------------------------------------------ fig 1 ---
+# ----------------------------------------------------- fig 1: state model ---
+
+def chip(ax, cx, cy, w, text, style, fs=7.6):
+    ax.add_patch(FancyBboxPatch(
+        (cx - w / 2, cy - 0.26), w, 0.52,
+        boxstyle="round,pad=0,rounding_size=0.09", linewidth=1.1,
+        facecolor=style["fill"], edgecolor=style["edge"], zorder=4))
+    ax.text(cx, cy, text, ha="center", va="center", fontsize=fs,
+            fontweight="bold", color=style["text"], zorder=5)
+
+
+def statecard(ax, cx, cy, w, h, title, slots, foot, style):
+    ax.add_patch(FancyBboxPatch(
+        (cx - w / 2, cy - h / 2), w, h,
+        boxstyle="round,pad=0,rounding_size=0.16", linewidth=1.6,
+        facecolor="#FFFFFF", edgecolor=style["edge"], zorder=3))
+    ax.text(cx, cy + h / 2 - 0.42, title, ha="center", va="center",
+            fontsize=10.0, fontweight="bold", color=style["text"], zorder=5)
+
+    if len(slots) == 1:                       # subscription takes both slots
+        label, st = slots[0]
+        chip(ax, cx, cy - 0.05, w * 0.52, label, st, fs=8.2)
+    else:
+        for dx, (name, label, st) in zip((-w * 0.24, w * 0.24), slots):
+            ax.text(cx + dx, cy + 0.36, name, ha="center", va="center",
+                    fontsize=6.6, color="#9A9A9A", zorder=5)
+            if label is None:
+                ax.text(cx + dx, cy - 0.10, "no promo", ha="center", va="center",
+                        fontsize=7.2, color="#B4B0AA", zorder=5)
+            else:
+                chip(ax, cx + dx, cy - 0.10, w * 0.40, label, st)
+
+    ax.text(cx, cy - h / 2 + 0.36, foot, ha="center", va="center",
+            fontsize=7.2, color="#8A8A8A", zorder=5)
+
 
 def fig_flow():
-    H = 8.85
+    H = 11.0
     fig, ax = canvas(H)
-    y = 5.20
 
-    box(ax, 2.35, y, 3.9, 1.35, "Transaction opens",
-        "two slots: Fee · Amount", GRAY)
-    arrow(ax, (4.30, y), (5.05, y))
+    yt = 8.6                      # the two "normal" states sit on this line
+    ax_, bx = 5.6, 16.4
+    cw, ch = 6.8, 2.7
+    a_bot, b_bot = yt - ch / 2, yt - ch / 2
 
-    box(ax, 7.15, y, 4.2, 1.35, "Automatic promos apply",
-        "by default · one per slot", BLUE)
-    arrow(ax, (9.25, y), (10.00, y))
+    statecard(ax, ax_, yt, cw, ch, "A · Automatic only",
+              [("FEE", "Automatic", BLUE), ("AMOUNT", "Automatic", BLUE)],
+              "the default · either slot may be empty", BLUE)
 
-    diamond(ax, 11.95, y, 3.9, 2.15, "Customer applies\na manual promo?")
+    statecard(ax, bx, yt, cw, ch, "B · Manual code applied",
+              [("FEE", "Manual", AMBER), ("AMOUNT", "Automatic", BLUE)],
+              "the code takes one slot · the other keeps its automatic", AMBER)
 
-    # yes, same slot -> replacement (above the spine)
-    arrow(ax, (11.95, y + 1.08), (11.95, y + 1.85), label="yes — same slot", ldy=0)
-    box(ax, 11.95, y + 2.65, 6.6, 1.40, "Manual replaces the automatic",
-        "same slot · the automatic is remembered", AMBER, ss=7.4)
+    # A <-> B
+    arrow(ax, (ax_ + cw / 2, yt + 0.55), (bx - cw / 2, yt + 0.55),
+          label="enter a promo code", ldy=0.38)
+    arrow(ax, (bx - cw / 2, yt - 0.55), (ax_ + cw / 2, yt - 0.55),
+          label="tap ✕ to remove it —\nthe automatic returns", ldy=-0.52)
 
-    # yes, other slot -> stacking (below the spine)
-    arrow(ax, (11.95, y - 1.08), (11.95, y - 1.85), label="yes — other slot", ldy=0)
-    box(ax, 11.95, y - 2.65, 6.6, 1.40, "Both promos apply",
-        "one on Fee, one on Amount", AMBER)
+    # C, spanning underneath both
+    cx_c, cy_c, cwc, chc = 10.4, 2.5, 12.6, 2.5
+    statecard(ax, cx_c, cy_c, cwc, chc, "C · Subscription only",
+              [("SUBSCRIPTION", VIOLET)],
+              "both slots cleared · the previous state is remembered", VIOLET)
+    c_top = cy_c + chc / 2
 
-    arrow(ax, (13.90, y), (14.80, y), label="no", ldy=0.24)
+    # A -> C and B -> C
+    arrow(ax, (ax_, a_bot), (ax_, c_top), label="subscription ON", lpos=0.46)
+    arrow(ax, (bx, b_bot), (bx, c_top), label="subscription ON", lpos=0.46)
 
-    diamond(ax, 16.75, y, 3.9, 2.15, "Subscription\nenabled?", style=VIOLET)
-    arrow(ax, (15.25, y + 2.65), (16.75, y + 1.15), rad=-0.20)
-    arrow(ax, (15.25, y - 2.65), (16.75, y - 1.15), rad=0.20)
+    # C -> whichever state was active, restored in full
+    ax.plot([cx_c, cx_c], [c_top, 5.9], color=ARROW, linewidth=1.2,
+            linestyle=(0, (4, 3)), zorder=2)
+    ax.plot([7.2, 14.8], [5.9, 5.9], color=ARROW, linewidth=1.2,
+            linestyle=(0, (4, 3)), zorder=2)
+    for x in (7.2, 14.8):
+        ax.add_patch(FancyArrowPatch(
+            (x, 5.9), (x, a_bot), arrowstyle="-|>", mutation_scale=11,
+            linewidth=1.2, color=ARROW, zorder=2, linestyle=(0, (4, 3))))
+    ax.text(11.0, 6.45,
+            "subscription OFF — the remembered state returns in full,\n"
+            "manual code included",
+            ha="center", va="center", fontsize=7.8, color="#6A6A6A", zorder=5,
+            bbox=dict(boxstyle="round,pad=0.22", fc="white", ec="none", alpha=0.95))
 
-    arrow(ax, (18.30, y + 0.60), (19.15, y + 1.55), label="no", lpos=0.32, ldx=0.30, ldy=0.20)
-    box(ax, 20.35, y + 2.35, 3.2, 1.40, "Nothing changes",
-        "slots stay as set above", GRAY, ss=7.4)
+    # the special exit: a code typed while subscribed
+    nx, ny, nw, nh = 19.4, 2.5, 4.6, 2.5
+    ax.add_patch(FancyBboxPatch(
+        (nx - nw / 2, ny - nh / 2), nw, nh,
+        boxstyle="round,pad=0,rounding_size=0.14", linewidth=1.4,
+        facecolor=AMBER["fill"], edgecolor=AMBER["edge"], zorder=3))
+    ax.text(nx, ny + 0.72, "Code entered\nwhile subscribed", ha="center", va="center",
+            fontsize=8.2, fontweight="bold", color=AMBER["text"], zorder=5)
+    ax.text(nx, ny - 0.52, "the subscription switches\nOFF automatically and\nthe code applies",
+            ha="center", va="center", fontsize=7.2, color=AMBER["text"],
+            alpha=0.9, zorder=5)
+    arrow(ax, (cx_c + cwc / 2, ny), (nx - nw / 2, ny))
+    arrow(ax, (nx, ny + nh / 2), (nx, b_bot))
 
-    arrow(ax, (18.30, y - 0.60), (19.15, y - 1.55), label="yes", lpos=0.32, ldx=0.34, ldy=-0.22)
-    box(ax, 20.35, y - 2.35, 3.2, 1.50, "Subscription only",
-        "every other promo\nis removed", VIOLET, ss=7.4)
-
-    # restoration - the return path, routed under the whole diagram
-    elbow_return(ax, (20.35, y - 3.10), 1.12, (7.15, y - 0.68),
-                 "toggle OFF  →  the original AUTOMATIC promos are restored")
-
-    legend_chips(ax, 0.72,
-                 "Only one promotion per target. Two automatic promos may coexist "
-                 "when one is on Fee and the other on Amount.")
+    legend_chips(ax, 0.45,
+                 "One promotion per target · two automatics may coexist when one is "
+                 "on Fee and the other on Amount · never two manual codes.")
     return fig
 
 
-# ------------------------------------------------------------------ fig 2 ---
+# -------------------------------------------------- fig 2: worked journeys ---
 
 CARD_W, CARD_H = 3.1, 1.9
-INNER = 1.42          # half-width of the content area inside a card
+INNER = 1.42
 VAL = {"auto": ("Automatic", BLUE), "manual": ("Manual", AMBER)}
 
 
-def slotcard(ax, cx, cy, fee=None, amount=None, sub=False, ghost=False):
-    a = 0.40 if ghost else 1.0
+def slotcard(ax, cx, cy, fee=None, amount=None, sub=False, tag=None, tagcol=None):
     ax.add_patch(FancyBboxPatch(
         (cx - CARD_W / 2, cy - CARD_H / 2), CARD_W, CARD_H,
         boxstyle="round,pad=0,rounding_size=0.12", linewidth=1.3,
-        facecolor="#FFFFFF", edgecolor=RED["edge"] if ghost else "#C9C6C0",
-        zorder=2, alpha=1.0 if ghost else 1.0,
-        linestyle=(0, (3, 2)) if ghost else "solid"))
+        facecolor="#FFFFFF", edgecolor="#C9C6C0", zorder=2))
+
+    if tag:
+        ax.text(cx, cy + CARD_H / 2 + 0.26, tag, ha="center", va="center",
+                fontsize=7.0, fontweight="bold",
+                color=(tagcol or BLUE)["text"], zorder=5)
 
     if sub:
         ax.add_patch(FancyBboxPatch(
@@ -199,76 +224,80 @@ def slotcard(ax, cx, cy, fee=None, amount=None, sub=False, ghost=False):
         return
 
     ax.plot([cx - INNER, cx + INNER], [cy, cy], color="#E4E1DC",
-            linewidth=0.9, zorder=3, alpha=a)
+            linewidth=0.9, zorder=3)
     for dy, label, val in ((0.44, "FEE", fee), (-0.44, "AMOUNT", amount)):
         ax.text(cx - INNER, cy + dy, label, ha="left", va="center",
-                fontsize=6.4, color="#9A9A9A", zorder=4, alpha=a)
+                fontsize=6.4, color="#9A9A9A", zorder=4)
         if val is None:
             ax.text(cx + 0.50, cy + dy, "no promo", ha="center", va="center",
-                    fontsize=7.0, color="#B4B0AA", zorder=4, alpha=a)
+                    fontsize=7.0, color="#B4B0AA", zorder=4)
             continue
         name, st = VAL[val]
         ax.add_patch(FancyBboxPatch(
             (cx - 0.42, cy + dy - 0.25), 1.84, 0.50,
             boxstyle="round,pad=0,rounding_size=0.09", linewidth=1.1,
-            facecolor=st["fill"], edgecolor=st["edge"], zorder=3, alpha=a))
+            facecolor=st["fill"], edgecolor=st["edge"], zorder=3))
         ax.text(cx + 0.50, cy + dy, name, ha="center", va="center",
-                fontsize=7.4, fontweight="bold", color=st["text"], zorder=4, alpha=a)
+                fontsize=7.4, fontweight="bold", color=st["text"], zorder=4)
 
 
 def rowlabel(ax, cy, title, hint):
-    ax.text(0.15, cy + 0.30, title, ha="left", va="center",
-            fontsize=9.6, fontweight="bold", color="#232320")
-    ax.text(0.15, cy - 0.32, hint, ha="left", va="center",
-            fontsize=7.8, color="#8A8A8A")
+    """Title grows upward, hint downward, so multi-line titles never collide."""
+    ax.text(0.15, cy + 0.14, title, ha="left", va="bottom",
+            fontsize=9.6, fontweight="bold", color="#232320", linespacing=1.35)
+    ax.text(0.15, cy - 0.16, hint, ha="left", va="top",
+            fontsize=7.8, color="#8A8A8A", linespacing=1.35)
 
 
-def note(ax, cy, text, warn=False):
-    ax.text(17.45, cy, text, ha="left", va="center", fontsize=7.6,
-            color=RED["text"] if warn else "#7A7A7A",
-            fontweight="bold" if warn else "normal")
+def note(ax, cy, text):
+    ax.text(17.85, cy, text, ha="left", va="center", fontsize=7.6,
+            color="#7A7A7A", linespacing=1.45)
 
 
 def fig_examples():
-    H = 8.25
+    H = 11.4
     fig, ax = canvas(H)
 
-    x1, x2, x3 = 5.2, 10.3, 15.4
+    x1, x2, x3 = 6.3, 11.2, 16.1
     gap = CARD_W / 2 + 0.14
-    ra, rb, rc = 7.05, 4.45, 1.85
+    ra, rb, rc, rd = 9.9, 7.2, 4.5, 1.8
 
     def step(cy, xa, xb, label):
         arrow(ax, (xa + gap, cy), (xb - gap, cy), label=label, ldy=0.50, lsize=7.0)
 
     # --- 1. replacement -----------------------------------------------------
-    rowlabel(ax, ra, "1 · Replacement", "manual hits an occupied slot")
+    rowlabel(ax, ra, "1 · Replacement", "the code lands on\nan occupied slot")
     slotcard(ax, x1, ra, fee="auto")
-    step(ra, x1, x2, "apply manual\nFEE code")
+    step(ra, x1, x2, "apply a manual\nFEE code")
     slotcard(ax, x2, ra, fee="manual")
     step(ra, x2, x3, "subscription\nON")
     slotcard(ax, x3, ra, sub=True)
-    note(ax, ra, "One promotion per slot, so the\nmanual code pushes the automatic\nout — but it is remembered.")
+    note(ax, ra, "The code always wins the\nslot — the customer decides.\nThe automatic is displaced,\nnot deleted.")
 
     # --- 2. stacking --------------------------------------------------------
-    rowlabel(ax, rb, "2 · Stacking", "manual hits a free slot")
+    rowlabel(ax, rb, "2 · Stacking", "the code lands on\na free slot")
     slotcard(ax, x1, rb, fee="auto")
-    step(rb, x1, x2, "apply manual\nAMOUNT code")
+    step(rb, x1, x2, "apply a manual\nAMOUNT code")
     slotcard(ax, x2, rb, fee="auto", amount="manual")
     step(rb, x2, x3, "subscription\nON")
     slotcard(ax, x3, rb, sub=True)
-    note(ax, rb, "Different targets, so both survive —\nuntil the subscription takes over\nand clears the pair.")
+    note(ax, rb, "Different targets, so both\nsurvive — until the\nsubscription clears the pair.")
 
     # --- 3. restoration -----------------------------------------------------
-    rowlabel(ax, rc, "3 · Restoration", "subscription switched back off")
+    rowlabel(ax, rc, "3 · Restoration", "the subscription is\nswitched back off")
     slotcard(ax, x1, rc, sub=True)
     step(rc, x1, x2, "subscription\nOFF")
-    slotcard(ax, x2, rc, fee="auto")
-    ax.text(x3, rc + CARD_H / 2 + 0.30, "the manual code does NOT come back",
-            ha="center", va="center", fontsize=7.2, fontweight="bold",
-            color=RED["text"])
-    slotcard(ax, x3, rc, fee="manual", ghost=True)
-    note(ax, rc, "Only the ORIGINAL automatic\npromos are restored. Confirm this\nis intended — see open questions.",
-         warn=True)
+    slotcard(ax, x2, rc, fee="manual", tag="restored automatically", tagcol=AMBER)
+    step(rc, x2, x3, "tap ✕ on\nthe code")
+    slotcard(ax, x3, rc, fee="auto", tag="the automatic comes back", tagcol=BLUE)
+    note(ax, rc, "Everything comes back\nexactly as it was, code\nincluded. Removing it is\none tap, not a re-entry.")
+
+    # --- 4. code while subscribed -------------------------------------------
+    rowlabel(ax, rd, "4 · Code while\nsubscribed", "the promo-code field\nstays live")
+    slotcard(ax, x1, rd, sub=True)
+    step(rd, x1, x2, "enter a manual\nFEE code")
+    slotcard(ax, x2, rd, fee="manual", tag="subscription switched off", tagcol=VIOLET)
+    note(ax, rd, "The toggle flips on its own.\nSay so on screen — the\ncustomer did not ask for the\nsubscription to end.")
 
     legend_chips(ax, 0.42)
     return fig
