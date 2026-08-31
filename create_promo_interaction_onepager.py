@@ -41,7 +41,7 @@ TITLE = "IMTU — How Promotions Interact in a Transaction"
 
 MARGIN_PT = 40
 PAGE_W = 612 - 2 * MARGIN_PT          # 532pt of usable width
-IMG_W = 490.0                          # figures sit just inside the text block
+IMG_W = 470.0                          # figures sit just inside the text block
 
 # --------------------------------------------------------------- figures ----
 
@@ -54,7 +54,7 @@ IMAGES = {
 # Read a cell as: this Fee-slot promotion together with this Amount-slot one.
 
 MATRIX = [
-    ["Fee slot ↓   Amount slot →", "Automatic", "Manual", "Subscription", "None"],
+    ["Fee ↓  /  Amount →", "Automatic", "Manual", "Subscription", "None"],
     ["Automatic", "✓  both apply", "✓  both apply", "✗  not possible", "✓  fee only"],
     ["Manual", "✓  both apply", "?  needs a decision", "✗  not possible", "✓  fee only"],
     ["Subscription", "✗  not possible", "✗  not possible",
@@ -82,10 +82,9 @@ BLOCKS = [
             "Joao Tanaka  ·  Context: DCS-2846"),
 
     ("h2", "The model"),
-    ("p", "Two promotion slots per transaction — Fee and Top-up amount — each holding "
-          "one promotion at most. Automatic and manual promos compete for slots; a "
-          "subscription is not a slot-filler, it takes the whole transaction. "
-          "Blue = automatic, amber = manual, violet = subscription."),
+    ("p", "Two slots per transaction — Fee and Top-up amount — each holds one promotion "
+          "at most. Automatic and manual promos compete for slots; a subscription takes "
+          "the whole transaction. Blue = automatic, amber = manual, violet = subscription."),
 
     ("img", "flow"),
 
@@ -108,7 +107,7 @@ BLOCKS = [
           "is switched off?"),
 ]
 
-SIZE_MAP = {"h1": 15, "h2": 10.5, "p": 9, "b": 8.5, "cap": 7.5}
+SIZE_MAP = {"h1": 15, "h2": 10.5, "p": 8.5, "b": 8.5, "cap": 7.5}
 STYLE_MAP = {"h1": "HEADING_1", "h2": "HEADING_2",
              "p": "NORMAL_TEXT", "b": "NORMAL_TEXT", "cap": "NORMAL_TEXT"}
 
@@ -146,7 +145,7 @@ def build_requests(blocks):
         line = text + "\n"
         reqs.append({"insertText": {"location": {"index": cur}, "text": line}})
         # Named styles ship generous space-above/below; a one-pager cannot afford it.
-        above, below = (5, 2) if kind == "h2" else (0, 2)
+        above, below = (3, 2) if kind == "h2" else (0, 2)
         para = {"namedStyleType": STYLE_MAP[kind],
                 "spaceAbove": {"magnitude": above, "unit": "PT"},
                 "spaceBelow": {"magnitude": below, "unit": "PT"},
@@ -301,14 +300,14 @@ def insert_table(docs, doc_id, marker, data):
                     "rowSpan": 1, "columnSpan": 1},
                 "tableCellStyle": {
                     "backgroundColor": hexrgb(fill),
-                    "paddingTop": {"magnitude": 2, "unit": "PT"},
-                    "paddingBottom": {"magnitude": 2, "unit": "PT"},
+                    "paddingTop": {"magnitude": 1, "unit": "PT"},
+                    "paddingBottom": {"magnitude": 1, "unit": "PT"},
                     "paddingLeft": {"magnitude": 4, "unit": "PT"},
                     "paddingRight": {"magnitude": 4, "unit": "PT"}},
                 "fields": ("backgroundColor,paddingTop,paddingBottom,"
                            "paddingLeft,paddingRight")}})
 
-    widths = [104] + [107] * (cols - 1)
+    widths = [100] + [108] * (cols - 1)
     for c, w in enumerate(widths):
         style_reqs.append({"updateTableColumnProperties": {
             "tableStartLocation": {"index": t_start},

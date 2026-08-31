@@ -82,7 +82,7 @@ def elbow_return(ax, start, corridor, end, label, lsize=8.0):
     ax.add_patch(FancyArrowPatch(
         (x1, corridor), (x1, y1), arrowstyle="-|>", mutation_scale=11,
         linewidth=1.2, color=ARROW, zorder=1, linestyle=(0, (4, 3))))
-    ax.text((x0 + x1) / 2, corridor + 0.30, label, ha="center", va="center",
+    ax.text((x0 + x1) / 2, corridor + 0.27, label, ha="center", va="center",
             fontsize=lsize, color="#6A6A6A", zorder=4,
             bbox=dict(boxstyle="round,pad=0.20", fc="white", ec="none", alpha=0.95))
 
@@ -162,7 +162,7 @@ def fig_flow():
         "every other promo\nis removed", VIOLET, ss=7.4)
 
     # restoration - the return path, routed under the whole diagram
-    elbow_return(ax, (20.35, y - 3.10), 1.45, (7.15, y - 0.68),
+    elbow_return(ax, (20.35, y - 3.10), 1.12, (7.15, y - 0.68),
                  "toggle OFF  →  the original AUTOMATIC promos are restored")
 
     legend_chips(ax, 0.72,
