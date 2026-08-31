@@ -55,11 +55,11 @@ IMAGES = {
 
 MATRIX = [
     ["Fee ↓  /  Amount →", "Automatic", "Manual", "Subscription", "None"],
-    ["Automatic", "✓  both apply", "✓  both apply", "✗  exclusive", "✓  fee only"],
-    ["Manual", "✓  both apply", "✗  one code only", "✗  exclusive", "✓  fee only"],
-    ["Subscription", "✗  exclusive", "✗  exclusive",
-     "✓  replaces both slots", "✗  exclusive"],
-    ["None", "✓  amount only", "✓  amount only", "✗  exclusive", "—  no promotion"],
+    ["Automatic", "✓  both apply", "✓  both apply", "✗  only subscription applied", "✓  fee only"],
+    ["Manual", "✓  both apply", "✗  one code only", "✗  only subscription applied", "✓  fee only"],
+    ["Subscription", "✗  only subscription applied", "✗  only subscription applied",
+     "✓  replaces both slots", "✗  only subscription applied"],
+    ["None", "✓  amount only", "✓  amount only", "✗  only subscription applied", "—  no promotion"],
 ]
 
 TABLES = [("MATRIX", MATRIX)]
