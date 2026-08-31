@@ -46,8 +46,8 @@ IMG_W = 495.0                          # figures sit just inside the text block
 # --------------------------------------------------------------- figures ----
 
 IMAGES = {
-    "flow": ("promo_interaction_flow.png", IMG_W),
-    "examples": ("promo_interaction_examples.png", IMG_W),
+    "flow": ("promo_interaction_flow.png", 505.0),
+    "examples": ("promo_interaction_examples.png", 465.0),
 }
 
 # ---------------------------------------------------------------- matrix ----
@@ -164,10 +164,10 @@ BLOCKS = [
     ("b", "Automatic expired mid-session  —  out of scope. Edge case, not designed "
           "for."),
 
-    ("cap", "Two mechanics follow from the rules but were not stated outright — worth "
-            "confirming before build: removing a code with ✕ brings back the automatic "
-            "it displaced (automatics apply by default), and applying a second manual "
-            "code replaces the first rather than being rejected."),
+    ("cap", "Two mechanics follow from the rules but were not stated outright — confirm "
+            "before build: removing a code with ✕ brings back the automatic it "
+            "displaced, and a second manual code replaces the first rather than being "
+            "rejected."),
 ]
 
 SIZE_MAP = {"h1": 15, "h2": 10.5, "p": 9, "b": 9, "cap": 7.5}
@@ -208,7 +208,7 @@ def build_requests(blocks):
         line = text + "\n"
         reqs.append({"insertText": {"location": {"index": cur}, "text": line}})
         # Named styles ship generous space-above/below; a one-pager cannot afford it.
-        above, below = (8, 3) if kind == "h2" else (0, 2)
+        above, below = (5, 3) if kind == "h2" else (0, 2)
         para = {"namedStyleType": STYLE_MAP[kind],
                 "spaceAbove": {"magnitude": above, "unit": "PT"},
                 "spaceBelow": {"magnitude": below, "unit": "PT"},
