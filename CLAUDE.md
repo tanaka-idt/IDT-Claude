@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-IDT product-management workspace. Holds roadmaps, competitor analyses, and product specs (Markdown) alongside Python scripts that generate formatted Google Docs — with embedded charts, diagrams, and screen designs — for IMTU, Boss Money, eGift, eSIM, and crypto-payment initiatives.
+IDT product-management workspace. Holds roadmaps, competitor analyses, and product specs (Markdown) alongside Python scripts that generate formatted Google Docs (with embedded charts, diagrams, and screen designs) for IMTU, Boss Money, eGift, eSIM, and crypto-payment initiatives.
 
 ## Build & Run
 
@@ -24,7 +24,7 @@ python create_imtu_doc.py
 3. Enable: Google Docs API + Google Drive API
 4. Credentials → Create → OAuth 2.0 Client ID → Desktop app
 5. Download JSON credentials → save as `credentials.json` in project root
-6. Run a `create_*.py` script — browser tab opens for authorization
+6. Run a `create_*.py` script, and a browser tab opens for authorization
 
 ## Git & GitHub Workflow
 
@@ -46,11 +46,11 @@ Always follow the DCS team's Jira template guidelines when creating tickets:
 Key rules:
 - Summary prefix must match role: `[BE]`, `[APP]`, `[DESIGN]`, `[TPM]`, `[QA]`
 - Description structure: TL;DR → Spec link → What needs to be done → (optional sections)
-- Acceptance Criteria goes in its dedicated field (ADF format), never in the description — **always populate it on every ticket**
+- Acceptance Criteria goes in its dedicated field (ADF format), never in the description. **Always populate it on every ticket.**
 - Required fields on every story: Epic link, Assignee, Priority, Story Points, Team Type
 - Default project: DCS
 
-**Field IDs differ by issue type — using the wrong one fails with "not on the appropriate
+**Field IDs differ by issue type. Using the wrong one fails with "not on the appropriate
 screen".** Verified against DCS create metadata 2026-08-26:
 
 | Field | Story (`12257`) | Task (`12258`) |
@@ -59,23 +59,23 @@ screen".** Verified against DCS create metadata 2026-08-26:
 | Team Type | `customfield_18836` | `customfield_18936` |
 | Team Type option IDs | App `22229`, BE `22230`, Design `22231`, PM/TPM `22232`, QA `22233` | App `22301`, BE `22302`, Design `22303`, PM/TPM `22304`, QA `22305` |
 
-Both fields are **required** on both issue types. Pass Team Type as `{"id": "<id>"}` —
-matching by value works only when the label is exact, so `{"value": "TPM"}` fails
+Both fields are **required** on both issue types. Pass Team Type as `{"id": "<id>"}`.
+Matching by value works only when the label is exact, so `{"value": "TPM"}` fails
 (the label is "PM/TPM"). When unsure, read `getJiraIssueTypeMetaWithFields` for the
 issue type and grep for the field name rather than guessing.
 
-- **Bugs** (`12259`) have **no** Acceptance Criteria field — both custom fields are
+- **Bugs** (`12259`) have **no** Acceptance Criteria field, and both custom fields are
   rejected. Use the description's "Expected result" section as the pass/fail criteria.
   Bug creation also requires Severity (`customfield_11403`), Testing Stage
-  (`customfield_18035`), and Components (`customfield_13266`, a string array — not the
+  (`customfield_18035`), and Components (`customfield_13266`, a string array, not the
   built-in `components`).
 - AC is often not on the *create* screen. If creation rejects it, create first and then
-  set it with `editJiraIssue` — the edit succeeds where the create failed.
+  set it with `editJiraIssue`, which succeeds where the create failed.
 - Editing an issue's `description` via `editJiraIssue` can silently clear the `assignee`.
   Re-set the assignee after any description edit; AC-only edits are safe.
 - Sprint is `customfield_10571` (DCS board `2057`), set by numeric sprint id. Find it with
   `project = DCS AND Sprint = "DCS Sprint <N>"`. Sprint ids are **not** sequential with
-  sprint numbers — always look the id up rather than inferring it.
+  sprint numbers, so always look the id up rather than inferring it.
 - Story Points is `customfield_11666` ("Story point estimate"), a plain number. Epic link on
   DCS is the `parent` field (DCS is a team-managed project), not `customfield_*`.
 - If every attempt fails due to screen configuration, include the AC items in the response
@@ -83,8 +83,14 @@ issue type and grep for the field name rather than guessing.
 
 ## Document Conventions
 
+**IMPORTANT: Do not use em dashes (—).** This applies to everything produced here: Google
+Docs, Jira tickets, Confluence pages, HTML and artifacts, Python docstrings and comments,
+commit messages, and chat replies. Use a comma, a colon, parentheses, or a full stop
+instead, or split the sentence in two. Only reach for an em dash when nothing else will do,
+which is rare. En dashes in numeric ranges (26-31 Aug) are fine as hyphens.
+
 **IMPORTANT: Every reference in every document must be a clickable link.** This applies to
-all deliverables — Google Docs, Claude artifacts, Confluence pages, and chat replies.
+all deliverables: Google Docs, Claude artifacts, Confluence pages, and chat replies.
 Never leave a bare identifier or name a source in plain text.
 
 | Reference type | Must link to |
@@ -102,7 +108,7 @@ dozens of references unusable.
 
 **How to apply:**
 
-- **Google Docs** — use `linkify_refs.py`. It auto-links Jira keys by pattern, links bare
+- **Google Docs**: use `linkify_refs.py`. It auto-links Jira keys by pattern, links bare
   URLs, and links named sources from a phrase→URL map. It walks body paragraphs *and*
   table cells, skips runs that already carry a link (so it is idempotent), and applies
   everything in one pass since text-style requests do not shift indices.
@@ -113,10 +119,10 @@ dozens of references unusable.
   before sharing. `create_imtu_web_parity_doc.py` is the reference implementation.
   Add newly-cited Confluence pages to `LINK_MAP` so they link automatically next time.
 
-- **Artifacts / HTML** — `<a href="…" target="_blank" rel="noopener">`. Split the source
+- **Artifacts / HTML**: `<a href="…" target="_blank" rel="noopener">`. Split the source
   on tags before regex-replacing so attributes are never rewritten.
 
-- **Chat replies** — markdown links.
+- **Chat replies**: markdown links.
 
 ## Key Conventions
 
