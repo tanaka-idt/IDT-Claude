@@ -7,8 +7,13 @@ types (instant automatic, manual, subscription), the two targets they can apply
 to (fee, top-up amount), and what the customer should see at every transition.
 
 Page 1 is the model, the rules, and the state diagram. Page 2 is the full
-combination matrix, four worked journeys, the screen implications, and the
-product decisions of 31 Aug 2026 that closed every open question.
+combination matrix, five worked journeys, and the screen implications.
+
+A subscription is read in two halves throughout: one that carries its own
+promotion is exclusive and takes the whole transaction; one with no promotion
+attached is only a delivery setting and leaves both slots alone. That split,
+and the rule that the subscription section is never hidden, come from the
+DCS-5299 comment thread of 1 Sep 2026.
 
 Figures come from generate_promo_interaction_diagrams.py and are served from
 the public GitHub repo - the Docs API fetches image URIs server-side and IDT
@@ -46,20 +51,23 @@ IMG_W = 495.0                          # figures sit just inside the text block
 # --------------------------------------------------------------- figures ----
 
 IMAGES = {
-    "flow": ("promo_interaction_flow.png", 505.0),
-    "examples": ("promo_interaction_examples.png", 505.0),
+    "states": ("promo_interaction_states.png", 505.0),
+    "journeys": ("promo_interaction_journeys.png", 505.0),
 }
 
 # ---------------------------------------------------------------- matrix ----
 # Read a cell as: this Fee-slot promotion together with this Amount-slot one.
 
 MATRIX = [
-    ["Fee ↓  /  Amount →", "Automatic", "Manual", "Subscription", "None"],
-    ["Automatic", "✓  both apply", "✓  both apply", "✗  only subscription applied", "✓  fee only"],
-    ["Manual", "✓  both apply", "✗  one code only", "✗  only subscription applied", "✓  fee only"],
-    ["Subscription", "✗  only subscription applied", "✗  only subscription applied",
-     "✓  replaces both slots", "✗  only subscription applied"],
-    ["None", "✓  amount only", "✓  amount only", "✗  only subscription applied", "—  no promotion"],
+    ["Fee ↓  /  Amount →", "Automatic", "Manual", "Subscription promo", "None"],
+    ["Automatic", "✓  both apply", "✓  both apply", "✗  subscription only",
+     "✓  fee only"],
+    ["Manual", "✓  both apply", "✗  one code only", "✗  subscription only",
+     "✓  fee only"],
+    ["Subscription promo", "✗  subscription only", "✗  subscription only", "N/A",
+     "✗  subscription only"],
+    ["None", "✓  amount only", "✓  amount only", "✗  subscription only",
+     "·  no promotion"],
 ]
 
 TABLES = [("MATRIX", MATRIX)]
@@ -76,82 +84,99 @@ LABEL_FILL = [C_NONE, C_AUTO, C_MANUAL, C_SUB, C_NONE]   # by row / column index
 
 # ---------------------------------------------------------------- blocks ----
 
+# A block's text is either a plain string or a (lead, body) pair, which renders
+# as "Lead: body" with the lead in bold. No em dashes anywhere, per house style.
+
 BLOCKS = [
     ("h1", TITLE),
-    ("cap", "Design reference  ·  IMTU · DCS  ·  31 August 2026  ·  "
-            "Joao Tanaka  ·  Context: DCS-2846"),
+    ("cap", "Design reference  ·  IMTU · DCS  ·  1 September 2026  ·  "
+            "Joao Tanaka  ·  Context: DCS-2846, DCS-5299"),
 
     ("h2", "The model"),
     ("p", "Every IMTU transaction has exactly two places a promotion can land: the "
-          "fee and the top-up amount. Think of them as two slots. Each slot holds at "
-          "most one promotion, which is what keeps the rules below short — there is "
-          "never a question of two discounts competing over the same line. Three kinds "
-          "of promotion compete for those slots, and they are colour-coded the same "
-          "way everywhere on this page."),
-    ("b", "Instant automatic  —  applied by the system the moment the customer "
-          "qualifies, with no action from them. Blue."),
-    ("b", "Manual  —  a promo code the customer types in. Amber. At most one per "
-          "transaction."),
-    ("b", "Subscription  —  attached to turning a one-off top-up into a recurring "
-          "one. Violet. It is not a slot-filler: it takes the whole transaction."),
+          "fee and the top-up amount. Think of them as two slots, each holding at "
+          "most one promotion. Three kinds of promotion compete for those slots, and "
+          "they are colour-coded the same way everywhere on this page."),
+    ("b", ("Instant automatic",
+           "applied by the system the moment the customer qualifies, with no action "
+           "from them. Blue.")),
+    ("b", ("Manual",
+           "a promo code the customer types in. Amber. At most one per "
+           "transaction.")),
+    ("b", ("Subscription",
+           "attached to turning a one-off top-up into a recurring one. Violet. Read "
+           "it in two halves. A subscription that carries its own promotion is not a "
+           "slot-filler: it takes the whole transaction. A subscription with no "
+           "promotion attached is only a delivery setting and leaves both slots "
+           "alone.")),
 
     ("h2", "The rules"),
-    ("p", "Five rules cover every case. The first two describe how the slots work; "
-          "the last three are the product decisions taken on 31 August."),
-    ("b", "One promotion per target  —  the fee slot and the amount slot each hold a "
-          "single promotion."),
-    ("b", "Two promotions, but only on different targets  —  an automatic fee discount "
-          "and a manual amount discount ride together. So can two automatics, one on "
-          "each slot."),
-    ("b", "One manual code per transaction  —  a fee code and an amount code cannot "
-          "both be active. Whichever the customer applies is the only code on the "
-          "transaction."),
-    ("b", "Manual outranks automatic  —  a code always takes the slot, even when the "
-          "automatic it displaces was worth more. The customer decides, and we do not "
-          "warn them off it."),
-    ("b", "Subscription is exclusive, and fully reversible  —  turning it on clears "
-          "both slots and remembers what was there. Turning it off puts all of it "
-          "back, the manual code included."),
+    ("p", "Six rules cover every case. The first two describe how the slots work; "
+          "the rest are the product decisions of 31 August and 1 September."),
+    ("b", ("One promotion per target",
+           "the fee slot and the amount slot each hold a single promotion.")),
+    ("b", ("Two promotions, but only on different targets",
+           "an automatic fee discount and a manual amount discount ride together. "
+           "So can two automatics, one on each slot.")),
+    ("b", ("One manual code per transaction",
+           "a fee code and an amount code cannot both be active. Whichever the "
+           "customer applies is the only code on the transaction.")),
+    ("b", ("Manual outranks automatic",
+           "a code always takes the slot, even when the automatic it displaces was "
+           "worth more. The customer decides, and we do not warn them off it.")),
+    ("b", ("A subscription promotion is exclusive, and fully reversible",
+           "turning it on clears both slots and remembers what was there. Turning it "
+           "off puts all of it back, the cached manual code included. A subscription "
+           "with no promotion is exempt: the slots do not move.")),
+    ("b", ("The subscription section is never hidden",
+           "whatever the customer does with a promo code, the section stays on "
+           "screen. Only the toggle moves, and only when a subscription promotion is "
+           "in play.")),
 
     ("h2", "The three states, and every way to move between them"),
-    ("p", "There are only three states a transaction can be in, and six transitions "
-          "between them. Every one of the six is a moment the customer sees something "
-          "change, so each needs a designed state. Note the two that are not "
-          "symmetrical: removing a code with ✕ brings back the automatic underneath "
-          "it, and typing a code while subscribed switches the subscription off on "
-          "the customer's behalf."),
-    ("img", "flow"),
+    ("p", "Three states, six transitions, and each transition is a moment the "
+          "customer sees something change. Two are not symmetrical: removing a code "
+          "with ✕ brings back the automatic underneath it, and typing a code while a "
+          "subscription promotion is on switches the subscription off on the "
+          "customer's behalf."),
+    ("img", "states"),
 
     ("pagebreak", ""),
 
     ("h2", "Every combination"),
     ("table", "MATRIX"),
     ("p", "Read a cell as one transaction holding both promotions: the row is what "
-          "sits on the fee, the column what sits on the top-up amount. Every "
-          "combination is now decided — nothing in this grid is open. The red band is "
-          "the subscription's exclusivity, plus the one cell where two manual codes "
-          "would have met."),
+          "sits on the fee, the column what sits on the top-up amount. Subscription "
+          "here means one that carries a promotion; a subscription with no promotion "
+          "occupies no slot and so does not appear in this grid at all. Every "
+          "combination is decided, and nothing here is open."),
 
-    ("h2", "Four journeys to design for"),
-    ("p", "The same two slots, tracked through each sequence of actions. This is the "
-          "state the screen has to show at every step. Journeys 3 and 4 are the ones "
-          "worth reading closely: they are where the transaction changes without the "
-          "customer directly asking it to."),
-    ("img", "examples"),
+    ("h2", "Five journeys to design for"),
+    ("p", "The same two slots, tracked through each sequence of actions. Journeys 4 "
+          "and 5 are the pair to read closely: the customer does exactly the same "
+          "thing in both, and the outcome turns entirely on whether the subscription "
+          "carries a promotion of its own."),
+    ("img", "journeys"),
 
     ("h2", "What this changes on screen"),
-    ("b", "The applied code needs an ✕  —  it is the only route back to the automatic "
-          "promotion it displaced, and the only way to undo a restore the customer "
-          "did not want."),
-    ("b", "The promo-code field stays live while a subscription is on  —  not "
-          "disabled, not hidden."),
-    ("b", "Applying a code while subscribed flips the subscription off  —  the "
-          "customer did not ask for that, so the screen has to say it happened rather "
-          "than let the toggle change quietly."),
-    ("b", "Restoration is automatic but must be legible  —  when the subscription goes "
-          "off, the previous promotions reappear in place. Nothing to confirm, but the "
-          "change should be visible in the price breakdown."),
-
+    ("b", ("The applied code needs an ✕",
+           "it is the only route back to the automatic promotion it displaced, and "
+           "the only way to undo a restore the customer did not want.")),
+    ("b", ("The promo-code field stays live and the subscription section stays "
+           "visible",
+           "neither is disabled or hidden at any point in the flow.")),
+    ("b", ("A code applied against a subscription promotion flips the toggle off",
+           "the customer did not ask for that, so the screen has to say it happened "
+           "rather than let the toggle change quietly. Removing the code returns the "
+           "toggle to whatever state it was in before. With no subscription "
+           "promotion, the toggle does not move at all.")),
+    ("b", ("Turning the toggle back on needs a yes/no confirmation",
+           "it removes the manual code, so ask before doing it. Design owed on "
+           "DCS-5299.")),
+    ("b", ("The code is cached, and restoration must be legible",
+           "when the subscription goes off, the previous promotions reappear in "
+           "place and the manual code is re-applied without retyping. Nothing to "
+           "confirm, but the change should be visible in the price breakdown.")),
 ]
 
 SIZE_MAP = {"h1": 15, "h2": 10.5, "p": 9, "b": 9, "cap": 7.5}
@@ -183,6 +208,11 @@ def hexrgb(h):
 def build_requests(blocks):
     reqs, cur = [], 1
     for kind, text in blocks:
+        lead = None
+        if isinstance(text, tuple):
+            lead, body = text
+            text = f"{lead}: {body}"
+
         if kind in ("table", "img", "pagebreak"):
             line = f"[[{kind.upper()}:{text}]]\n"
             reqs.append({"insertText": {"location": {"index": cur}, "text": line}})
@@ -216,10 +246,9 @@ def build_requests(blocks):
             "range": {"startIndex": cur, "endIndex": cur + len(text)},
             "textStyle": style, "fields": style_fields}})
 
-        if kind in ("b", "p") and "  —  " in text:
-            lead = text.split("  —  ")[0]
+        if lead:                       # bold the lead-in, colon included
             reqs.append({"updateTextStyle": {
-                "range": {"startIndex": cur, "endIndex": cur + len(lead)},
+                "range": {"startIndex": cur, "endIndex": cur + len(lead) + 1},
                 "textStyle": {"bold": True}, "fields": "bold"}})
         cur += len(line)
     return reqs
