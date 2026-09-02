@@ -13,20 +13,30 @@ each holding at most one promotion. Automatic and manual promotions compete
 for them: a manual code always wins the slot it lands on, and ✕ restores the
 automatic it displaced.
 
-THE CLASH. A subscription promotion cannot be applied alongside an instant
-automatic or a manual promo code. The section stays on screen either way: what
-changes is the toggle. It switches OFF exactly when that clash would arise, a
-discount on the transaction AND a subscription offer carrying a promotion of
-its own. Both halves are required. A discount on its own moves nothing.
+TWO CLASHES, TWO MECHANISMS. A subscription promotion cannot be applied
+alongside an instant automatic or a manual promo code. What happens next
+depends on WHICH of the two is on the transaction, because the customer can
+remove one of them and not the other.
 
-Because the section stays, the customer can switch the toggle back on, and
-that is where the confirmation belongs: a yes/no modal warning that the manual
-promo code will be removed. The code is cached, so switching the subscription
-off again re-applies it without retyping.
+  Instant automatic + subscription promo -> the SECTION IS HIDDEN, and stays
+  hidden for the whole transaction. The automatic is the one we show. A manual
+  code outranks it and can replace it, but the automatic is only displaced,
+  never gone, so the clash never clears and the section does not come back.
+
+  Manual code + subscription promo (no automatic) -> the SECTION STAYS and only
+  the TOGGLE switches off. The customer can switch it back on, so a yes/no
+  modal warns the code will be deleted first, and the code is cached so
+  switching the subscription off again re-applies it.
+
+  Subscription offer with no promotion of its own -> nothing clashes, nothing
+  moves, whatever else the transaction carries.
+
+That makes figure 1 a 3x2: three things the transaction can carry, two kinds of
+subscription offer, and two cells that behave differently from the rest.
 
 Colour language is fixed and must match the doc:
   Automatic = blue      Manual = amber      Subscription = violet
-  Toggle switched off = red
+  Section hidden = red      Toggle switched off = amber
 
 Visual language matches generate_subscription_flow_diagrams.py.
 """
@@ -119,82 +129,66 @@ def minichip(ax, cx, cy, text, style, w=3.3):
 
 
 def fig_flow():
-    H = 12.2
+    H = 13.4
     fig, ax = canvas(H)
 
-    ax.text(XMAX / 2, 11.6,
-            "The toggle switches off on one combination only: a subscription "
-            "promotion that would have to sit beside another one.",
+    ax.text(XMAX / 2, 12.85,
+            "Which promotion is on the transaction decides what happens, because "
+            "the customer can remove one of them and not the other.",
             ha="center", va="center", fontsize=10.4, fontweight="bold",
             color="#232320", zorder=5)
 
-    c1, c2, cw = 9.5, 18.1, 7.0
-    r1, r2, ch = 8.3, 4.9, 2.5
+    cA, cB, cw = 10.7, 18.3, 6.9
+    r1, r2, r3, ch = 9.7, 6.8, 3.9, 2.3
 
-    # column headers
-    ax.text(c1, 10.5, "No discount on the transaction", ha="center",
+    ax.text(cA, 11.5, "The subscription offer\ncarries a promotion", ha="center",
+            va="center", fontsize=9.2, fontweight="bold", color=VIOLET["text"],
+            zorder=5, linespacing=1.4)
+    ax.text(cB, 11.5, "The subscription offer\ncarries no promotion", ha="center",
             va="center", fontsize=9.2, fontweight="bold", color="#454340",
-            zorder=5)
-    ax.text(c2, 10.72, "A discount on the transaction", ha="center",
-            va="center", fontsize=9.2, fontweight="bold", color="#454340",
-            zorder=5)
-    minichip(ax, c2 - 1.85, 10.15, "Instant automatic", BLUE)
-    ax.text(c2, 10.15, "or", ha="center", va="center", fontsize=6.8,
-            color="#8A8A8A", zorder=5)
-    minichip(ax, c2 + 1.85, 10.15, "Manual code", AMBER)
+            zorder=5, linespacing=1.4)
 
-    # row headers
-    ax.text(3.0, r1, "The subscription offer\ncarries a promotion",
-            ha="center", va="center", fontsize=9.2, fontweight="bold",
-            color=VIOLET["text"], zorder=5, linespacing=1.45)
-    ax.text(3.0, r2, "The subscription offer\ncarries no promotion",
-            ha="center", va="center", fontsize=9.2, fontweight="bold",
-            color="#454340", zorder=5, linespacing=1.45)
+    for cy, label, style in ((r1, "An instant automatic\npromotion", BLUE),
+                             (r2, "A manual promo code,\nno automatic", AMBER),
+                             (r3, "Nothing on\nthe transaction", GRAY)):
+        ax.text(3.4, cy, label, ha="center", va="center", fontsize=9.2,
+                fontweight="bold", color=style["text"], zorder=5, linespacing=1.4)
 
-    # the four cells
-    cell(ax, c1, r1, cw, ch, "SECTION SHOWN",
-         "with its savings copy: the\nsubscription promotion applies",
-         VIOLET)
-    cell(ax, c2, r1, cw, ch, "TOGGLE SWITCHED OFF",
-         "the clash. The section stays on screen,\nbut the two promotions cannot both\n"
-         "apply, so the subscription steps aside",
-         RED)
-    cell(ax, c1, r2, cw, ch, "SECTION SHOWN",
-         "a plain recurring top-up,\nwith no savings copy",
-         VIOLET)
-    cell(ax, c2, r2, cw, ch, "SECTION SHOWN",
-         "nothing to clash with. The discount\nis on this purchase only, and the\n"
-         "subscription is offered as normal",
+    cell(ax, cA, r1, cw, ch, "SECTION HIDDEN",
+         "the automatic is the one we show. A\nmanual code can replace it, and the\n"
+         "section stays hidden all the same", RED)
+    cell(ax, cB, r1, cw, ch, "SECTION SHOWN",
+         "nothing to clash with. The automatic\napplies and the toggle is free",
          VIOLET)
 
-    # only the top row moves
-    arrow(ax, (c1 + cw / 2, r1 + 0.55), (c2 - cw / 2, r1 + 0.55))
-    arrow(ax, (c2 - cw / 2, r1 - 0.55), (c1 + cw / 2, r1 - 0.55))
-    ax.text(XMAX / 2, 6.62,
-            "Only the top row moves. A code typed, or an automatic applying at "
-            "load, crosses left to right and takes the toggle off with it.\n"
-            "Removing the last discount crosses back, with the toggle exactly as "
-            "the customer left it. Nothing on the bottom row moves at all.",
-            ha="center", va="center", fontsize=7.6, color="#6A6A6A", zorder=5,
-            linespacing=1.55)
+    cell(ax, cA, r2, cw, ch, "TOGGLE SWITCHED OFF",
+         "the section stays on screen. Switch it\nback on and we ask before deleting\n"
+         "the code", AMBER)
+    cell(ax, cB, r2, cw, ch, "SECTION SHOWN",
+         "no clash. The code and the\nsubscription both stand", VIOLET)
+
+    cell(ax, cA, r3, cw, ch, "SECTION SHOWN",
+         "with its savings copy: the\nsubscription promotion applies", VIOLET)
+    cell(ax, cB, r3, cw, ch, "SECTION SHOWN",
+         "a plain recurring top-up,\nwith no savings copy", VIOLET)
 
     # ---- why ---------------------------------------------------------------
-    wy, wh = 1.95, 2.0
+    wy, wh = 1.5, 2.1
     ax.add_patch(FancyBboxPatch(
         (0.6, wy - wh / 2), XMAX - 1.2, wh,
         boxstyle="round,pad=0,rounding_size=0.16", linewidth=1.5,
         facecolor=VIOLET["fill"], edgecolor=VIOLET["edge"], zorder=3))
-    ax.text(XMAX / 2, wy + 0.56, "Why the toggle steps aside, and what the customer can do about it",
+    ax.text(XMAX / 2, wy + 0.62, "Why the same clash gets two different answers",
             ha="center", va="center", fontsize=9.6, fontweight="bold",
             color=VIOLET["text"], zorder=5)
-    ax.text(XMAX / 2, wy - 0.28,
-            "A subscription promotion cannot be applied together with an instant "
-            "automatic or a manual promo code, so on that one combination the "
-            "toggle switches off.\nThe section itself stays on screen, which means "
-            "the customer can switch it back on. Doing so needs the promo code "
-            "removed, so we ask first with a\nyes/no modal. The code is cached "
-            "either way: switch the subscription off again and it is re-applied "
-            "without retyping.",
+    ax.text(XMAX / 2, wy - 0.26,
+            "The customer cannot remove an instant automatic. It applies on its own "
+            "and comes back the moment anything displacing it goes, so a clash with "
+            "it never really\nclears: we hide the section for the whole transaction "
+            "and keep the automatic. A manual code is theirs to add and remove, so "
+            "the clash is live only while the\ncode is, and the section can stay on "
+            "screen with the toggle carrying the change. Either way the two never "
+            "apply together.",
             ha="center", va="center", fontsize=7.6, color=VIOLET["text"],
             alpha=0.92, zorder=5, linespacing=1.6)
     return fig
@@ -298,7 +292,8 @@ def note(ax, cy, text):
             color="#7A7A7A", linespacing=1.45)
 
 
-TOGGLE_OFF = ("toggle switched OFF", RED)
+HIDDEN = ("section hidden", RED)
+TOGGLE_OFF = ("toggle switched OFF", AMBER)
 SHOWN = ("section shown", VIOLET)
 SUBBED = ("shown · subscribed", VIOLET)
 
@@ -314,7 +309,7 @@ def fig_examples():
     def step(cy, xa, xb, label):
         arrow(ax, (xa + gap, cy), (xb - gap, cy), label=label, ldy=0.50, lsize=7.0)
 
-    # --- 1 and 2: slot mechanics, independent of what the subscription does -
+    # --- 1: slot mechanics, independent of what the subscription does -------
     rowlabel(ax, ra, "1 · Replacement",
              "the slot mechanics, whatever\nthe subscription is doing")
     slotcard(ax, x1, ra, fee="auto")
@@ -324,45 +319,50 @@ def fig_examples():
     slotcard(ax, x3, ra, fee="auto", tag="the automatic comes back", tagcol=BLUE)
     note(ax, ra, "The code always wins the\nslot: the customer decides.\nThe automatic is displaced,\nnot deleted, and ✕ restores it.")
 
-    rowlabel(ax, rb, "2 · Stacking",
-             "two promotions, as long as\nthey are on two targets")
-    slotcard(ax, x1, rb, fee="auto")
-    step(rb, x1, x2, "apply a manual\nAMOUNT code")
-    slotcard(ax, x2, rb, fee="auto", amount="manual")
-    note(ax, rb, "Different targets, so both\nsurvive. Neither of them is a\nsubscription promotion, so\nneither is in any conflict.")
+    # --- 2: the automatic clash. Hidden, and it stays hidden ----------------
+    rowlabel(ax, rb, "2 · Instant automatic ·\nWITH subscription promo",
+             "hidden, and nothing the\ncustomer does brings it back")
+    slotcard(ax, x1, rb, fee="auto", status=HIDDEN)
+    step(rb, x1, x2, "apply a manual\nFEE code")
+    slotcard(ax, x2, rb, fee="manual", status=HIDDEN, tag="still hidden", tagcol=RED)
+    step(rb, x2, x3, "tap ✕ on\nthe code")
+    slotcard(ax, x3, rb, fee="auto", status=HIDDEN,
+             tag="automatic back, still hidden", tagcol=RED)
+    note(ax, rb, "The automatic was displaced,\nnever gone, and returns the\nmoment the code does. The\nclash never clears, so the\nsection does not come back.")
 
-    # --- 3: no subscription promotion, so nothing to clash with -------------
-    rowlabel(ax, rc, "3 · Code applied ·\nNO subscription promo",
-             "a plain recurring offer,\nnothing to clash with")
-    slotcard(ax, x1, rc, status=SHOWN)
+    # --- 3: the manual clash. The section stays, the toggle moves -----------
+    rowlabel(ax, rc, "3 · Manual code ·\nWITH subscription promo",
+             "the toggle moves,\nthe section does not")
+    slotcard(ax, x1, rc, sub=True, status=SHOWN)
     step(rc, x1, x2, "enter a manual\nFEE code")
-    slotcard(ax, x2, rc, fee="manual", status=SHOWN)
+    slotcard(ax, x2, rc, fee="manual", status=TOGGLE_OFF,
+             tag="subscription switched off", tagcol=AMBER)
     step(rc, x2, x3, "tap ✕ on\nthe code")
-    slotcard(ax, x3, rc, status=SHOWN)
-    note(ax, rc, "Nothing clashes, so nothing\nmoves. The section stays on\nscreen and the toggle stays\nwhere the customer left it.")
-
-    # --- 4: the clash. The section stays, the toggle steps aside ------------
-    rowlabel(ax, rd, "4 · Code applied ·\nWITH subscription promo",
-             "the toggle steps aside,\nthe section does not")
-    slotcard(ax, x1, rd, sub=True, status=SHOWN)
-    step(rd, x1, x2, "enter a manual\nFEE code")
-    slotcard(ax, x2, rd, fee="manual", status=TOGGLE_OFF,
-             tag="subscription switched off", tagcol=RED)
-    step(rd, x2, x3, "tap ✕ on\nthe code")
-    slotcard(ax, x3, rd, sub=True, status=SHOWN,
+    slotcard(ax, x3, rc, sub=True, status=SHOWN,
              tag="toggle back as they left it", tagcol=VIOLET)
-    note(ax, rd, "Both cannot apply, so the\nsubscription gives way. The\nsection never leaves the\nscreen, only the toggle moves.")
+    note(ax, rc, "No automatic here, so removing\nthe code really does clear the\nclash. The section never\nleaves the screen.")
 
-    # --- 5: the customer insists. Modal, then the cache ---------------------
-    rowlabel(ax, re_, "5 · Toggling back on ·\nthe modal and the cache",
+    # --- 4: the customer insists. Modal, then the cache ---------------------
+    rowlabel(ax, rd, "4 · Toggling back on ·\nthe modal and the cache",
              "the customer chooses the\nsubscription over the code")
-    slotcard(ax, x1, re_, fee="manual", status=TOGGLE_OFF)
-    step(re_, x1, x2, "tap the toggle\nON")
-    modalcard(ax, x2, re_, tag="ask before taking anything")
-    step(re_, x2, x3, "Yes")
-    slotcard(ax, x3, re_, sub=True, status=SHOWN,
-             tag="code removed, held in cache", tagcol=AMBER)
-    note(ax, re_, "No leaves everything alone.\nYes drops the code, but we\ncache it: switch the\nsubscription off and it is\nre-applied without retyping.")
+    slotcard(ax, x1, rd, fee="manual", status=TOGGLE_OFF)
+    step(rd, x1, x2, "tap the toggle\nON")
+    modalcard(ax, x2, rd, tag="ask before deleting anything")
+    step(rd, x2, x3, "Yes")
+    slotcard(ax, x3, rd, sub=True, status=SHOWN,
+             tag="code deleted, held in cache", tagcol=AMBER)
+    note(ax, rd, "No leaves everything alone.\nYes subscribes and deletes the\ncode, but we cache it: switch\nthe subscription off and it is\nre-applied without retyping.")
+
+    # --- 5: no subscription promotion, so nothing to clash with -------------
+    rowlabel(ax, re_, "5 · NO subscription promo",
+             "nothing ever moves, whatever\nelse is on the transaction")
+    slotcard(ax, x1, re_, status=SHOWN)
+    step(re_, x1, x2, "enter a manual\nFEE code")
+    slotcard(ax, x2, re_, fee="manual", status=SHOWN)
+    step(re_, x2, x3, "tap the toggle\nON")
+    slotcard(ax, x3, re_, fee="manual", status=SHOWN,
+             tag="both stand together", tagcol=VIOLET)
+    note(ax, re_, "A subscription with no promo\nattached is not a promotion,\nso there is nothing for it to\nclash with. No modal, no\nhiding, no toggle moving.")
 
     legend_chips(ax, 0.35)
     return fig

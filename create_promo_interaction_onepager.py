@@ -10,16 +10,20 @@ Page 1 is the model, the rules, and the gate. Page 2 is the full combination
 matrix, five worked journeys, and the screen implications.
 
 The governing rule, from the DCS-5299 thread: a subscription promotion cannot
-be applied alongside an instant automatic or a manual promo code. On that one
-combination the subscription toggle switches OFF, which needs both halves, a
-discount on the transaction AND a subscription offer carrying a promotion of
-its own. The section itself never leaves the screen. A discount on its own
-moves nothing, because a subscription with no promotion attached clashes with
-nothing.
+be applied alongside an instant automatic or a manual promo code. What happens
+next depends on which of the two is on the transaction, because the customer
+can remove one of them and not the other.
 
-Because the section stays, the customer can switch the toggle back on. That
-needs the promo code removed, so a yes/no modal asks first, and the code is
-cached so switching the subscription off again re-applies it without retyping.
+  Instant automatic + subscription promo: the SECTION IS HIDDEN for the whole
+  transaction. A manual code outranks the automatic and can replace it, but
+  the automatic is only displaced, never gone, so the section does not return.
+
+  Manual code + subscription promo, no automatic: the SECTION STAYS and only
+  the TOGGLE switches off. Switching it back on shows a yes/no modal warning
+  the code will be deleted, and the code is cached so switching the
+  subscription off again re-applies it.
+
+  Subscription offer with no promotion: nothing clashes and nothing moves.
 
 """
 
@@ -62,11 +66,11 @@ IMAGES = {
 
 MATRIX = [
     ["Fee ↓  /  Amount →", "Automatic", "Manual", "Subscription", "None"],
-    ["Automatic", "✓  both apply", "✓  both apply", "✗  toggle switched off",
+    ["Automatic", "✓  both apply", "✓  both apply", "✗  section hidden",
      "✓  fee only"],
-    ["Manual", "✓  both apply", "✗  one code only", "✗  toggle switched off",
+    ["Manual", "✓  both apply", "✗  one code only", "✗  toggle off, ask first",
      "✓  fee only"],
-    ["Subscription", "✗  toggle switched off", "✗  toggle switched off", "N/A",
+    ["Subscription", "✗  section hidden", "✗  toggle off, ask first", "N/A",
      "✓  subscription only"],
     ["None", "✓  amount only", "✓  amount only", "✓  subscription only",
      "·  no promotion"],
@@ -106,17 +110,17 @@ BLOCKS = [
            "a promo code the customer types in. Amber. At most one per "
            "transaction.")),
     ("b", ("Subscription",
-           "attached to turning a one-off top-up into a recurring one. Violet. Read "
-           "it in two halves: an offer carrying a promotion of its own cannot be "
-           "applied alongside an instant automatic or a manual code, so the toggle "
-           "switches off when they would clash; an offer with no promotion clashes "
-           "with nothing and the toggle does not move. The section itself stays on "
-           "screen either way.")),
+           "attached to turning a one-off top-up into a recurring one. Violet. An "
+           "offer carrying a promotion of its own cannot be applied alongside an "
+           "instant automatic or a manual code, and what happens next depends on "
+           "which of the two it meets. An offer with no promotion clashes with "
+           "nothing and never moves.")),
 
     ("h2", "The rules"),
-    ("p", "Nine rules cover every case. The first four are the slot mechanics. The "
-          "next three decide whether the subscription toggle stays on. The last two "
-          "cover the customer switching it back on anyway."),
+    ("p", "Ten rules cover every case. The first four are the slot mechanics. Rules "
+          "5 and 6 are the clash with an instant automatic, which hides the section. "
+          "Rules 7 to 9 are the clash with a manual code, which moves the toggle "
+          "instead. Rule 10 is the case where nothing clashes at all."),
     ("b", ("One promotion per target",
            "the fee slot and the amount slot each hold a single promotion.")),
     ("b", ("Two promotions, but only on different targets",
@@ -128,35 +132,42 @@ BLOCKS = [
     ("b", ("Manual outranks automatic",
            "a code always takes the slot, even when the automatic it displaces was "
            "worth more. The customer decides, and we do not warn them off it.")),
-    ("b", ("A subscription promotion cannot be applied alongside another promotion",
-           "not with an instant automatic, not with a manual code. Only one of them "
-           "can win, so on that combination the subscription steps aside and the "
-           "toggle switches off. The section itself stays on screen. That "
-           "combination moves the toggle, and no other.")),
+    ("b", ("An instant automatic and a subscription promotion cannot both apply, "
+           "and the automatic wins",
+           "when the transaction is eligible for an instant automatic and the "
+           "subscription offer carries a promotion, the subscription section is "
+           "hidden. We show the automatic, because it is the one the customer never "
+           "chose and cannot remove.")),
+    ("b", ("That hiding lasts the whole transaction",
+           "a manual code outranks the automatic and can replace it in its slot, but "
+           "the section stays hidden. Remove the code and the automatic returns, "
+           "still hidden. The automatic was only ever displaced, so the clash never "
+           "clears.")),
+    ("b", ("A manual code and a subscription promotion cannot both apply either, but "
+           "here the section stays",
+           "with no instant automatic on the transaction, the clash is live only "
+           "while the code is. The section remains on screen and only the toggle "
+           "moves: applying a code switches the subscription off, removing it "
+           "switches the toggle back to exactly where the customer had it.")),
+    ("b", ("Switching the toggle back on asks first",
+           "the section is still there, so the customer can insist. Because the code "
+           "and the subscription promotion cannot both stand, a yes/no modal warns "
+           "that the manual promo code will be deleted. Yes subscribes and deletes "
+           "the code. No changes nothing at all.")),
+    ("b", ("The promo code is cached, not discarded",
+           "once entered it is held for the rest of the transaction. If the customer "
+           "switches the subscription off again, the code is re-applied "
+           "automatically, so it never has to be typed twice.")),
     ("b", ("A subscription with no promotion clashes with nothing",
            "it stays on offer whatever else the transaction carries, and the toggle "
-           "does not move. A discount on its own never switches anything off.")),
-    ("b", ("The check follows the discount, not the page load",
-           "applying a code switches the toggle off when the subscription carries a "
-           "promotion. Removing the last discount switches it back to exactly where "
-           "the customer had it.")),
+           "never moves. A discount on its own is never a reason to hide or switch "
+           "anything.")),
 
-    ("b", ("Switching the toggle back on asks first",
-           "the section is still on screen, so the customer can insist. Because the "
-           "code and the subscription promotion cannot both stand, a yes/no modal "
-           "warns that the manual promo code will be removed. Yes subscribes and "
-           "drops the code. No changes nothing at all.")),
-
-    ("b", ("The promo code is cached, not discarded",
-           "once entered it is held for the rest of the transaction. If the "
-           "customer switches the subscription off again, the code is re-applied "
-           "automatically, so it never has to be typed twice.")),
-
-    ("h2", "When the toggle switches off, and when it does not"),
-    ("p", "Two questions decide it, and the answer is a 2x2 with a single moving "
-          "cell. Both halves of the clash are required: a discount on the "
-          "transaction, and a subscription offer carrying a promotion of its own. "
-          "The section stays on screen in all four."),
+    ("h2", "What happens on each clash"),
+    ("p", "Two questions decide it: what the transaction carries, and whether the "
+          "subscription offer has a promotion of its own. Six combinations, and only "
+          "two of them move anything. The asymmetry between those two is the point, "
+          "and the panel underneath explains why it is there."),
     ("img", "states"),
 
     ("pagebreak", ""),
@@ -169,31 +180,35 @@ BLOCKS = [
           "from the last row and the last column, where nothing else is on the "
           "transaction. A subscription with no promotion attached is not a "
           "promotion at all: it does not appear in this grid, and it stays on offer "
-          "in every cell. \"Toggle switched off\" is the starting position, not the "
-          "end of it: the customer can switch it back on, and the modal in rule 8 "
-          "is what happens when they do."),
+          "in every cell. The two blocked pairings do not behave the same way: "
+          "against an automatic the section is hidden outright, while against a "
+          "manual code it stays on screen with the toggle off, and the customer can "
+          "switch it back on through the modal in rule 8."),
 
     ("h2", "Five journeys to design for"),
-    ("p", "The same two slots, tracked through each sequence of actions. Journeys 1 "
-          "and 2 are the slot mechanics, which run the same way whatever the "
-          "subscription is doing. Journeys 3 and 4 are the pair to read together: "
-          "the same action in both, and only the second moves the toggle. Journey 5 "
-          "is the customer overruling us, and the one that needs new screens."),
+    ("p", "The same two slots, tracked through each sequence of actions. Journey 1 "
+          "is the slot mechanics, which run the same way whatever the subscription "
+          "is doing. Journeys 2 and 3 are the pair to read together: the customer "
+          "does the same thing in both, and the outcome differs only because of what "
+          "was already on the transaction. Journey 4 is the one that needs new "
+          "screens."),
     ("img", "journeys"),
 
     ("h2", "What this changes on screen"),
-    ("b", ("The toggle moves only on the clash",
-           "a discount on the transaction and a subscription offer carrying a "
-           "promotion. Either one on its own leaves the toggle exactly where it "
-           "was, and the section is on screen throughout.")),
-    ("b", ("A discount with no subscription promotion changes nothing",
-           "the toggle stays where the customer put it.")),
+    ("b", ("Two different outcomes to design, not one",
+           "against an instant automatic the section is gone and stays gone. "
+           "Against a manual code it is present with the toggle off. Do not "
+           "collapse them into a single empty state.")),
+    ("b", ("The hidden case needs no controls at all",
+           "there is nothing for the customer to act on and nothing that brings the "
+           "section back, so it should not hint that something is available "
+           "elsewhere.")),
     ("b", ("Switching the subscription off is a change they did not ask for",
            "so it needs saying on screen rather than letting the toggle move "
-           "quietly. Same when removing the last discount switches it back.")),
+           "quietly. Same when removing the last code switches it back.")),
     ("b", ("The modal is the one genuinely new screen",
            "a yes/no confirmation, shown when the customer switches the toggle back "
-           "on while a code is applied. It has to name the code being removed, and "
+           "on while a code is applied. It has to name the code being deleted, and "
            "No must leave the transaction untouched.")),
     ("b", ("The cache should be visible when it fires",
            "a re-applied code was not retyped by the customer, so show it returning "
