@@ -2,7 +2,8 @@
 """
 Two figures for the IMTU promotion-interaction reference (design team).
 
-  1. promo_interaction_states.png    - the three states and every transition
+  1. promo_interaction_states.png    - the gate, then three states and every
+                                       transition on the far side of it
   2. promo_interaction_journeys.png  - five worked journeys
 
 The mental model both figures encode: a transaction has exactly two promotion
@@ -12,6 +13,13 @@ two halves: one that carries its own promotion is not a slot-filler at all, it
 takes over the whole transaction and remembers what it displaced; one with no
 promotion attached is only a delivery setting and leaves both slots alone.
 
+Everything about the subscription sits behind a gate. An instant automatic
+promotion anywhere on the transaction hides the subscription section outright,
+because the two cannot stack and the automatic wins. The gate is evaluated
+once, when the transaction loads, so the section does not come back even when
+a manual code later displaces the automatic. Journeys 1 and 2 therefore live
+on the hidden side of the gate and never show a subscription at all.
+
 Product decisions of 31 Aug 2026 folded in:
   - one manual code per transaction (never two)
   - turning a subscription promotion off restores the previous state IN FULL,
@@ -20,12 +28,13 @@ Product decisions of 31 Aug 2026 folded in:
   - manual always outranks automatic, the customer decides, no warning
 
 Product decisions of 1 Sep 2026 (DCS-5299 comment thread) folded in:
-  - the subscription section is never hidden, only the toggle moves
+  - a manual code never hides the subscription section, only the toggle moves
   - with a subscription promotion, applying a manual code toggles the
     subscription OFF; removing the code returns the toggle to its previous
     state; toggling back ON asks for confirmation because the code must go
   - the manual code is cached, so restoring it never means retyping
   - with no subscription promotion, a manual code changes nothing at all
+  - an instant automatic hides the section entirely, decided once on load
 
 Colour language is fixed and must match the doc:
   Automatic = blue      Manual = amber      Subscription = violet
@@ -133,31 +142,70 @@ def statecard(ax, cx, cy, w, h, title, slots, foot, style):
             fontsize=7.2, color="#8A8A8A", zorder=5)
 
 
+def gatebox(ax, cx, cy, w, h, verdict, body, style):
+    ax.add_patch(FancyBboxPatch(
+        (cx - w / 2, cy - h / 2), w, h,
+        boxstyle="round,pad=0,rounding_size=0.14", linewidth=1.5,
+        facecolor=style["fill"], edgecolor=style["edge"], zorder=3))
+    ax.text(cx, cy + h / 2 - 0.40, verdict, ha="center", va="center",
+            fontsize=9.2, fontweight="bold", color=style["text"], zorder=5)
+    ax.text(cx, cy - 0.30, body, ha="center", va="center",
+            fontsize=7.6, color=style["text"], alpha=0.92, zorder=5,
+            linespacing=1.55)
+
+
 def fig_flow():
-    H = 12.2
+    H = 12.6
     fig, ax = canvas(H)
 
-    yt = 10.4                     # the two "normal" states sit on this line
+    # The gate decides whether any of this is on screen at all.
+    ax.text(XMAX / 2, 12.1,
+            "First, the gate: does an instant automatic promotion apply to this "
+            "transaction?",
+            ha="center", va="center", fontsize=10.2, fontweight="bold",
+            color="#232320", zorder=5)
+
+    gw, gy, gh = 9.9, 10.85, 2.15
+    gatebox(ax, 5.8, gy, gw, gh, "YES · no subscription section",
+            "The two cannot stack and the automatic wins, so the section\n"
+            "is not rendered. Decided once on load: nothing the customer\n"
+            "types afterwards brings it back. Manual codes still work on\n"
+            "the slots, and ✕ still restores the automatic.", RED)
+    gatebox(ax, 16.2, gy, gw, gh, "NO · the section is rendered",
+            "Everything below applies: the three states, the toggle,\n"
+            "and the promo-code interactions. No automatic is on the\n"
+            "transaction, so both slots start empty and the customer\n"
+            "can subscribe.", VIOLET)
+
+    yt = 8.0                      # the two "normal" states sit on this line
     ax_, bx = 5.6, 16.4
-    cw, ch = 6.8, 2.7
+    cw, ch = 6.8, 2.5
     a_bot = b_bot = yt - ch / 2
 
-    statecard(ax, ax_, yt, cw, ch, "A · Automatic only",
-              [("FEE", "Automatic", BLUE), ("AMOUNT", "Automatic", BLUE)],
-              "the default · either slot may be empty", BLUE)
+    # The NO branch lands on A: no automatic means both slots start empty.
+    ax.plot([11.25, 11.25], [gy - gh / 2, 9.55], color=ARROW, linewidth=1.2,
+            zorder=2)
+    ax.plot([11.25, ax_], [9.55, 9.55], color=ARROW, linewidth=1.2, zorder=2)
+    ax.add_patch(FancyArrowPatch(
+        (ax_, 9.55), (ax_, yt + ch / 2), arrowstyle="-|>", mutation_scale=11,
+        linewidth=1.2, color=ARROW, zorder=2))
+
+    statecard(ax, ax_, yt, cw, ch, "A · No promotion",
+              [("FEE", None, GRAY), ("AMOUNT", None, GRAY)],
+              "the default here · the subscription section is shown", GRAY)
 
     statecard(ax, bx, yt, cw, ch, "B · Manual code applied",
-              [("FEE", "Manual", AMBER), ("AMOUNT", "Automatic", BLUE)],
-              "the code takes one slot · the other keeps its automatic", AMBER)
+              [("FEE", "Manual", AMBER), ("AMOUNT", None, GRAY)],
+              "the code takes one slot · the other stays empty", AMBER)
 
     # A <-> B
-    arrow(ax, (ax_ + cw / 2, yt + 0.55), (bx - cw / 2, yt + 0.55),
-          label="enter a promo code", ldy=0.38)
-    arrow(ax, (bx - cw / 2, yt - 0.55), (ax_ + cw / 2, yt - 0.55),
-          label="tap ✕ to remove it,\nthe automatic returns", ldy=-0.52)
+    arrow(ax, (ax_ + cw / 2, yt + 0.50), (bx - cw / 2, yt + 0.50),
+          label="enter a promo code", ldy=0.36)
+    arrow(ax, (bx - cw / 2, yt - 0.50), (ax_ + cw / 2, yt - 0.50),
+          label="tap ✕ to remove it", ldy=-0.40)
 
     # C, spanning underneath both
-    cx_c, cy_c, cwc, chc = 10.4, 5.2, 12.6, 2.5
+    cx_c, cy_c, cwc, chc = 10.4, 3.0, 12.6, 2.5
     statecard(ax, cx_c, cy_c, cwc, chc, "C · Subscription promotion",
               [("SUBSCRIPTION PROMO", VIOLET)],
               "both slots cleared · the previous state is remembered", VIOLET)
@@ -169,22 +217,22 @@ def fig_flow():
           label="subscription ON\nask first: the code goes", lpos=0.46)
 
     # C -> whichever state was active, restored in full
-    ax.plot([cx_c, cx_c], [c_top, 7.95], color=ARROW, linewidth=1.2,
+    ax.plot([cx_c, cx_c], [c_top, 5.55], color=ARROW, linewidth=1.2,
             linestyle=(0, (4, 3)), zorder=2)
-    ax.plot([7.2, 14.8], [7.95, 7.95], color=ARROW, linewidth=1.2,
+    ax.plot([7.2, 14.8], [5.55, 5.55], color=ARROW, linewidth=1.2,
             linestyle=(0, (4, 3)), zorder=2)
     for x in (7.2, 14.8):
         ax.add_patch(FancyArrowPatch(
-            (x, 7.95), (x, a_bot), arrowstyle="-|>", mutation_scale=11,
+            (x, 5.55), (x, a_bot), arrowstyle="-|>", mutation_scale=11,
             linewidth=1.2, color=ARROW, zorder=2, linestyle=(0, (4, 3))))
-    ax.text(11.0, 8.52,
+    ax.text(11.0, 6.12,
             "subscription OFF, the remembered state returns in full,\n"
             "the cached manual code re-applied without retyping",
             ha="center", va="center", fontsize=7.8, color="#6A6A6A", zorder=5,
             bbox=dict(boxstyle="round,pad=0.22", fc="white", ec="none", alpha=0.95))
 
     # the special exit: a code typed while a subscription promotion is on
-    nx, ny, nw, nh = 19.4, 5.2, 4.6, 2.5
+    nx, ny, nw, nh = 19.4, 3.0, 4.6, 2.5
     ax.add_patch(FancyBboxPatch(
         (nx - nw / 2, ny - nh / 2), nw, nh,
         boxstyle="round,pad=0,rounding_size=0.14", linewidth=1.4,
@@ -199,28 +247,9 @@ def fig_flow():
     arrow(ax, (cx_c + cwc / 2, ny), (nx - nw / 2, ny))
     arrow(ax, (nx, ny + nh / 2), (nx, b_bot))
 
-    # the other half of the model: a subscription with nothing attached to it
-    sy, sh = 2.15, 1.9
-    ax.add_patch(FancyBboxPatch(
-        (0.6, sy - sh / 2), XMAX - 1.2, sh,
-        boxstyle="round,pad=0,rounding_size=0.16", linewidth=1.5,
-        facecolor=VIOLET["fill"], edgecolor=VIOLET["edge"], zorder=3))
-    ax.text(XMAX / 2, sy + 0.52, "When the subscription carries NO promotion",
-            ha="center", va="center", fontsize=9.6, fontweight="bold",
-            color=VIOLET["text"], zorder=5)
-    ax.text(XMAX / 2, sy - 0.28,
-            "The toggle is a delivery setting, not a promotion. It fills no slot, "
-            "so states A and B above are untouched by it.\n"
-            "Adding a promo code changes nothing about the subscription, and "
-            "removing the code changes nothing either.\n"
-            "The section is never hidden and the toggle never moves.",
-            ha="center", va="center", fontsize=7.6, color=VIOLET["text"],
-            alpha=0.92, zorder=5, linespacing=1.6)
-
-    legend_chips(ax, 0.42,
-                 "One promotion per target · two automatics may coexist when one is "
-                 "on Fee and the other on Amount · never two manual codes · "
-                 "the subscription section is never hidden.")
+    legend_chips(ax, 0.95,
+                 "A manual code never hides the section, it only moves the toggle · "
+                 "only an instant automatic hides it, and only at load time.")
     return fig
 
 
@@ -318,34 +347,33 @@ def fig_examples():
     def step(cy, xa, xb, label):
         arrow(ax, (xa + gap, cy), (xb - gap, cy), label=label, ldy=0.50, lsize=7.0)
 
-    # --- 1. replacement -----------------------------------------------------
-    rowlabel(ax, ra, "1 · Replacement", "the code lands on\nan occupied slot")
+    # --- 1 and 2 sit on the hidden side of the gate: an automatic applies ---
+    rowlabel(ax, ra, "1 · Replacement",
+             "an automatic applies, so\nthere is no subscription section")
     slotcard(ax, x1, ra, fee="auto")
     step(ra, x1, x2, "apply a manual\nFEE code")
     slotcard(ax, x2, ra, fee="manual")
-    step(ra, x2, x3, "subscription\npromo ON")
-    slotcard(ax, x3, ra, sub=True)
-    note(ax, ra, "The code always wins the\nslot: the customer decides.\nThe automatic is displaced,\nnot deleted.")
+    step(ra, x2, x3, "tap ✕ on\nthe code")
+    slotcard(ax, x3, ra, fee="auto", tag="the automatic comes back", tagcol=BLUE)
+    note(ax, ra, "The code always wins the\nslot: the customer decides.\nThe automatic is displaced,\nnot deleted, and ✕ restores it.")
 
-    # --- 2. stacking --------------------------------------------------------
-    rowlabel(ax, rb, "2 · Stacking", "the code lands on\na free slot")
+    rowlabel(ax, rb, "2 · Stacking",
+             "still an automatic, so\nstill no subscription section")
     slotcard(ax, x1, rb, fee="auto")
     step(rb, x1, x2, "apply a manual\nAMOUNT code")
     slotcard(ax, x2, rb, fee="auto", amount="manual")
-    step(rb, x2, x3, "subscription\npromo ON")
-    slotcard(ax, x3, rb, sub=True)
-    note(ax, rb, "Different targets, so both\nsurvive, until the\nsubscription promo clears\nthe pair.")
+    note(ax, rb, "Different targets, so both\nsurvive. An automatic is on\nthe transaction either way, so\nthe section never appears.")
 
-    # --- 3. restoration -----------------------------------------------------
-    rowlabel(ax, rc, "3 · Restoration", "the subscription promo\nis switched back off")
+    # --- 3 to 5 sit on the visible side: no automatic on the transaction -----
+    rowlabel(ax, rc, "3 · Restoration",
+             "no automatic, so the\nsection is on screen")
     slotcard(ax, x1, rc, sub=True)
     step(rc, x1, x2, "subscription\npromo OFF")
     slotcard(ax, x2, rc, fee="manual", tag="cached code re-applied", tagcol=AMBER)
     step(rc, x2, x3, "tap ✕ on\nthe code")
-    slotcard(ax, x3, rc, fee="auto", tag="the automatic comes back", tagcol=BLUE)
+    slotcard(ax, x3, rc)
     note(ax, rc, "Everything comes back\nexactly as it was, the code\nincluded and never retyped.")
 
-    # --- 4. code while subscribed, WITH a subscription promotion ------------
     rowlabel(ax, rd, "4 · Code while\nsubscribed · WITH promo",
              "the subscription carries\na promotion of its own")
     slotcard(ax, x1, rd, sub=True)
@@ -357,14 +385,13 @@ def fig_examples():
               "Turning the subscription\non removes your promo\ncode. Continue?")
     note(ax, rd, "The toggle flips on its own,\nso say so on screen. Going\nback the other way has to\nask, because the code must go.")
 
-    # --- 5. code while subscribed, WITHOUT a subscription promotion ---------
     rowlabel(ax, re, "5 · Code while\nsubscribed · NO promo",
              "the subscription is only\na delivery setting")
-    slotcard(ax, x1, re, fee="auto", sub_tag="subscription ON")
+    slotcard(ax, x1, re, sub_tag="subscription ON")
     step(re, x1, x2, "enter a manual\nFEE code")
     slotcard(ax, x2, re, fee="manual", sub_tag="subscription ON")
     step(re, x2, x3, "tap ✕ on\nthe code")
-    slotcard(ax, x3, re, fee="auto", sub_tag="subscription ON")
+    slotcard(ax, x3, re, sub_tag="subscription ON")
     note(ax, re, "Nothing about the subscription\nmoves. The section stays\nvisible and the toggle stays\nwhere the customer left it.")
 
     legend_chips(ax, 0.25)
