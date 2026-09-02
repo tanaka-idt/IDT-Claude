@@ -9,14 +9,14 @@ to (fee, top-up amount), and what the customer should see at every transition.
 Page 1 is the model, the rules, and the gate. Page 2 is the full combination
 matrix, four worked journeys, and the screen implications.
 
-The governing rule, from the DCS-5299 thread: the subscription section is
-rendered only on a transaction carrying no discount at all. An instant
-automatic hides it and so does a manual promo code, whether or not the
-subscription would have carried a promotion of its own, because a discount
-sitting beside a subscription offer reads as a discount on every future
-charge. The gate follows the discount rather than the page load, so removing
-the last discount brings the section back with the toggle as the customer
-left it.
+The governing rule, from the DCS-5299 thread: a subscription promotion cannot
+be applied alongside an instant automatic or a manual promo code. The section
+is hidden exactly when that clash would arise, which needs both halves, a
+discount on the transaction AND a subscription offer carrying a promotion of
+its own. A discount on its own does not hide anything, because a subscription
+with no promotion attached clashes with nothing and stays on offer. The check
+follows the discount rather than the page load, so removing the last discount
+brings the section back with the toggle as the customer left it.
 
 """
 
@@ -93,9 +93,9 @@ BLOCKS = [
 
     ("h2", "The model"),
     ("p", "Every IMTU transaction has two places a promotion can land: the fee and "
-          "the top-up amount. Two slots, each holding at most one promotion. Three "
-          "kinds of promotion exist, colour-coded the same way throughout, but only "
-          "the first two ever compete for a slot."),
+          "the top-up amount. Two slots, each holding at most one promotion. The "
+          "first two kinds below compete for those slots; the third cannot be "
+          "applied alongside either."),
     ("b", ("Instant automatic",
            "applied by the system the moment the customer qualifies, with no action "
            "from them. Blue.")),
@@ -103,14 +103,15 @@ BLOCKS = [
            "a promo code the customer types in. Amber. At most one per "
            "transaction.")),
     ("b", ("Subscription",
-           "attached to turning a one-off top-up into a recurring one. Violet. It "
-           "never competes for a slot, because it is offered only when both slots "
-           "are empty. Whether it carries a promotion of its own makes no "
-           "difference to any of this.")),
+           "attached to turning a one-off top-up into a recurring one. Violet. Read "
+           "it in two halves: an offer carrying a promotion of its own cannot be "
+           "applied alongside an instant automatic or a manual code, so the section "
+           "comes down when they would clash; an offer with no promotion clashes "
+           "with nothing and stays on screen.")),
 
     ("h2", "The rules"),
-    ("p", "Six rules cover every case. The first four are the slot mechanics; the "
-          "last two are why the subscription is so often not on screen at all."),
+    ("p", "Seven rules cover every case. The first four are the slot mechanics; the "
+          "last three decide whether the subscription section is on screen at all."),
     ("b", ("One promotion per target",
            "the fee slot and the amount slot each hold a single promotion.")),
     ("b", ("Two promotions, but only on different targets",
@@ -122,21 +123,24 @@ BLOCKS = [
     ("b", ("Manual outranks automatic",
            "a code always takes the slot, even when the automatic it displaces was "
            "worth more. The customer decides, and we do not warn them off it.")),
-    ("b", ("Any discount hides the subscription section",
-           "an instant automatic the customer qualifies for, or a promo code they "
-           "type. It makes no difference whether the subscription would have "
-           "carried a promotion of its own. The reason is the recurring charge: a "
-           "discount sitting beside a subscription offer reads as a discount on "
-           "every future charge, and it is not.")),
-    ("b", ("The gate follows the discount, not the page load",
-           "applying a code hides the section and switches off any subscription the "
-           "customer had set. Removing the last discount brings the section back, "
-           "with the toggle exactly as they left it.")),
+    ("b", ("A subscription promotion cannot be applied alongside another promotion",
+           "not with an instant automatic, not with a manual code. Only one of them "
+           "could win, so rather than show an offer we would have to strip the "
+           "promotion from, the section comes down. That combination hides it, and "
+           "no other.")),
+    ("b", ("A subscription with no promotion clashes with nothing",
+           "it stays on offer whatever else the transaction carries, and the toggle "
+           "does not move. A discount on its own never hides the section.")),
+    ("b", ("The check follows the discount, not the page load",
+           "applying a code takes the section down when the subscription carries a "
+           "promotion, and switches off any subscription already set. Removing the "
+           "last discount brings it back, with the toggle exactly as they left "
+           "it.")),
 
-    ("h2", "When the offer is on screen, and when it is not"),
-    ("p", "There is one state where the subscription is offered: a transaction "
-          "carrying no discount at all. Every other transaction hides it, and there "
-          "is no partly-available state in between."),
+    ("h2", "When the section comes down, and when it does not"),
+    ("p", "Two questions decide it, and the answer is a 2x2 with a single hidden "
+          "cell. Both halves of the clash are required: a discount on the "
+          "transaction, and a subscription offer carrying a promotion of its own."),
     ("img", "states"),
 
     ("pagebreak", ""),
@@ -144,37 +148,43 @@ BLOCKS = [
     ("h2", "Every combination"),
     ("table", "MATRIX"),
     ("p", "Read a cell as one transaction holding both promotions: the row is what "
-          "sits on the fee, the column what sits on the top-up amount. A "
-          "subscription reaches the customer only from the last row and the last "
-          "column, where nothing else is on the transaction. Everywhere else the "
-          "section is not rendered."),
+          "sits on the fee, the column what sits on the top-up amount. Subscription "
+          "here means a subscription promotion, and it reaches the customer only "
+          "from the last row and the last column, where nothing else is on the "
+          "transaction. A subscription with no promotion attached is not a "
+          "promotion at all: it does not appear in this grid, and it stays on offer "
+          "in every cell."),
 
     ("h2", "Four journeys to design for"),
     ("p", "The same two slots, tracked through each sequence of actions. Journeys 1 "
-          "and 2 are the slot mechanics, which run their whole course with the "
-          "section absent. Journey 4 is the crossing in both directions, and the "
-          "only one where the screen changes under the customer."),
+          "and 2 are the slot mechanics, which run the same way whatever the "
+          "subscription is doing. Journeys 3 and 4 are the pair to read closely: "
+          "the customer does exactly the same thing in both, and only the second "
+          "changes the screen."),
     ("img", "journeys"),
 
     ("h2", "What this changes on screen"),
-    ("b", ("Any discount hides the section",
-           "an automatic at load or a code the customer types, both, always. There "
-           "is no toggle-off state to design: the section is either on screen with a "
-           "working toggle, or not on screen at all.")),
-    ("b", ("Applying a code while subscribed ends the subscription",
-           "the customer asked for neither the cancellation nor the section "
-           "disappearing, so this is the moment the screen has to say something.")),
+    ("b", ("The section comes down only on the clash",
+           "a discount on the transaction and a subscription offer carrying a "
+           "promotion. Either one on its own leaves the section exactly where it "
+           "was.")),
+    ("b", ("A discount with no subscription promotion changes nothing",
+           "the section stays on screen, the toggle stays where the customer put "
+           "it, and there is no half-available state in between to design.")),
+    ("b", ("On the clash, the subscription goes with the section",
+           "the customer asked for neither, so this is the moment the screen has to "
+           "say something rather than let both disappear quietly.")),
     ("b", ("Removing the last discount brings both back",
            "the section returns and the toggle sits exactly where the customer left "
            "it, subscribed again if that is what they had chosen. Another change "
            "they did not ask for, so it should be as visible as the first.")),
     ("b", ("The applied code still needs an ✕",
            "it is the only route back to the automatic promotion it displaced, and "
-           "the only route back to the subscription offer.")),
+           "on the clash the only route back to the subscription offer.")),
     ("b", ("Two earlier asks can be dropped",
            "the yes/no confirmation is unreachable, since the customer can never "
-           "turn the subscription on while a code is applied, and the promo-code "
-           "cache is unnecessary, since the subscription no longer removes the "
+           "turn a promoted subscription on while a code is applied, and the "
+           "promo-code cache is unnecessary, since nothing now removes the "
            "code.")),
 ]
 

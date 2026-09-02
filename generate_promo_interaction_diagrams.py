@@ -2,8 +2,8 @@
 """
 Two figures for the IMTU promotion-interaction reference (design team).
 
-  1. promo_interaction_states.png    - when the subscription section is on
-                                       screen and when it is not
+  1. promo_interaction_states.png    - the 2x2 that decides whether the
+                                       subscription section is on screen
   2. promo_interaction_journeys.png  - four worked journeys
 
 Two ideas, and the second one governs:
@@ -13,18 +13,18 @@ each holding at most one promotion. Automatic and manual promotions compete
 for them: a manual code always wins the slot it lands on, and ✕ restores the
 automatic it displaced.
 
-THE GATE. The subscription section is rendered only on a transaction that
-carries no discount at all. An instant automatic the customer qualifies for
-hides it, and so does a promo code they type, whether or not the subscription
-would have carried a promotion of its own. The reason is the recurring charge:
-a discount sitting beside a subscription offer reads as a discount on every
-future charge, and it is not. The gate follows the discount rather than the
-page load, so removing the last discount brings the section back with the
-toggle exactly as the customer left it.
+THE CLASH. A subscription promotion cannot be applied alongside an instant
+automatic or a manual promo code. We do not show an offer we cannot honour,
+so the subscription section is hidden exactly when that clash would arise:
+a discount on the transaction AND a subscription offer carrying a promotion
+of its own. Both halves are required. A discount on its own does not hide the
+section, because a subscription with no promotion attached clashes with
+nothing and stays on offer.
 
-Because of the gate, a subscription never competes for a slot: it is only ever
-offered when both slots are empty. Earlier drafts of this figure drew that
-competition, and it cannot happen.
+That makes it a 2x2 with one hidden cell, which is what figure 1 draws. The
+gate follows the discount rather than the page load, so removing the last
+discount brings the section back with the toggle exactly as the customer left
+it.
 
 Colour language is fixed and must match the doc:
   Automatic = blue      Manual = amber      Subscription = violet
@@ -97,127 +97,108 @@ def save(fig, path):
     print(f"  wrote {path}")
 
 
-# ------------------------------------------------------- fig 1: the gate ---
+# ---------------------------------------------------------- fig 1: the 2x2 ---
 
-def panel(ax, cx, cy, w, h, style):
+def cell(ax, cx, cy, w, h, verdict, body, style):
     ax.add_patch(FancyBboxPatch(
         (cx - w / 2, cy - h / 2), w, h,
-        boxstyle="round,pad=0,rounding_size=0.18", linewidth=1.7,
-        facecolor="#FFFFFF", edgecolor=style["edge"], zorder=3))
+        boxstyle="round,pad=0,rounding_size=0.15", linewidth=1.7,
+        facecolor=style["fill"], edgecolor=style["edge"], zorder=3))
+    ax.text(cx, cy + h / 2 - 0.48, verdict, ha="center", va="center",
+            fontsize=9.8, fontweight="bold", color=style["text"], zorder=5)
+    ax.text(cx, cy - 0.32, body, ha="center", va="center",
+            fontsize=7.6, color=style["text"], alpha=0.92, zorder=5,
+            linespacing=1.55)
 
 
-def slotline(ax, cx, cy, label, value, style=None):
-    ax.text(cx - 3.5, cy, label, ha="left", va="center",
-            fontsize=6.8, color="#9A9A9A", zorder=5)
-    if style is None:
-        ax.text(cx + 0.6, cy, value, ha="center", va="center",
-                fontsize=7.6, color="#B4B0AA", zorder=5)
-        return
+def minichip(ax, cx, cy, text, style, w=3.3):
     ax.add_patch(FancyBboxPatch(
-        (cx - 0.75, cy - 0.27), 2.7, 0.54,
+        (cx - w / 2, cy - 0.24), w, 0.48,
         boxstyle="round,pad=0,rounding_size=0.09", linewidth=1.1,
         facecolor=style["fill"], edgecolor=style["edge"], zorder=4))
-    ax.text(cx + 0.6, cy, value, ha="center", va="center", fontsize=7.8,
+    ax.text(cx, cy, text, ha="center", va="center", fontsize=7.0,
             fontweight="bold", color=style["text"], zorder=5)
 
 
 def fig_flow():
-    H = 11.35
+    H = 12.2
     fig, ax = canvas(H)
 
-    ax.text(XMAX / 2, 10.75,
-            "The subscription section is shown if, and only if, nothing "
-            "discounts this purchase.",
+    ax.text(XMAX / 2, 11.6,
+            "The section is hidden on one combination only: a subscription "
+            "promotion that would have to sit beside another one.",
             ha="center", va="center", fontsize=10.4, fontweight="bold",
             color="#232320", zorder=5)
 
-    lx, rx, pw = 5.0, 17.0, 8.6
-    pcy, ph = 6.9, 4.2
+    c1, c2, cw = 9.5, 18.1, 7.0
+    r1, r2, ch = 8.3, 4.9, 2.5
 
-    ax.text(lx, 9.55, "SECTION SHOWN", ha="center", va="center",
-            fontsize=9.0, fontweight="bold", color=VIOLET["text"], zorder=5)
-    ax.text(rx, 9.55, "SECTION HIDDEN", ha="center", va="center",
-            fontsize=9.0, fontweight="bold", color=RED["text"], zorder=5)
+    # column headers
+    ax.text(c1, 10.5, "No discount on the transaction", ha="center",
+            va="center", fontsize=9.2, fontweight="bold", color="#454340",
+            zorder=5)
+    ax.text(c2, 10.72, "A discount on the transaction", ha="center",
+            va="center", fontsize=9.2, fontweight="bold", color="#454340",
+            zorder=5)
+    minichip(ax, c2 - 1.85, 10.15, "Instant automatic", BLUE)
+    ax.text(c2, 10.15, "or", ha="center", va="center", fontsize=6.8,
+            color="#8A8A8A", zorder=5)
+    minichip(ax, c2 + 1.85, 10.15, "Manual code", AMBER)
 
-    # ---- left: the one state where the offer is made ----------------------
-    panel(ax, lx, pcy, pw, ph, VIOLET)
-    ax.text(lx, pcy + ph / 2 - 0.46, "Nothing discounts the purchase",
-            ha="center", va="center", fontsize=9.4, fontweight="bold",
-            color=VIOLET["text"], zorder=5)
-    slotline(ax, lx, pcy + 0.72, "FEE", "no promo")
-    slotline(ax, lx, pcy + 0.10, "AMOUNT", "no promo")
-    ax.add_patch(FancyBboxPatch(
-        (lx - 3.6, pcy - 1.18), 7.2, 0.66,
-        boxstyle="round,pad=0,rounding_size=0.10", linewidth=1.2,
-        facecolor=VIOLET["fill"], edgecolor=VIOLET["edge"], zorder=4))
-    ax.text(lx, pcy - 0.85, "SUBSCRIPTION TOGGLE · the customer's to set",
-            ha="center", va="center", fontsize=7.8, fontweight="bold",
-            color=VIOLET["text"], zorder=5)
-    ax.text(lx, pcy - ph / 2 + 0.38,
-            "the only state the offer is ever made from",
-            ha="center", va="center", fontsize=7.2, color="#8A8A8A", zorder=5)
+    # row headers
+    ax.text(3.0, r1, "The subscription offer\ncarries a promotion",
+            ha="center", va="center", fontsize=9.2, fontweight="bold",
+            color=VIOLET["text"], zorder=5, linespacing=1.45)
+    ax.text(3.0, r2, "The subscription offer\ncarries no promotion",
+            ha="center", va="center", fontsize=9.2, fontweight="bold",
+            color="#454340", zorder=5, linespacing=1.45)
 
-    # ---- right: every other transaction -----------------------------------
-    panel(ax, rx, pcy, pw, ph, RED)
-    ax.text(rx, pcy + ph / 2 - 0.46, "A discount applies",
-            ha="center", va="center", fontsize=9.4, fontweight="bold",
-            color=RED["text"], zorder=5)
-    for dx, (name, st) in zip((-2.0, 2.0),
-                              (("Instant automatic", BLUE),
-                               ("Manual promo code", AMBER))):
-        ax.add_patch(FancyBboxPatch(
-            (rx + dx - 1.75, pcy + 0.18), 3.5, 0.62,
-            boxstyle="round,pad=0,rounding_size=0.10", linewidth=1.2,
-            facecolor=st["fill"], edgecolor=st["edge"], zorder=4))
-        ax.text(rx + dx, pcy + 0.49, name, ha="center", va="center",
-                fontsize=7.6, fontweight="bold", color=st["text"], zorder=5)
-    ax.text(rx, pcy + 0.49, "or", ha="center", va="center", fontsize=7.4,
-            color="#8A8A8A", zorder=5,
-            bbox=dict(boxstyle="round,pad=0.14", fc="white", ec="none"))
-    ax.text(rx, pcy - 0.62,
-            "no toggle, no section, nothing to design.\nAny subscription the "
-            "customer had set is off.",
-            ha="center", va="center", fontsize=7.6, color=RED["text"],
-            alpha=0.92, zorder=5, linespacing=1.5)
-    ax.text(rx, pcy - ph / 2 + 0.38,
-            "whether or not the subscription had a promotion of its own",
-            ha="center", va="center", fontsize=7.2, color="#8A8A8A", zorder=5)
+    # the four cells
+    cell(ax, c1, r1, cw, ch, "SECTION SHOWN",
+         "with its savings copy: the\nsubscription promotion applies",
+         VIOLET)
+    cell(ax, c2, r1, cw, ch, "SECTION HIDDEN",
+         "the clash. Two promotions we cannot\napply together, so we do not make\n"
+         "an offer we could not honour",
+         RED)
+    cell(ax, c1, r2, cw, ch, "SECTION SHOWN",
+         "a plain recurring top-up,\nwith no savings copy",
+         VIOLET)
+    cell(ax, c2, r2, cw, ch, "SECTION SHOWN",
+         "nothing to clash with. The discount\nis on this purchase only, and the\n"
+         "subscription is offered as normal",
+         VIOLET)
 
-    # ---- the crossing, which is the whole interaction ----------------------
-    le, re_ = lx + pw / 2, rx - pw / 2
-    arrow(ax, (le, 7.9), (re_, 7.9))
-    ax.text((le + re_) / 2, 8.62,
-            "a discount lands:\nan automatic at load, or a\ncode the customer types",
-            ha="center", va="center", fontsize=7.2, color="#6A6A6A",
-            zorder=5, linespacing=1.5)
-    arrow(ax, (re_, 5.9), (le, 5.9))
-    ax.text((le + re_) / 2, 5.18,
-            "the last discount goes:\nthe section returns, toggle\nexactly as they left it",
-            ha="center", va="center", fontsize=7.2, color="#6A6A6A",
-            zorder=5, linespacing=1.5)
+    # only the top row moves
+    arrow(ax, (c1 + cw / 2, r1 + 0.55), (c2 - cw / 2, r1 + 0.55))
+    arrow(ax, (c2 - cw / 2, r1 - 0.55), (c1 + cw / 2, r1 - 0.55))
+    ax.text(XMAX / 2, 6.62,
+            "Only the top row moves. A code typed, or an automatic applying at "
+            "load, crosses left to right and takes the section with it.\n"
+            "Removing the last discount crosses back, with the toggle exactly as "
+            "the customer left it. Nothing on the bottom row moves at all.",
+            ha="center", va="center", fontsize=7.6, color="#6A6A6A", zorder=5,
+            linespacing=1.55)
 
     # ---- why ---------------------------------------------------------------
-    wy, wh = 2.55, 2.0
+    wy, wh = 1.95, 2.0
     ax.add_patch(FancyBboxPatch(
         (0.6, wy - wh / 2), XMAX - 1.2, wh,
         boxstyle="round,pad=0,rounding_size=0.16", linewidth=1.5,
         facecolor=VIOLET["fill"], edgecolor=VIOLET["edge"], zorder=3))
-    ax.text(XMAX / 2, wy + 0.58, "Why we hide it rather than explain it",
+    ax.text(XMAX / 2, wy + 0.56, "Why the one cell is hidden",
             ha="center", va="center", fontsize=9.6, fontweight="bold",
             color=VIOLET["text"], zorder=5)
     ax.text(XMAX / 2, wy - 0.28,
-            "A discount sitting beside a subscription offer reads as a discount "
-            "on every future charge. It is not: the promotion applies\n"
-            "to this purchase only. Rather than explain that on the payment "
-            "screen, we do not make the offer while a discount is on\n"
-            "the transaction. The subscription therefore never competes for a "
-            "slot, because it is only ever offered when both are empty.",
+            "A subscription promotion cannot be applied together with an instant "
+            "automatic or a manual promo code. Only one of them can win, and\n"
+            "showing a subscription offer we would then have to strip the "
+            "promotion from is worse than not showing it. So the section comes "
+            "down for that\ncombination and no other. A subscription with no "
+            "promotion attached clashes with nothing, and is offered whatever "
+            "else is on the transaction.",
             ha="center", va="center", fontsize=7.6, color=VIOLET["text"],
             alpha=0.92, zorder=5, linespacing=1.6)
-
-    legend_chips(ax, 0.72,
-                 "The gate follows the discount, not the page load · "
-                 "there is no partly-available state to design.")
     return fig
 
 
@@ -258,10 +239,10 @@ def slotcard(ax, cx, cy, fee=None, amount=None, sub=False, tag=None, tagcol=None
             (cx - INNER, cy - 0.14), INNER * 2, 0.72,
             boxstyle="round,pad=0,rounding_size=0.10", linewidth=1.2,
             facecolor=VIOLET["fill"], edgecolor=VIOLET["edge"], zorder=3))
-        ax.text(cx, cy + 0.22, "SUBSCRIPTION", ha="center", va="center",
-                fontsize=7.8, fontweight="bold", color=VIOLET["text"], zorder=4)
-        ax.text(cx, cy - 0.50, "a recurring top-up", ha="center", va="center",
-                fontsize=7.0, color="#8A8A8A", zorder=4)
+        ax.text(cx, cy + 0.22, "SUBSCRIPTION PROMO", ha="center", va="center",
+                fontsize=7.2, fontweight="bold", color=VIOLET["text"], zorder=4)
+        ax.text(cx, cy - 0.50, "on offer with the top-up", ha="center",
+                va="center", fontsize=7.0, color="#8A8A8A", zorder=4)
         return
 
     ax.plot([cx - INNER, cx + INNER], [cy, cy], color="#E4E1DC",
@@ -311,43 +292,44 @@ def fig_examples():
     def step(cy, xa, xb, label):
         arrow(ax, (xa + gap, cy), (xb - gap, cy), label=label, ldy=0.50, lsize=7.0)
 
-    # --- 1 and 2: the slot mechanics, all on the hidden side of the gate ----
+    # --- 1 and 2: slot mechanics, independent of what the subscription does -
     rowlabel(ax, ra, "1 · Replacement",
-             "a discount applies, so\nthere is no section")
-    slotcard(ax, x1, ra, fee="auto", status=HIDDEN)
+             "the slot mechanics, whatever\nthe subscription is doing")
+    slotcard(ax, x1, ra, fee="auto")
     step(ra, x1, x2, "apply a manual\nFEE code")
-    slotcard(ax, x2, ra, fee="manual", status=HIDDEN)
+    slotcard(ax, x2, ra, fee="manual")
     step(ra, x2, x3, "tap ✕ on\nthe code")
-    slotcard(ax, x3, ra, fee="auto", status=HIDDEN,
-             tag="the automatic comes back", tagcol=BLUE)
+    slotcard(ax, x3, ra, fee="auto", tag="the automatic comes back", tagcol=BLUE)
     note(ax, ra, "The code always wins the\nslot: the customer decides.\nThe automatic is displaced,\nnot deleted, and ✕ restores it.")
 
     rowlabel(ax, rb, "2 · Stacking",
-             "still a discount, so\nstill no section")
-    slotcard(ax, x1, rb, fee="auto", status=HIDDEN)
+             "two promotions, as long as\nthey are on two targets")
+    slotcard(ax, x1, rb, fee="auto")
     step(rb, x1, x2, "apply a manual\nAMOUNT code")
-    slotcard(ax, x2, rb, fee="auto", amount="manual", status=HIDDEN)
-    note(ax, rb, "Different targets, so both\nsurvive. A discount is on the\ntransaction either way, so the\noffer is never made.")
+    slotcard(ax, x2, rb, fee="auto", amount="manual")
+    note(ax, rb, "Different targets, so both\nsurvive. Neither of them is a\nsubscription promotion, so\nneither is in any conflict.")
 
-    # --- 3: the only route in ----------------------------------------------
-    rowlabel(ax, rc, "3 · Subscribing",
-             "the only route to\na subscription")
+    # --- 3: no subscription promotion, so nothing to clash with -------------
+    rowlabel(ax, rc, "3 · Code applied ·\nNO subscription promo",
+             "a plain recurring offer,\nnothing to clash with")
     slotcard(ax, x1, rc, status=SHOWN)
-    step(rc, x1, x2, "toggle the\nsubscription ON")
-    slotcard(ax, x2, rc, sub=True, status=SUBBED)
-    note(ax, rc, "Nothing discounts the purchase,\nso the offer is on screen. Both\nslots are empty, which is the\nonly way it is ever offered.")
+    step(rc, x1, x2, "enter a manual\nFEE code")
+    slotcard(ax, x2, rc, fee="manual", status=SHOWN)
+    step(rc, x2, x3, "tap ✕ on\nthe code")
+    slotcard(ax, x3, rc, status=SHOWN)
+    note(ax, rc, "Nothing clashes, so nothing\nmoves. The section stays on\nscreen and the toggle stays\nwhere the customer left it.")
 
-    # --- 4: the crossing, both directions ----------------------------------
-    rowlabel(ax, rd, "4 · Code while\nsubscribed, and back",
-             "the crossing, in both\ndirections")
-    slotcard(ax, x1, rd, sub=True, status=SUBBED)
+    # --- 4: the one case that moves -----------------------------------------
+    rowlabel(ax, rd, "4 · Code applied ·\nWITH subscription promo",
+             "the only case where the\nscreen changes")
+    slotcard(ax, x1, rd, sub=True, status=SHOWN)
     step(rd, x1, x2, "enter a manual\nFEE code")
     slotcard(ax, x2, rd, fee="manual", status=HIDDEN,
-             tag="subscription switched off", tagcol=RED)
+             tag="the offer is withdrawn", tagcol=RED)
     step(rd, x2, x3, "tap ✕ on\nthe code")
-    slotcard(ax, x3, rd, sub=True, status=SUBBED,
-             tag="toggle as they left it", tagcol=VIOLET)
-    note(ax, rd, "The subscription goes off with\nthe section and comes back\nwith it. Neither change was\nasked for, so say both.")
+    slotcard(ax, x3, rd, sub=True, status=SHOWN,
+             tag="back, toggle as they left it", tagcol=VIOLET)
+    note(ax, rd, "The offer and the code cannot\nboth stand. The section goes,\nand any subscription already\nset goes with it, then returns.")
 
     legend_chips(ax, 0.35)
     return fig
