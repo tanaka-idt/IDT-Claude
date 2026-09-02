@@ -58,7 +58,7 @@ IMG_W = 495.0                          # figures sit just inside the text block
 
 IMAGES = {
     "states": ("promo_interaction_states.png", 505.0),
-    "journeys": ("promo_interaction_journeys.png", 424.0),
+    "journeys": ("promo_interaction_journeys.png", 505.0),
 }
 
 # ---------------------------------------------------------------- matrix ----
@@ -163,14 +163,14 @@ BLOCKS = [
            "never moves. A discount on its own is never a reason to hide or switch "
            "anything.")),
 
+    ("pagebreak", ""),
+
     ("h2", "What happens on each clash"),
     ("p", "Two questions decide it: what the transaction carries, and whether the "
           "subscription offer has a promotion of its own. Six combinations, and only "
           "two of them move anything. The asymmetry between those two is the point, "
           "and the panel underneath explains why it is there."),
     ("img", "states"),
-
-    ("pagebreak", ""),
 
     ("h2", "Every combination"),
     ("table", "MATRIX"),
@@ -184,6 +184,8 @@ BLOCKS = [
           "against an automatic the section is hidden outright, while against a "
           "manual code it stays on screen with the toggle off, and the customer can "
           "switch it back on through the modal in rule 8."),
+
+    ("pagebreak", ""),
 
     ("h2", "Five journeys to design for"),
     ("p", "The same two slots, tracked through each sequence of actions. Journey 1 "
@@ -316,10 +318,17 @@ def find_placeholder(docs, doc_id, marker):
 
 
 def insert_pagebreak(docs, doc_id):
-    """Swap the [[PAGEBREAK:]] placeholder for a real page break."""
+    """Swap every [[PAGEBREAK:]] placeholder for a real page break."""
+    n = 0
+    while _one_pagebreak(docs, doc_id):
+        n += 1
+    print(f"  page breaks: {n}")
+    return n > 0
+
+
+def _one_pagebreak(docs, doc_id):
     idx, plen = find_placeholder(docs, doc_id, "[[PAGEBREAK:]]")
     if idx is None:
-        print("  ! placeholder PAGEBREAK not found")
         return False
     docs.documents().batchUpdate(documentId=doc_id, body={"requests": [
         {"deleteContentRange": {"range": {"startIndex": idx,
@@ -327,7 +336,6 @@ def insert_pagebreak(docs, doc_id):
         {"insertPageBreak": {"location": {"index": idx}}},
     ]}).execute()
     time.sleep(0.5)
-    print("  page break: ok")
     return True
 
 
