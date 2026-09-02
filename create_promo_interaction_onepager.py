@@ -52,7 +52,7 @@ IMG_W = 495.0                          # figures sit just inside the text block
 
 IMAGES = {
     "states": ("promo_interaction_states.png", 505.0),
-    "journeys": ("promo_interaction_journeys.png", 505.0),
+    "journeys": ("promo_interaction_journeys.png", 492.0),
 }
 
 # ---------------------------------------------------------------- matrix ----
@@ -162,17 +162,15 @@ BLOCKS = [
     ("b", ("The applied code needs an ✕",
            "it is the only route back to the automatic promotion it displaced, and "
            "the only way to undo a restore the customer did not want.")),
-    ("b", ("The promo-code field stays live and the subscription section stays "
-           "visible",
-           "neither is disabled or hidden at any point in the flow.")),
+    ("b", ("The promo-code field and the subscription section both stay visible",
+           "neither is ever disabled or hidden.")),
     ("b", ("A code applied against a subscription promotion flips the toggle off",
            "the customer did not ask for that, so the screen has to say it happened "
            "rather than let the toggle change quietly. Removing the code returns the "
            "toggle to whatever state it was in before. With no subscription "
            "promotion, the toggle does not move at all.")),
     ("b", ("Turning the toggle back on needs a yes/no confirmation",
-           "it removes the manual code, so ask before doing it. Design owed on "
-           "DCS-5299.")),
+           "it removes the manual code. Design owed on DCS-5299.")),
     ("b", ("The code is cached, and restoration must be legible",
            "when the subscription goes off, the previous promotions reappear in "
            "place and the manual code is re-applied without retyping. Nothing to "
@@ -222,7 +220,7 @@ def build_requests(blocks):
         line = text + "\n"
         reqs.append({"insertText": {"location": {"index": cur}, "text": line}})
         # Named styles ship generous space-above/below; a one-pager cannot afford it.
-        above, below = (5, 3) if kind == "h2" else (0, 2)
+        above, below = (4, 2) if kind == "h2" else (0, 2)
         para = {"namedStyleType": STYLE_MAP[kind],
                 "spaceAbove": {"magnitude": above, "unit": "PT"},
                 "spaceBelow": {"magnitude": below, "unit": "PT"},
@@ -364,8 +362,8 @@ def insert_table(docs, doc_id, marker, data):
             "textStyle": style, "fields": fields}})
         reqs.append({"updateParagraphStyle": {
             "range": {"startIndex": start, "endIndex": start + len(txt)},
-            "paragraphStyle": {"spaceAbove": {"magnitude": 1, "unit": "PT"},
-                               "spaceBelow": {"magnitude": 1, "unit": "PT"},
+            "paragraphStyle": {"spaceAbove": {"magnitude": 0, "unit": "PT"},
+                               "spaceBelow": {"magnitude": 0, "unit": "PT"},
                                "lineSpacing": 100},
             "fields": "spaceAbove,spaceBelow,lineSpacing"}})
     batched(docs, doc_id, reqs, size=40)
@@ -412,6 +410,26 @@ def insert_table(docs, doc_id, marker, data):
     return True
 
 
+def tighten_blanks(docs, doc_id):
+    """Shrink the empty paragraphs the table and image inserts leave behind."""
+    doc = docs.documents().get(documentId=doc_id).execute()
+    reqs = []
+    for el in doc["body"]["content"]:
+        p = el.get("paragraph")
+        if not p or para_text(el).strip():
+            continue
+        if any("pageBreak" in e for e in p.get("elements", [])):
+            continue
+        reqs.append({"updateTextStyle": {
+            "range": {"startIndex": el["startIndex"],
+                      "endIndex": el["startIndex"] + 1},
+            "textStyle": {"fontSize": {"magnitude": 4, "unit": "PT"}},
+            "fields": "fontSize"}})
+    if reqs:
+        batched(docs, doc_id, reqs)
+    print(f"  blank paragraphs tightened: {len(reqs)}")
+
+
 def clear_body(docs, doc_id):
     """Empty an existing doc so it can be rebuilt in place, keeping its URL."""
     doc = docs.documents().get(documentId=doc_id).execute()
@@ -454,6 +472,7 @@ def main(doc_id=None):
         insert_image(docs, doc_id, key)
 
     insert_pagebreak(docs, doc_id)
+    tighten_blanks(docs, doc_id)
 
     linkify(docs, doc_id, dict(LINK_MAP))
     print("Linkified references")
