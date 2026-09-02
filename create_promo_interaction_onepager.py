@@ -6,21 +6,18 @@ A two-page visual reference for the design team covering the three promotion
 types (instant automatic, manual, subscription), the two targets they can apply
 to (fee, top-up amount), and what the customer should see at every transition.
 
-Page 1 is the model, the rules, and the state diagram. Page 2 is the full
-combination matrix, five worked journeys, and the screen implications.
+Page 1 is the model, the rules, and the gate. Page 2 is the full combination
+matrix, four worked journeys, and the screen implications.
 
-Everything about the subscription sits behind a gate: an instant automatic
-promotion on the transaction hides the section outright, because the two
-cannot stack and the automatic wins. Past the gate, a subscription is read in
-two halves: one that carries its own promotion is exclusive and takes the
-whole transaction; one with no promotion attached is only a delivery setting
-and leaves both slots alone. Both come from the DCS-5299 comment thread of
-1 Sep 2026.
+The governing rule, from the DCS-5299 thread: the subscription section is
+rendered only on a transaction carrying no discount at all. An instant
+automatic hides it and so does a manual promo code, whether or not the
+subscription would have carried a promotion of its own, because a discount
+sitting beside a subscription offer reads as a discount on every future
+charge. The gate follows the discount rather than the page load, so removing
+the last discount brings the section back with the toggle as the customer
+left it.
 
-Figures come from generate_promo_interaction_diagrams.py and are served from
-the public GitHub repo - the Docs API fetches image URIs server-side and IDT
-Drive sharing is org-restricted, so the PNGs must be committed and pushed
-before this runs.
 """
 
 import time
@@ -54,19 +51,19 @@ IMG_W = 495.0                          # figures sit just inside the text block
 
 IMAGES = {
     "states": ("promo_interaction_states.png", 505.0),
-    "journeys": ("promo_interaction_journeys.png", 492.0),
+    "journeys": ("promo_interaction_journeys.png", 505.0),
 }
 
 # ---------------------------------------------------------------- matrix ----
 # Read a cell as: this Fee-slot promotion together with this Amount-slot one.
 
 MATRIX = [
-    ["Fee ↓  /  Amount →", "Automatic", "Manual", "Subscription promo", "None"],
-    ["Automatic", "✓  both apply", "✓  both apply", "✗  automatic wins",
+    ["Fee ↓  /  Amount →", "Automatic", "Manual", "Subscription", "None"],
+    ["Automatic", "✓  both apply", "✓  both apply", "✗  section hidden",
      "✓  fee only"],
-    ["Manual", "✓  both apply", "✗  one code only", "✗  subscription only",
+    ["Manual", "✓  both apply", "✗  one code only", "✗  section hidden",
      "✓  fee only"],
-    ["Subscription promo", "✗  automatic wins", "✗  subscription only", "N/A",
+    ["Subscription", "✗  section hidden", "✗  section hidden", "N/A",
      "✓  subscription only"],
     ["None", "✓  amount only", "✓  amount only", "✓  subscription only",
      "·  no promotion"],
@@ -91,31 +88,29 @@ LABEL_FILL = [C_NONE, C_AUTO, C_MANUAL, C_SUB, C_NONE]   # by row / column index
 
 BLOCKS = [
     ("h1", TITLE),
-    ("cap", "Design reference  ·  IMTU · DCS  ·  1 September 2026  ·  "
+    ("cap", "Design reference  ·  IMTU · DCS  ·  2 September 2026  ·  "
             "Joao Tanaka  ·  Context: DCS-2846, DCS-5299"),
 
     ("h2", "The model"),
     ("p", "Every IMTU transaction has two places a promotion can land: the fee and "
           "the top-up amount. Two slots, each holding at most one promotion. Three "
-          "kinds of promotion compete for them, colour-coded the same way "
-          "throughout."),
+          "kinds of promotion exist, colour-coded the same way throughout, but only "
+          "the first two ever compete for a slot."),
     ("b", ("Instant automatic",
            "applied by the system the moment the customer qualifies, with no action "
-           "from them. Blue. Its presence is what closes the gate on the "
-           "subscription section.")),
+           "from them. Blue.")),
     ("b", ("Manual",
            "a promo code the customer types in. Amber. At most one per "
            "transaction.")),
     ("b", ("Subscription",
-           "attached to turning a one-off top-up into a recurring one. Violet. "
-           "Offered only when no instant automatic applies. Read it in two halves: "
-           "one that carries its own promotion is not a slot-filler, it takes the "
-           "whole transaction; one with no promotion attached is only a delivery "
-           "setting and leaves both slots alone.")),
+           "attached to turning a one-off top-up into a recurring one. Violet. It "
+           "never competes for a slot, because it is offered only when both slots "
+           "are empty. Whether it carries a promotion of its own makes no "
+           "difference to any of this.")),
 
     ("h2", "The rules"),
-    ("p", "Six rules cover every case. The first two describe how the slots work; "
-          "the rest are the product decisions of 31 August and 1 September."),
+    ("p", "Six rules cover every case. The first four are the slot mechanics; the "
+          "last two are why the subscription is so often not on screen at all."),
     ("b", ("One promotion per target",
            "the fee slot and the amount slot each hold a single promotion.")),
     ("b", ("Two promotions, but only on different targets",
@@ -127,21 +122,21 @@ BLOCKS = [
     ("b", ("Manual outranks automatic",
            "a code always takes the slot, even when the automatic it displaces was "
            "worth more. The customer decides, and we do not warn them off it.")),
-    ("b", ("An instant automatic hides the subscription section",
-           "the two cannot stack and the automatic wins, so the section is not "
-           "rendered at all. The gate is checked once when the transaction loads "
-           "and never revisited, so the section does not come back even if a manual "
-           "code later displaces the automatic. A promo code never hides the "
-           "section; at most it moves the toggle.")),
-    ("b", ("A subscription promotion is exclusive, and fully reversible",
-           "turning it on clears both slots and remembers what was there. Turning it "
-           "off puts all of it back, the cached manual code included. A subscription "
-           "with no promotion is exempt: the slots do not move.")),
+    ("b", ("Any discount hides the subscription section",
+           "an instant automatic the customer qualifies for, or a promo code they "
+           "type. It makes no difference whether the subscription would have "
+           "carried a promotion of its own. The reason is the recurring charge: a "
+           "discount sitting beside a subscription offer reads as a discount on "
+           "every future charge, and it is not.")),
+    ("b", ("The gate follows the discount, not the page load",
+           "applying a code hides the section and switches off any subscription the "
+           "customer had set. Removing the last discount brings the section back, "
+           "with the toggle exactly as they left it.")),
 
-    ("h2", "The gate, and the three states beyond it"),
-    ("p", "An instant automatic ends the story early: no section, nothing to design. "
-          "On every other transaction there are three states and six transitions, "
-          "each one a moment the customer sees something change."),
+    ("h2", "When the offer is on screen, and when it is not"),
+    ("p", "There is one state where the subscription is offered: a transaction "
+          "carrying no discount at all. Every other transaction hides it, and there "
+          "is no partly-available state in between."),
     ("img", "states"),
 
     ("pagebreak", ""),
@@ -149,39 +144,38 @@ BLOCKS = [
     ("h2", "Every combination"),
     ("table", "MATRIX"),
     ("p", "Read a cell as one transaction holding both promotions: the row is what "
-          "sits on the fee, the column what sits on the top-up amount. Subscription "
-          "here means one that carries a promotion. Where it meets an automatic the "
-          "automatic wins and the section never appears, which is why those cells "
-          "are not a subscription outcome."),
+          "sits on the fee, the column what sits on the top-up amount. A "
+          "subscription reaches the customer only from the last row and the last "
+          "column, where nothing else is on the transaction. Everywhere else the "
+          "section is not rendered."),
 
-    ("h2", "Five journeys to design for"),
+    ("h2", "Four journeys to design for"),
     ("p", "The same two slots, tracked through each sequence of actions. Journeys 1 "
-          "and 2 sit on the hidden side of the gate. Journeys 4 and 5 are the pair "
-          "to read closely: the customer does the same thing in both, and the "
-          "outcome turns on whether the subscription carries a promotion."),
+          "and 2 are the slot mechanics, which run their whole course with the "
+          "section absent. Journey 4 is the crossing in both directions, and the "
+          "only one where the screen changes under the customer."),
     ("img", "journeys"),
 
     ("h2", "What this changes on screen"),
-    ("b", ("An instant automatic hides the section outright",
-           "decided when the transaction loads and never revisited, so nothing the "
-           "customer types afterwards brings it back.")),
-    ("b", ("A promo code never hides the section",
-           "the field stays live and the section stays on screen. At most the toggle "
-           "moves, and only when a subscription promotion is in play.")),
-    ("b", ("The applied code needs an ✕",
+    ("b", ("Any discount hides the section",
+           "an automatic at load or a code the customer types, both, always. There "
+           "is no toggle-off state to design: the section is either on screen with a "
+           "working toggle, or not on screen at all.")),
+    ("b", ("Applying a code while subscribed ends the subscription",
+           "the customer asked for neither the cancellation nor the section "
+           "disappearing, so this is the moment the screen has to say something.")),
+    ("b", ("Removing the last discount brings both back",
+           "the section returns and the toggle sits exactly where the customer left "
+           "it, subscribed again if that is what they had chosen. Another change "
+           "they did not ask for, so it should be as visible as the first.")),
+    ("b", ("The applied code still needs an ✕",
            "it is the only route back to the automatic promotion it displaced, and "
-           "the only way to undo a restore the customer did not want.")),
-    ("b", ("A code applied against a subscription promotion flips the toggle off",
-           "the customer did not ask for that, so the screen has to say it happened "
-           "rather than let the toggle change quietly. Removing the code returns the "
-           "toggle to whatever state it was in before, and with no subscription "
-           "promotion it does not move at all.")),
-    ("b", ("Turning the toggle back on needs a yes/no confirmation",
-           "it removes the manual code. Design owed on DCS-5299.")),
-    ("b", ("The code is cached, and restoration must be legible",
-           "when the subscription goes off, the previous promotions reappear in "
-           "place and the manual code is re-applied without retyping. Nothing to "
-           "confirm, but the change should be visible in the price breakdown.")),
+           "the only route back to the subscription offer.")),
+    ("b", ("Two earlier asks can be dropped",
+           "the yes/no confirmation is unreachable, since the customer can never "
+           "turn the subscription on while a code is applied, and the promo-code "
+           "cache is unnecessary, since the subscription no longer removes the "
+           "code.")),
 ]
 
 SIZE_MAP = {"h1": 15, "h2": 10.5, "p": 9, "b": 9, "cap": 7.5}
