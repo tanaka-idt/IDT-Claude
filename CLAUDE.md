@@ -49,6 +49,8 @@ Key rules:
 - Acceptance Criteria goes in its dedicated field (ADF format), never in the description. **Always populate it on every ticket.**
 - Required fields on every story: Epic link, Assignee, Priority, Story Points, Team Type
 - Default project: DCS
+- **Whenever you create tickets that are related to each other, link them.** A shared
+  epic parent is not a link, and neither is naming the sibling key in the description.
 
 **Field IDs differ by issue type. Using the wrong one fails with "not on the appropriate
 screen".** Verified against DCS create metadata 2026-08-26:
@@ -80,6 +82,20 @@ issue type and grep for the field name rather than guessing.
   DCS is the `parent` field (DCS is a team-managed project), not `customfield_*`.
 - If every attempt fails due to screen configuration, include the AC items in the response
   so they can be pasted manually.
+- **Issue links** are created with `createIssueLink` after the tickets exist. Pick the type
+  that states the real relationship, and link out to existing tickets the new work depends
+  on or supersedes, not only the ones created in the same batch. Run `getIssueLinkTypes`
+  when unsure; DCS also has Supersede, Duplicated, Similar, and Due to ("is caused by").
+
+  | Relationship | Type | Direction |
+  | --- | --- | --- |
+  | One must ship first, e.g. a BE flag before the APP story reading it | `Blocks` | `inwardIssue` blocks, `outwardIssue` is blocked |
+  | Siblings with no ordering | `Relates` | either way |
+  | New ticket replaces an old one | `Supersede` | `outwardIssue` supersedes `inwardIssue` |
+
+  **Why:** the linked-issues panel is how the team sees dependencies on the board and in
+  sprint planning. A key buried in a description does not appear there, so an unlinked
+  dependency gets picked up in the wrong order.
 
 ## Document Conventions
 
