@@ -7,16 +7,19 @@ types (instant automatic, manual, subscription), the two targets they can apply
 to (fee, top-up amount), and what the customer should see at every transition.
 
 Page 1 is the model, the rules, and the gate. Page 2 is the full combination
-matrix, four worked journeys, and the screen implications.
+matrix, five worked journeys, and the screen implications.
 
 The governing rule, from the DCS-5299 thread: a subscription promotion cannot
-be applied alongside an instant automatic or a manual promo code. The section
-is hidden exactly when that clash would arise, which needs both halves, a
+be applied alongside an instant automatic or a manual promo code. On that one
+combination the subscription toggle switches OFF, which needs both halves, a
 discount on the transaction AND a subscription offer carrying a promotion of
-its own. A discount on its own does not hide anything, because a subscription
-with no promotion attached clashes with nothing and stays on offer. The check
-follows the discount rather than the page load, so removing the last discount
-brings the section back with the toggle as the customer left it.
+its own. The section itself never leaves the screen. A discount on its own
+moves nothing, because a subscription with no promotion attached clashes with
+nothing.
+
+Because the section stays, the customer can switch the toggle back on. That
+needs the promo code removed, so a yes/no modal asks first, and the code is
+cached so switching the subscription off again re-applies it without retyping.
 
 """
 
@@ -59,11 +62,11 @@ IMAGES = {
 
 MATRIX = [
     ["Fee ↓  /  Amount →", "Automatic", "Manual", "Subscription", "None"],
-    ["Automatic", "✓  both apply", "✓  both apply", "✗  section hidden",
+    ["Automatic", "✓  both apply", "✓  both apply", "✗  toggle switched off",
      "✓  fee only"],
-    ["Manual", "✓  both apply", "✗  one code only", "✗  section hidden",
+    ["Manual", "✓  both apply", "✗  one code only", "✗  toggle switched off",
      "✓  fee only"],
-    ["Subscription", "✗  section hidden", "✗  section hidden", "N/A",
+    ["Subscription", "✗  toggle switched off", "✗  toggle switched off", "N/A",
      "✓  subscription only"],
     ["None", "✓  amount only", "✓  amount only", "✓  subscription only",
      "·  no promotion"],
@@ -105,13 +108,15 @@ BLOCKS = [
     ("b", ("Subscription",
            "attached to turning a one-off top-up into a recurring one. Violet. Read "
            "it in two halves: an offer carrying a promotion of its own cannot be "
-           "applied alongside an instant automatic or a manual code, so the section "
-           "comes down when they would clash; an offer with no promotion clashes "
-           "with nothing and stays on screen.")),
+           "applied alongside an instant automatic or a manual code, so the toggle "
+           "switches off when they would clash; an offer with no promotion clashes "
+           "with nothing and the toggle does not move. The section itself stays on "
+           "screen either way.")),
 
     ("h2", "The rules"),
-    ("p", "Seven rules cover every case. The first four are the slot mechanics; the "
-          "last three decide whether the subscription section is on screen at all."),
+    ("p", "Nine rules cover every case. The first four are the slot mechanics. The "
+          "next three decide whether the subscription toggle stays on. The last two "
+          "cover the customer switching it back on anyway."),
     ("b", ("One promotion per target",
            "the fee slot and the amount slot each hold a single promotion.")),
     ("b", ("Two promotions, but only on different targets",
@@ -125,22 +130,33 @@ BLOCKS = [
            "worth more. The customer decides, and we do not warn them off it.")),
     ("b", ("A subscription promotion cannot be applied alongside another promotion",
            "not with an instant automatic, not with a manual code. Only one of them "
-           "could win, so rather than show an offer we would have to strip the "
-           "promotion from, the section comes down. That combination hides it, and "
-           "no other.")),
+           "can win, so on that combination the subscription steps aside and the "
+           "toggle switches off. The section itself stays on screen. That "
+           "combination moves the toggle, and no other.")),
     ("b", ("A subscription with no promotion clashes with nothing",
            "it stays on offer whatever else the transaction carries, and the toggle "
-           "does not move. A discount on its own never hides the section.")),
+           "does not move. A discount on its own never switches anything off.")),
     ("b", ("The check follows the discount, not the page load",
-           "applying a code takes the section down when the subscription carries a "
-           "promotion, and switches off any subscription already set. Removing the "
-           "last discount brings it back, with the toggle exactly as they left "
-           "it.")),
+           "applying a code switches the toggle off when the subscription carries a "
+           "promotion. Removing the last discount switches it back to exactly where "
+           "the customer had it.")),
 
-    ("h2", "When the section comes down, and when it does not"),
-    ("p", "Two questions decide it, and the answer is a 2x2 with a single hidden "
+    ("b", ("Switching the toggle back on asks first",
+           "the section is still on screen, so the customer can insist. Because the "
+           "code and the subscription promotion cannot both stand, a yes/no modal "
+           "warns that the manual promo code will be removed. Yes subscribes and "
+           "drops the code. No changes nothing at all.")),
+
+    ("b", ("The promo code is cached, not discarded",
+           "once entered it is held for the rest of the transaction. If the "
+           "customer switches the subscription off again, the code is re-applied "
+           "automatically, so it never has to be typed twice.")),
+
+    ("h2", "When the toggle switches off, and when it does not"),
+    ("p", "Two questions decide it, and the answer is a 2x2 with a single moving "
           "cell. Both halves of the clash are required: a discount on the "
-          "transaction, and a subscription offer carrying a promotion of its own."),
+          "transaction, and a subscription offer carrying a promotion of its own. "
+          "The section stays on screen in all four."),
     ("img", "states"),
 
     ("pagebreak", ""),
@@ -153,39 +169,42 @@ BLOCKS = [
           "from the last row and the last column, where nothing else is on the "
           "transaction. A subscription with no promotion attached is not a "
           "promotion at all: it does not appear in this grid, and it stays on offer "
-          "in every cell."),
+          "in every cell. \"Toggle switched off\" is the starting position, not the "
+          "end of it: the customer can switch it back on, and the modal in rule 8 "
+          "is what happens when they do."),
 
-    ("h2", "Four journeys to design for"),
+    ("h2", "Five journeys to design for"),
     ("p", "The same two slots, tracked through each sequence of actions. Journeys 1 "
           "and 2 are the slot mechanics, which run the same way whatever the "
-          "subscription is doing. Journeys 3 and 4 are the pair to read closely: "
+          "subscription is doing. Journeys 3 and 4 are the pair to read together: "
           "the customer does exactly the same thing in both, and only the second "
-          "changes the screen."),
+          "moves the toggle. Journey 5 is the customer overruling us, and it is the "
+          "one that needs new screens."),
     ("img", "journeys"),
 
     ("h2", "What this changes on screen"),
-    ("b", ("The section comes down only on the clash",
+    ("b", ("The toggle moves only on the clash",
            "a discount on the transaction and a subscription offer carrying a "
-           "promotion. Either one on its own leaves the section exactly where it "
-           "was.")),
+           "promotion. Either one on its own leaves the toggle exactly where it "
+           "was, and the section is on screen throughout.")),
     ("b", ("A discount with no subscription promotion changes nothing",
-           "the section stays on screen, the toggle stays where the customer put "
-           "it, and there is no half-available state in between to design.")),
-    ("b", ("On the clash, the subscription goes with the section",
-           "the customer asked for neither, so this is the moment the screen has to "
-           "say something rather than let both disappear quietly.")),
-    ("b", ("Removing the last discount brings both back",
-           "the section returns and the toggle sits exactly where the customer left "
-           "it, subscribed again if that is what they had chosen. Another change "
-           "they did not ask for, so it should be as visible as the first.")),
+           "the toggle stays where the customer put it, and there is no "
+           "half-available state in between to design.")),
+    ("b", ("Switching the subscription off is a change they did not ask for",
+           "so it needs saying on screen rather than letting the toggle move "
+           "quietly. Same when removing the last discount switches it back.")),
+    ("b", ("The modal is the one genuinely new screen",
+           "a yes/no confirmation, shown when the customer switches the toggle back "
+           "on while a code is applied. It has to name the code being removed, "
+           "because that is the thing they lose. No must leave the transaction "
+           "untouched.")),
+    ("b", ("The cache should be invisible but findable",
+           "when a cached code is re-applied on switching the subscription off, the "
+           "customer did not retype it, so the screen should show it returning "
+           "rather than have it appear silently in the price breakdown.")),
     ("b", ("The applied code still needs an ✕",
            "it is the only route back to the automatic promotion it displaced, and "
-           "on the clash the only route back to the subscription offer.")),
-    ("b", ("Two earlier asks can be dropped",
-           "the yes/no confirmation is unreachable, since the customer can never "
-           "turn a promoted subscription on while a code is applied, and the "
-           "promo-code cache is unnecessary, since nothing now removes the "
-           "code.")),
+           "the only way to clear a cached code the customer no longer wants.")),
 ]
 
 SIZE_MAP = {"h1": 15, "h2": 10.5, "p": 9, "b": 9, "cap": 7.5}
