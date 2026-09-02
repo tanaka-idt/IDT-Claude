@@ -54,7 +54,7 @@ IMG_W = 495.0                          # figures sit just inside the text block
 
 IMAGES = {
     "states": ("promo_interaction_states.png", 505.0),
-    "journeys": ("promo_interaction_journeys.png", 505.0),
+    "journeys": ("promo_interaction_journeys.png", 424.0),
 }
 
 # ---------------------------------------------------------------- matrix ----
@@ -177,9 +177,8 @@ BLOCKS = [
     ("p", "The same two slots, tracked through each sequence of actions. Journeys 1 "
           "and 2 are the slot mechanics, which run the same way whatever the "
           "subscription is doing. Journeys 3 and 4 are the pair to read together: "
-          "the customer does exactly the same thing in both, and only the second "
-          "moves the toggle. Journey 5 is the customer overruling us, and it is the "
-          "one that needs new screens."),
+          "the same action in both, and only the second moves the toggle. Journey 5 "
+          "is the customer overruling us, and the one that needs new screens."),
     ("img", "journeys"),
 
     ("h2", "What this changes on screen"),
@@ -188,20 +187,17 @@ BLOCKS = [
            "promotion. Either one on its own leaves the toggle exactly where it "
            "was, and the section is on screen throughout.")),
     ("b", ("A discount with no subscription promotion changes nothing",
-           "the toggle stays where the customer put it, and there is no "
-           "half-available state in between to design.")),
+           "the toggle stays where the customer put it.")),
     ("b", ("Switching the subscription off is a change they did not ask for",
            "so it needs saying on screen rather than letting the toggle move "
            "quietly. Same when removing the last discount switches it back.")),
     ("b", ("The modal is the one genuinely new screen",
            "a yes/no confirmation, shown when the customer switches the toggle back "
-           "on while a code is applied. It has to name the code being removed, "
-           "because that is the thing they lose. No must leave the transaction "
-           "untouched.")),
-    ("b", ("The cache should be invisible but findable",
-           "when a cached code is re-applied on switching the subscription off, the "
-           "customer did not retype it, so the screen should show it returning "
-           "rather than have it appear silently in the price breakdown.")),
+           "on while a code is applied. It has to name the code being removed, and "
+           "No must leave the transaction untouched.")),
+    ("b", ("The cache should be visible when it fires",
+           "a re-applied code was not retyped by the customer, so show it returning "
+           "rather than let it appear silently in the price breakdown.")),
     ("b", ("The applied code still needs an ✕",
            "it is the only route back to the automatic promotion it displaced, and "
            "the only way to clear a cached code the customer no longer wants.")),
@@ -460,6 +456,29 @@ def tighten_blanks(docs, doc_id):
     print(f"  blank paragraphs tightened: {len(reqs)}")
 
 
+def trim_trailing_blanks(docs, doc_id):
+    """Drop empty paragraphs at the very end, which spill onto a blank page."""
+    doc = docs.documents().get(documentId=doc_id).execute()
+    body = doc["body"]["content"]
+    cut = None
+    for el in reversed(body):
+        if "paragraph" not in el:
+            break
+        if para_text(el).strip():
+            break
+        cut = el["startIndex"]
+    if cut is None or cut <= 1:
+        return 0
+    end = body[-1]["endIndex"] - 1
+    if end <= cut:
+        return 0
+    docs.documents().batchUpdate(documentId=doc_id, body={"requests": [
+        {"deleteContentRange": {"range": {"startIndex": cut, "endIndex": end}}}]}
+    ).execute()
+    time.sleep(0.3)
+    return end - cut
+
+
 def clear_body(docs, doc_id):
     """Empty an existing doc so it can be rebuilt in place, keeping its URL."""
     doc = docs.documents().get(documentId=doc_id).execute()
@@ -503,6 +522,10 @@ def main(doc_id=None):
 
     insert_pagebreak(docs, doc_id)
     tighten_blanks(docs, doc_id)
+
+    n = trim_trailing_blanks(docs, doc_id)
+    if n:
+        print(f"Trimmed {n} trailing blank characters")
 
     linkify(docs, doc_id, dict(LINK_MAP))
     print("Linkified references")
