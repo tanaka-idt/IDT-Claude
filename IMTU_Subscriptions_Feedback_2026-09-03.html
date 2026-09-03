@@ -195,6 +195,15 @@
   .footnote p:last-child{margin:0}
   code{font-family:var(--mono);font-size:.88em;color:var(--ink)}
 
+  .verdict.done{border-left:3px solid var(--counter);padding-left:12px}
+  .verdict.done span{color:var(--counter)}
+  .body a,.verdict a{
+    color:inherit;text-decoration:underline;text-decoration-color:var(--signal);
+    text-underline-offset:2px;text-decoration-thickness:1px
+  }
+  .body a:hover,.verdict a:hover{text-decoration-thickness:2px}
+  a:focus-visible{outline:2px solid var(--signal);outline-offset:2px;border-radius:1px}
+
   @media (max-width:660px){
     body{font-size:16px}
     .wrap{padding:30px 18px 70px}
@@ -216,7 +225,8 @@
     </p>
     <p class="meta">
       <span><b>21</b> items</span>
-      <span><b>5</b> need a decision</span>
+      <span><b>4</b> still need a decision</span>
+      <span><b>1</b> filed as DCS-5374</span>
       <span><b>4</b> challenge the numbers</span>
       <span>Timecodes refer to the call recording</span>
     </p>
@@ -226,7 +236,7 @@
   <section class="decisions">
     <div class="sec-head">
       <h2>Decisions the room left with you</h2>
-      <span class="count">5 items &middot; unresolved on the call</span>
+      <span class="count">5 items &middot; 1 closed out since</span>
     </div>
     <p class="sec-note">
       These are the ones where two or more people took different positions, or where someone
@@ -263,11 +273,20 @@
             same plan should stay unchecked.
           </li>
         </ul>
-        <div class="verdict">
-          <span>Where it landed</span>
-          Emilio owns fine tuning it with you offline. Your own counter, that a blanket off pulls
-          roughly 40% of the base out of the offer entirely, was accepted as a reason to test rather
-          than ship it.
+        <div class="verdict done">
+          <span>Settled after the call, filed as DCS-5374</span>
+          Emilio followed up in writing with three specific conditions to replace the blanket rule.
+          Default the toggle OFF when <b>any one</b> of these is true: the sender already has an
+          active subscription for the same country, carrier and recipient; the sender has 3 or more
+          active subscriptions in total on any corridor; or the sender turned the toggle off for that
+          same country, carrier and recipient combination inside the last 3 months. Note these are OR
+          conditions, not the AND combination the app used before
+          <a href="https://idtjira.atlassian.net/browse/DCS-5289" target="_blank" rel="noopener">DCS-5289</a>
+          flattened the rule. Filed as
+          <a href="https://idtjira.atlassian.net/browse/DCS-5374" target="_blank" rel="noopener">DCS-5374</a>,
+          assigned to Marc Constanti, who built the original rule. Conditions 1 and 2 can ship on
+          their own; condition 3 needs a per corridor toggle-off history signal that no backend story
+          covers yet. Emilio still wants to confirm the count of 3 and the 3 month window.
         </div>
       </div>
     </div>
