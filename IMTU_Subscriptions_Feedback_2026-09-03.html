@@ -1,0 +1,716 @@
+<title>IMTU Subscriptions Debrief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --paper:#F4F5F7;
+    --surface:#FFFFFF;
+    --surface-2:#EAEDF1;
+    --ink:#191C22;
+    --ink-2:#404755;
+    --ink-3:#6B7381;
+    --rule:#D7DBE2;
+    --rule-soft:#E4E7EC;
+    --signal:#BC441A;
+    --signal-soft:#FAE8E0;
+    --counter:#1A625D;
+    --counter-soft:#E0EDEB;
+    --flag:#856512;
+    --flag-soft:#F5EEDA;
+    --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
+    --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+    --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --paper:#12141A;
+      --surface:#1A1D24;
+      --surface-2:#22262F;
+      --ink:#E7E9ED;
+      --ink-2:#B3B9C4;
+      --ink-3:#858D9B;
+      --rule:#2E333D;
+      --rule-soft:#262B34;
+      --signal:#EE7A47;
+      --signal-soft:#382016;
+      --counter:#5CB6AE;
+      --counter-soft:#112E2C;
+      --flag:#D5B15B;
+      --flag-soft:#312712;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#12141A;
+    --surface:#1A1D24;
+    --surface-2:#22262F;
+    --ink:#E7E9ED;
+    --ink-2:#B3B9C4;
+    --ink-3:#858D9B;
+    --rule:#2E333D;
+    --rule-soft:#262B34;
+    --signal:#EE7A47;
+    --signal-soft:#382016;
+    --counter:#5CB6AE;
+    --counter-soft:#112E2C;
+    --flag:#D5B15B;
+    --flag-soft:#312712;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    font-size:17px;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1020px;margin:0 auto;padding:44px 26px 96px}
+
+  /* ---------- masthead ---------- */
+  .masthead{border-bottom:2px solid var(--ink);padding-bottom:22px}
+  .eyebrow{
+    font-family:var(--sans);font-weight:600;font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--signal);margin:0 0 12px
+  }
+  h1{
+    font-family:var(--sans);font-weight:700;font-size:clamp(30px,5vw,46px);
+    line-height:1.06;letter-spacing:-.02em;margin:0;text-wrap:balance
+  }
+  .standfirst{
+    margin:16px 0 0;max-width:64ch;color:var(--ink-2);font-size:18px
+  }
+  .meta{
+    display:flex;flex-wrap:wrap;gap:6px 26px;margin:22px 0 0;
+    font-family:var(--mono);font-size:12px;color:var(--ink-3)
+  }
+  .meta b{color:var(--ink-2);font-weight:500}
+
+  /* ---------- section scaffolding ---------- */
+  section{margin:52px 0 0}
+  .sec-head{
+    display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+    border-bottom:1px solid var(--rule);padding-bottom:9px;margin-bottom:6px
+  }
+  h2{
+    font-family:var(--sans);font-weight:600;font-size:21px;letter-spacing:-.01em;
+    margin:0;color:var(--ink)
+  }
+  .count{
+    font-family:var(--mono);font-size:11px;color:var(--ink-3);
+    white-space:nowrap
+  }
+  .sec-note{
+    margin:10px 0 0;color:var(--ink-2);font-size:16px;max-width:66ch
+  }
+
+  /* ---------- items ---------- */
+  .item{
+    display:grid;grid-template-columns:132px 1fr;gap:0 26px;
+    padding:24px 0;border-bottom:1px solid var(--rule-soft)
+  }
+  .item:last-child{border-bottom:0}
+  .rail{font-family:var(--mono);font-size:12px;line-height:1.5;padding-top:3px}
+  .rail .who{display:block;color:var(--ink);font-weight:500}
+  .rail .ts{display:block;color:var(--ink-3);margin-top:2px}
+  .body h3{
+    font-family:var(--sans);font-weight:600;font-size:17px;line-height:1.35;
+    margin:0 0 8px;letter-spacing:-.005em;text-wrap:balance
+  }
+  .body p{margin:0 0 10px;max-width:64ch}
+  .body p:last-child{margin-bottom:0}
+  .body ul{margin:0 0 10px;padding-left:20px;max-width:64ch}
+  .body li{margin:0 0 5px}
+
+  .chip{
+    display:inline-block;font-family:var(--mono);font-size:10px;font-weight:500;
+    letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;
+    border-radius:2px;vertical-align:2px;margin-right:8px
+  }
+  .chip.ask{background:var(--signal-soft);color:var(--signal)}
+  .chip.challenge{background:var(--counter-soft);color:var(--counter)}
+  .chip.open{background:var(--flag-soft);color:var(--flag)}
+  .chip.idea{background:var(--surface-2);color:var(--ink-2)}
+
+  /* ---------- decisions get real weight ---------- */
+  .decisions .item{
+    background:var(--surface);
+    border-bottom:0;
+    border-left:3px solid var(--signal);
+    padding:22px 24px;
+    margin-top:14px;
+    grid-template-columns:132px 1fr
+  }
+  .decisions .item + .item{margin-top:10px}
+
+  .verdict{
+    font-family:var(--sans);font-size:14px;font-weight:500;color:var(--ink-2);
+    background:var(--surface-2);border-radius:2px;padding:9px 12px;margin-top:12px
+  }
+  .verdict span{
+    font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--signal);display:block;margin-bottom:3px
+  }
+
+  /* ---------- positions table ---------- */
+  .scroller{overflow-x:auto;margin:18px 0 0;border:1px solid var(--rule);background:var(--surface)}
+  table{border-collapse:collapse;width:100%;min-width:600px;font-size:15px}
+  caption{
+    caption-side:top;text-align:left;font-family:var(--sans);font-size:13px;
+    font-weight:500;color:var(--ink-3);padding:11px 14px;border-bottom:1px solid var(--rule)
+  }
+  th{
+    font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ink-3);text-align:left;
+    padding:9px 14px;border-bottom:1px solid var(--rule);white-space:nowrap
+  }
+  td{padding:12px 14px;border-bottom:1px solid var(--rule-soft);vertical-align:top;color:var(--ink-2)}
+  tbody tr:last-child td{border-bottom:0}
+  td:first-child{font-family:var(--sans);font-weight:600;color:var(--ink);white-space:nowrap}
+  tr.you td:first-child{color:var(--signal)}
+
+  /* ---------- next steps ---------- */
+  .steps{margin:18px 0 0;padding:0;list-style:none;display:grid;gap:1px;background:var(--rule-soft)}
+  .steps li{
+    background:var(--surface);padding:14px 16px;display:grid;
+    grid-template-columns:150px 1fr;gap:4px 20px;font-size:16px
+  }
+  .steps .owner{
+    font-family:var(--mono);font-size:12px;color:var(--ink-3);padding-top:3px
+  }
+  .steps .what{color:var(--ink-2)}
+  .steps .what b{color:var(--ink);font-family:var(--sans);font-weight:600;font-size:15px}
+
+  /* ---------- footnote ---------- */
+  .footnote{
+    margin:56px 0 0;padding:18px 20px;background:var(--surface-2);
+    border-radius:2px;font-size:14px;color:var(--ink-2);max-width:74ch
+  }
+  .footnote h4{
+    font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--ink-3);margin:0 0 8px
+  }
+  .footnote p{margin:0 0 8px}
+  .footnote p:last-child{margin:0}
+  code{font-family:var(--mono);font-size:.88em;color:var(--ink)}
+
+  @media (max-width:660px){
+    body{font-size:16px}
+    .wrap{padding:30px 18px 70px}
+    .item,.decisions .item,.steps li{grid-template-columns:1fr;gap:8px}
+    .rail{display:flex;gap:12px;padding-top:0}
+    .rail .ts{margin-top:0}
+    .decisions .item{padding:18px}
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">D2C tech call &middot; 3 September 2026</p>
+    <h1>IMTU Subscriptions Debrief</h1>
+    <p class="standfirst">
+      Everything the room asked for, pushed back on, or suggested during the six month
+      subscription toggle wrap up. Grouped by what it needs from you, not by when it was said.
+    </p>
+    <p class="meta">
+      <span><b>21</b> items</span>
+      <span><b>5</b> need a decision</span>
+      <span><b>4</b> challenge the numbers</span>
+      <span>Timecodes refer to the call recording</span>
+    </p>
+  </header>
+
+  <!-- ============ 1. DECISIONS ============ -->
+  <section class="decisions">
+    <div class="sec-head">
+      <h2>Decisions the room left with you</h2>
+      <span class="count">5 items &middot; unresolved on the call</span>
+    </div>
+    <p class="sec-note">
+      These are the ones where two or more people took different positions, or where someone
+      asked for a change and nobody closed it out. Nothing here was settled.
+    </p>
+
+    <div class="item">
+      <div class="rail">
+        <span class="who">Shmuel, Emilio, Zev</span>
+        <span class="ts">55:42 to 1:01:58</span>
+      </div>
+      <div class="body">
+        <h3><span class="chip ask">Ask</span>Narrow the "toggle off when any subscription is active" rule</h3>
+        <p>
+          This took the longest stretch of the session and nobody agreed with the rule as you
+          described it. The objection is to the scope, not the intent.
+        </p>
+        <ul>
+          <li>
+            <b>Emilio</b> wants it scoped to the same corridor (same country, carrier and recipient),
+            calling a global off "premature". His evidence: 90% of senders do one to three top ups a
+            month, and the recipient map is roughly 50% to 60% sending to one recipient, plus about
+            20% to two and 15% to three. He specifically wants the same recipient, same carrier,
+            different denomination case protected, and offered to fine tune it offline.
+          </li>
+          <li>
+            <b>Shmuel</b> does not accept a blanket off at all: if someone is sending to a new
+            recipient, a grandfather in his example, there is no reason to default them off.
+          </li>
+          <li>
+            <b>Zev</b> added the switch case: a user who cancels only to move the same recipient to
+            a cheaper denomination should keep the toggle on, because that cancel was a plan change,
+            not a rejection. But a user who just toggled off and immediately re enters to buy the
+            same plan should stay unchecked.
+          </li>
+        </ul>
+        <div class="verdict">
+          <span>Where it landed</span>
+          Emilio owns fine tuning it with you offline. Your own counter, that a blanket off pulls
+          roughly 40% of the base out of the offer entirely, was accepted as a reason to test rather
+          than ship it.
+        </div>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="rail">
+        <span class="who">Vitaly vs Emilio</span>
+        <span class="ts">1:02:01 and 1:08:30</span>
+      </div>
+      <div class="body">
+        <h3><span class="chip open">Open</span>Predictable default, or one that anticipates behaviour</h3>
+        <p>
+          <b>Vitaly:</b> nobody knows the rules, so a default that changes shape from trip to trip may
+          just confuse people. They unsubscribe and it is off, they try again and it is off, they stop
+          checking, and then it is on. He argued predictability, even always on, may be the better
+          product, and repeated it after seeing the new bottom sheet: with the subscription that
+          visible, always on stops being confusing.
+        </p>
+        <p>
+          <b>Emilio:</b> good interface design is about eliminating friction and anticipating obvious
+          behaviour, so making the call for the user is the job. He accepts the inconsistency because
+          it is confined to one narrow use case.
+        </p>
+        <div class="verdict">
+          <span>Where it landed</span>
+          Genuinely split, and the cheapest of these to settle with an A/B rather than an argument.
+        </div>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="rail">
+        <span class="who">Emilio, with Shmuel</span>
+        <span class="ts">1:17:44</span>
+      </div>
+      <div class="body">
+        <h3><span class="chip ask">Ask</span>Hold the subscription promo back for the cancellation flow</h3>
+        <p>
+          Emilio flagged two tickets as critical: the cancellation flow, which he called essential to
+          developing subscriptions and retention, and the subscription promo, where backend and
+          frontend work is already done.
+        </p>
+        <p>
+          His position on the promo is a direct challenge to how you presented it. If someone is
+          already paying full price and subscribing, discounting them immediately gives away margin
+          for nothing. Fire the offer at cancellation instead: hold the discount until they try to
+          leave, then save them. He pointed at the Whoop cancellation flow as the model and Shmuel
+          agreed, joking about putting users through "the same 9 step program".
+        </p>
+        <div class="verdict">
+          <span>Tension to resolve</span>
+          You presented promos as a first payment discount plus a recurring one. Emilio wants save
+          offer only, at least to start. Decide whether both can run, or whether acquisition promo
+          waits.
+        </div>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="rail">
+        <span class="who">Jonathan vs Shmuel</span>
+        <span class="ts">1:11:31</span>
+      </div>
+      <div class="body">
+        <h3><span class="chip open">Open</span>A recurring savings header on the home screen</h3>
+        <p>
+          <b>Jonathan</b> asked for a header that subscribers see regularly when they open the app,
+          reinforcing that they have a subscription and that it is saving them money. He expects that
+          header image to perform well.
+        </p>
+        <p>
+          <b>Shmuel</b> said plainly he does not think it is a good idea, and gave no reason when
+          asked.
+        </p>
+        <p>
+          <b>Vitaly</b> offered the compromise that is on the table: a company he uses in Poland shows
+          him the saved amount at the moment of each purchase, not permanently. Same reinforcement,
+          tied to a transaction instead of the home screen.
+        </p>
+        <div class="verdict">
+          <span>Where it landed</span>
+          Unresolved between two of the most senior voices in the room. Vitaly's purchase moment
+          placement is the version most likely to clear both.
+        </div>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="rail">
+        <span class="who">Shmuel</span>
+        <span class="ts">56:30</span>
+      </div>
+      <div class="body">
+        <h3><span class="chip ask">Ask</span>If the toggle defaults off, ask for the opt in explicitly</h3>
+        <p>
+          Shmuel's condition on accepting any off default: do not leave it as a silent toggle the user
+          has to find. Put the question to them, along the lines of "do you want to make this every
+          30 days", and attach the offer to that same moment so the ask and the incentive arrive
+          together.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. POSITIONS TABLE ============ -->
+  <section>
+    <div class="sec-head">
+      <h2>The toggle default, position by position</h2>
+      <span class="count">reference for the follow up with Emilio</span>
+    </div>
+    <div class="scroller">
+      <table>
+        <caption>Five positions on when the subscription toggle should default on.</caption>
+        <thead>
+          <tr><th scope="col">Who</th><th scope="col">Position</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Shmuel</td>
+            <td>No blanket off. If it is off, ask for the opt in and pair it with an offer. A new recipient should never default to off.</td>
+          </tr>
+          <tr>
+            <td>Emilio</td>
+            <td>Scope to the same corridor: country, carrier, recipient. Protect the same recipient and carrier at a different denomination. Global off is premature.</td>
+          </tr>
+          <tr>
+            <td>Zev</td>
+            <td>Cancel then downgrade inside the same corridor keeps the toggle on. Toggle off then immediate re entry on the same plan stays off.</td>
+          </tr>
+          <tr>
+            <td>Vitaly</td>
+            <td>Prefers a predictable default over conditional logic. The new bottom sheet makes always on safer, not riskier.</td>
+          </tr>
+          <tr class="you">
+            <td>You</td>
+            <td>A blanket off removes about 40% of the base from the offer, so the toggle only reaches the remaining 60%. Worth testing against the revenue hit.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 3. NUMBERS ============ -->
+  <section>
+    <div class="sec-head">
+      <h2>Challenges to the numbers</h2>
+      <span class="count">4 items &middot; fix before the deck circulates</span>
+    </div>
+    <p class="sec-note">
+      None of these dispute the results. They dispute how three of the slides can be read, which
+      matters more now that Jonathan and Esty want to reuse the format.
+    </p>
+
+    <div class="item">
+      <div class="rail"><span class="who">Emilio</span><span class="ts">49:37</span></div>
+      <div class="body">
+        <h3><span class="chip challenge">Challenge</span>The toggle off denominator is shrinking</h3>
+        <p>
+          The population you show the toggle to keeps getting smaller, because once someone is on a
+          subscription they only see the toggle again if they come back to top up manually. So the
+          rising toggle off rate is partly a composition effect, not purely users learning what the
+          toggle does. Re cut that trend on a stable denominator before repeating the "users are
+          learning" reading.
+        </p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="rail"><span class="who">Emilio</span><span class="ts">45:34</span></div>
+      <div class="body">
+        <h3><span class="chip challenge">Challenge</span>16% is a share, not a volume</h3>
+        <p>
+          Sixteen percent of bad reviews is a big share, but ten complaints set against the month's
+          new subscription volume is very little. Keep both framings on the slide so the percentage
+          does not read as a crisis on its own.
+        </p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="rail"><span class="who">Zev</span><span class="ts">46:14</span></div>
+      <div class="body">
+        <h3><span class="chip challenge">Challenge</span>You are measuring reviews, not ratings</h3>
+        <p>
+          On the App Store a review is when someone writes something and a rating is when they only
+          leave stars. The Slack bot only catches the written ones, so the slide is a reviews trend.
+          Label it that way, and consider whether the star only ratings are moving differently.
+        </p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="rail"><span class="who">Emilio, Esty</span><span class="ts">48:11 and 52:02</span></div>
+      <div class="body">
+        <h3><span class="chip challenge">Challenge</span>Two framing fixes on the behaviour slides</h3>
+        <ul>
+          <li>
+            <b>Emilio:</b> state on the slide that monthly is the dominant subscription frequency.
+            Without it, the cancellation spike on day 30 looks unexplained rather than expected.
+          </li>
+          <li>
+            <b>Esty:</b> "the good news is that 50% or so left it on." You currently lead with 46%
+            turning it off. The same number reads very differently the other way round.
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4. PRODUCT ============ -->
+  <section>
+    <div class="sec-head">
+      <h2>Product and UX suggestions</h2>
+      <span class="count">4 items</span>
+    </div>
+
+    <div class="item">
+      <div class="rail"><span class="who">Zev</span><span class="ts">1:03:07</span></div>
+      <div class="body">
+        <h3><span class="chip idea">Suggestion</span>Follow a non subscribed purchase with what they missed</h3>
+        <p>
+          Belt and braces on the transaction: if the user completes without subscribing, hit them
+          afterwards with a prompt telling them what they would have saved. Emilio pointed at the
+          subscription promo as the answer, but the specific ask was a post purchase prompt, which is
+          not the same thing as a discount on the next charge.
+        </p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="rail"><span class="who">Zev</span><span class="ts">1:06:55</span></div>
+      <div class="body">
+        <h3><span class="chip ask">Ask</span>Label the duplicate state on the screen, not just in the modal</h3>
+        <p>
+          He asked whether the toggle simply sits off when there is already an active subscription for
+          that person, or whether the screen says "you already have it here". Your answer was the
+          confirmation pop up after they tap subscribe and pay. The ask underneath it is for the state
+          to be visible on the payment screen itself, before they commit.
+        </p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="rail"><span class="who">Zev, Vitaly</span><span class="ts">1:07:47</span></div>
+      <div class="body">
+        <h3><span class="chip open">Open</span>Is a double subscription actually a real use case</h3>
+        <p>
+          Both asked whether users genuinely want two subscriptions to the same recipient. Zev's
+          instinct is that it is rarely the same product twice, and much more likely a data plan plus a
+          voice plan. Worth checking what today's double subscriptions actually contain, because that
+          decides whether you warn against them or support them properly.
+        </p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="rail"><span class="who">Vitaly, Zev</span><span class="ts">1:08:30</span></div>
+      <div class="body">
+        <h3><span class="chip idea">Suggestion</span>The bottom sheet strengthens the always on argument</h3>
+        <p>
+          Reaction to the second demo: with the subscription unified into the payment section and
+          spelled out in the bottom sheet, it is now visible enough that a permanent on default stops
+          being a trap. "Just always on is not confusing." Feed this into whatever you decide on the
+          default rule, and credit Jonathan again when you report the A/B result, since the bottom
+          sheet was his suggestion.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 5. PRICING, CRM, GROWTH ============ -->
+  <section>
+    <div class="sec-head">
+      <h2>Pricing, CRM and growth</h2>
+      <span class="count">5 items &middot; mostly other people's work, gated on yours</span>
+    </div>
+
+    <div class="item">
+      <div class="rail"><span class="who">Shmuel</span><span class="ts">57:23</span></div>
+      <div class="body">
+        <h3><span class="chip idea">Suggestion</span>Price up in order to price down</h3>
+        <p>
+          Raise the fee slightly on regular one off IMTU so that the subscription can carry a
+          genuinely lower fee, rather than trying to sell a discount that does not exist. He also
+          wants an extra incentive on the first subscription, along the lines of what is already done
+          on Pinless.
+        </p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="rail"><span class="who">CRM lead</span><span class="ts">1:12:34</span></div>
+      <div class="body">
+        <h3><span class="chip ask">Ask</span>Send lifetime savings into Braze as a customer attribute</h3>
+        <p>
+          The clearest, most concrete ask of the session, and it is yours to unblock. Two campaigns
+          are already being built that need it:
+        </p>
+        <ul>
+          <li>Card on file dunning, for subscribers with no valid card: "don't lose your subscription".</li>
+          <li>Promo eligibility, so CRM can warn users they are about to lose a promo, and use the savings figure in the message.</li>
+        </ul>
+        <p>
+          She also asked for the promo eligibility flag itself if the promo lives in loyalty, and
+          noted you already have a meeting scheduled to cover it.
+        </p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="rail"><span class="who">Shmuel</span><span class="ts">1:13:22</span></div>
+      <div class="body">
+        <h3><span class="chip idea">Suggestion</span>Text every recipient who ever got a top up from us</h3>
+        <p>
+          His framing: you are doing a good job converting the people already in the funnel, so now
+          widen the funnel. Message the recipients, not the senders, telling them to ask their family
+          to subscribe so the top ups keep coming, with a link and whatever the subscription offer is.
+          He wanted a five year look back and explicitly asked for something that needs no development.
+        </p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="rail"><span class="who">Emilio, CRM lead</span><span class="ts">1:14:19 to 1:17:32</span></div>
+      <div class="body">
+        <h3><span class="chip challenge">Challenge</span>Two limits on that campaign</h3>
+        <ul>
+          <li>
+            <b>Emilio:</b> every DTC sender in that list already turned the subscription down, and the
+            DTC recipient base is the one with the fraud problem, so he would not shake that beehive.
+            Retail recipients are the genuinely untapped group, since they were never exposed to the
+            toggle on default at all. Campaigning to the retail sender is also worth doing.
+          </li>
+          <li>
+            <b>CRM lead:</b> opt ins have to be messaged inside 18 months to stay valid, so the five
+            year look back is not available. They will start with 15 months. Her angle for the retail
+            audience: the subscription promo and the savings are things a retail customer cannot get
+            at retail, which is a real reason to pull them into the app.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="rail"><span class="who">Esty, Vitaly</span><span class="ts">1:09:07 to 1:10:58</span></div>
+      <div class="body">
+        <h3><span class="chip ask">Ask</span>Reuse the savings logic for Money Transfer subscriptions</h3>
+        <p>
+          Esty asked whether the lifetime savings logic you show before cancellation can be lifted
+          straight into money transfer, or whether separate platforms mean rebuilding it. Vitaly
+          answered that they will reuse what was built and run money transfer on the same subscription
+          engine, but it needs integrating with the 3x transactional platform, so expect some
+          adjustment. Esty's read: by using the subscription platform, money transfer inherits the
+          benefit rather than redeveloping it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6. THE DECK ============ -->
+  <section>
+    <div class="sec-head">
+      <h2>On the deck itself</h2>
+      <span class="count">3 items</span>
+    </div>
+
+    <div class="item">
+      <div class="rail"><span class="who">Jonathan, Shmuel, Esty</span><span class="ts">41:03</span></div>
+      <div class="body">
+        <h3><span class="chip ask">Ask</span>Money transfer wants this reporting format</h3>
+        <p>
+          Jonathan said he is going to steal the slide format, Shmuel said "this is what we should do
+          for money transfer, one like this", and Esty said she was already trying to work out how to
+          apply it. The cheapest win to come out of the whole session: hand over the generator rather
+          than the slides.
+        </p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="rail"><span class="who">Emilio</span><span class="ts">1:04:08</span></div>
+      <div class="body">
+        <h3><span class="chip idea">Suggestion</span>Lead with the screens, not the initiative list</h3>
+        <p>
+          He interrupted the list of initiatives to say you have examples for all of these, so jump
+          to the screenshots and explain each one against a real screen. The room engaged noticeably
+          more once the demos were up.
+        </p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="rail"><span class="who">Jonathan, Bill, Emilio</span><span class="ts">1:19:32</span></div>
+      <div class="body">
+        <h3><span class="chip idea">Noted</span>The reception itself</h3>
+        <p>
+          "Amazing stuff", "really cool", and Jonathan calling the results slide beautiful enough to
+          copy. No one questioned the results, only the readings and the toggle rules, which is a good
+          place to be six months in.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 7. NEXT ============ -->
+  <section>
+    <div class="sec-head">
+      <h2>What to pick up first</h2>
+      <span class="count">the four commitments made out loud</span>
+    </div>
+    <ul class="steps">
+      <li>
+        <span class="owner">You and Emilio</span>
+        <span class="what"><b>Fine tune the toggle off rule offline.</b> He committed to this on the call. Bring the 40% of base exposure loss and the corridor definition he wants.</span>
+      </li>
+      <li>
+        <span class="owner">You and CRM</span>
+        <span class="what"><b>Lifetime savings into Braze.</b> Tomorrow's meeting already exists. Two campaigns are waiting on the attribute, plus the promo eligibility flag.</span>
+      </li>
+      <li>
+        <span class="owner">You</span>
+        <span class="what"><b>Re cut the toggle off trend on a stable denominator</b> and relabel the reviews slide, before the format gets reused by money transfer.</span>
+      </li>
+      <li>
+        <span class="owner">You and Vitaly</span>
+        <span class="what"><b>Confirm what money transfer inherits.</b> Vitaly committed to reusing the subscription engine and the savings logic, pending 3x integration.</span>
+      </li>
+    </ul>
+  </section>
+
+  <div class="footnote">
+    <h4>On attribution</h4>
+    <p>
+      The transcript was speaker diarised as A through H rather than by name, so names here come
+      from context inside the call: people being addressed directly, or agreed with by name.
+      Emilio, Shmuel, Esty, Vitaly, Zev, Jonathan and Bill are all confirmed that way.
+    </p>
+    <p>
+      One label is unreliable. <code>Speaker F</code> covers both the earlier presenter and the CRM
+      voice who raised Braze, the promo flag and the 18 month opt in rule. Those CRM items are
+      attributed to "CRM lead" rather than guessed at. Check the Braze ask against whoever you have
+      the meeting with tomorrow.
+    </p>
+  </div>
+
+</div>
