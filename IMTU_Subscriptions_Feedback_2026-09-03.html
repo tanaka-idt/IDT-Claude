@@ -275,18 +275,18 @@
         </ul>
         <div class="verdict done">
           <span>Settled after the call, filed as DCS-5374</span>
-          Emilio followed up in writing with three specific conditions to replace the blanket rule.
-          Default the toggle OFF when <b>any one</b> of these is true: the sender already has an
-          active subscription for the same country, carrier and recipient; the sender has 3 or more
-          active subscriptions in total on any corridor; or the sender turned the toggle off for that
-          same country, carrier and recipient combination inside the last 3 months. Note these are OR
-          conditions, not the AND combination the app used before
+          Emilio followed up in writing with three specific conditions to replace the blanket rule,
+          since simplified to key on the recipient alone. Default the toggle OFF when <b>any one</b>
+          of these is true: the sender already has an active subscription for the same recipient;
+          the sender has 3 or more active subscriptions in total; or the sender turned the toggle off
+          for that same recipient inside the last 3 months. Note these are OR conditions, not the
+          AND combination the app used before
           <a href="https://idtjira.atlassian.net/browse/DCS-5289" target="_blank" rel="noopener">DCS-5289</a>
           flattened the rule. Filed as
           <a href="https://idtjira.atlassian.net/browse/DCS-5374" target="_blank" rel="noopener">DCS-5374</a>,
           assigned to Marc Constanti, who built the original rule. Conditions 1 and 2 can ship on
-          their own; condition 3 needs a per corridor toggle-off history signal that no backend story
-          covers yet. Emilio still wants to confirm the count of 3 and the 3 month window.
+          their own; condition 3 needs a per recipient toggle-off history signal that no backend
+          story covers yet. The count of 3 and the 3 month window are still to be confirmed.
         </div>
       </div>
     </div>
