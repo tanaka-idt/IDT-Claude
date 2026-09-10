@@ -48,6 +48,7 @@ Key rules:
 - Description structure: TL;DR → Spec link → What needs to be done → (optional sections)
 - Acceptance Criteria goes in its dedicated field (ADF format), never in the description. **Always populate it on every ticket.**
 - Required fields on every story: Epic link, Assignee, Priority, Story Points, Team Type
+  (Story Points per the defaults table below, which overrides this for some roles)
 - Default project: DCS
 - **Whenever you create tickets that are related to each other, link them.** A shared
   epic parent is not a link, and neither is naming the sibling key in the description.
@@ -58,10 +59,13 @@ Key rules:
 | --- | --- | --- |
 | `[DESIGN]` | Viktoryia Shmidt (`712020:f413ae5c-bfd0-4674-a838-7fc82aaeb484`) | always `0` |
 | `[TPM]` / PM | (per request) | always `0` |
-| all other roles | (per request) | estimate as usual |
+| `[BE]` | (per request) | **leave empty**, never estimate |
+| `[APP]` | (per request) | **leave empty**, never estimate |
+| any other role | (per request) | estimate as usual |
 
-Story Points is still a required field on these tickets, so set it explicitly to `0` rather
-than leaving it empty.
+For Design and PM/TPM, set Story Points explicitly to `0` rather than leaving it empty.
+For BE and App, omit `customfield_11666` entirely: the team estimates those in grooming,
+so a guessed number is worse than a blank field.
 
 **Field IDs differ by issue type. Using the wrong one fails with "not on the appropriate
 screen".** Verified against DCS create metadata 2026-08-26:
