@@ -1,0 +1,679 @@
+<title>IMTU Amplitude Events Audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f4f6f8;
+    --surface: #ffffff;
+    --surface-2: #eceff3;
+    --ink: #151b23;
+    --ink-2: #48525f;
+    --muted: #7a8391;
+    --line: #dbe0e7;
+    --accent: #1d4f91;
+    --accent-soft: #e3ecf8;
+    --good: #0ca30c;
+    --good-ink: #0a6a0a;
+    --warn: #b7791f;
+    --warn-soft: #fbf1dc;
+    --crit: #c8362f;
+    --crit-soft: #fbe5e3;
+    --series-br: #2a78d6;
+    --series-money: #eb6834;
+    --grid: #e1e0d9;
+    --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+    --body: "Source Sans 3", "Source Sans Pro", "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0e1116; --surface: #171b22; --surface-2: #1f252e;
+      --ink: #eef1f5; --ink-2: #c1c8d2; --muted: #8b95a3; --line: #2a313b;
+      --accent: #78a6ea; --accent-soft: #1b2a41;
+      --good: #35c135; --good-ink: #6fd86f;
+      --warn: #e0a545; --warn-soft: #33290f;
+      --crit: #ee6d66; --crit-soft: #3a1b19;
+      --series-br: #3987e5; --series-money: #d95926; --grid: #2c2c2a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0e1116; --surface: #171b22; --surface-2: #1f252e;
+    --ink: #eef1f5; --ink-2: #c1c8d2; --muted: #8b95a3; --line: #2a313b;
+    --accent: #78a6ea; --accent-soft: #1b2a41;
+    --good: #35c135; --good-ink: #6fd86f;
+    --warn: #e0a545; --warn-soft: #33290f;
+    --crit: #ee6d66; --crit-soft: #3a1b19;
+    --series-br: #3987e5; --series-money: #d95926; --grid: #2c2c2a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.55; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
+  a:hover, a:focus-visible { border-bottom-color: var(--accent); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  code, .ev { font-family: var(--mono); font-size: 0.86em; }
+  code { background: var(--surface-2); padding: 0.05em 0.35em; border-radius: 3px; }
+  a.ev { border-bottom: 1px dotted color-mix(in srgb, var(--accent) 55%, transparent); background: var(--surface-2); padding: 0.05em 0.35em; border-radius: 3px; color: var(--accent); }
+  a.ev:hover { border-bottom-style: solid; }
+  h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.15; margin: 0; }
+  h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; letter-spacing: -0.01em; }
+  h2 { font-size: 1.65rem; font-weight: 700; margin-top: 3rem; padding-top: 1.5rem; border-top: 2px solid var(--ink); }
+  h3 { font-size: 1.2rem; font-weight: 600; margin-top: 2rem; }
+  p, li { max-width: 72ch; }
+  p { margin: 0.75rem 0; }
+  ul, ol { padding-left: 1.3rem; margin: 0.6rem 0; }
+  li { margin: 0.35rem 0; }
+  li > b:first-child { font-weight: 600; }
+  .eyebrow { font-family: var(--display); font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  header { background: var(--surface); border-bottom: 1px solid var(--line); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem; }
+  header .wrap { padding-top: 2.75rem; padding-bottom: 2rem; display: grid; gap: 1rem; }
+  .sub { font-size: 1.2rem; color: var(--ink-2); max-width: 64ch; margin: 0; }
+  .meta { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; font-size: 0.92rem; color: var(--ink-2); }
+  .meta span b { color: var(--ink); font-weight: 600; }
+  .layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 3rem; align-items: start; padding-top: 2rem; padding-bottom: 5rem; }
+  nav.toc { position: sticky; top: 1rem; font-size: 0.9rem; }
+  nav.toc ol { list-style: none; padding: 0; margin: 0.5rem 0 0; border-left: 1px solid var(--line); }
+  nav.toc li { margin: 0; }
+  nav.toc a { display: block; padding: 0.3rem 0 0.3rem 0.85rem; color: var(--ink-2); border: 0; border-left: 2px solid transparent; margin-left: -1px; }
+  nav.toc a:hover { color: var(--accent); border-left-color: var(--accent); }
+  nav.toc .sub-item a { padding-left: 1.6rem; font-size: 0.84rem; }
+  main { min-width: 0; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } nav.toc { position: static; } }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 1rem 1.1rem; display: grid; gap: 0.2rem; align-content: start; }
+  .tile .n { font-family: var(--display); font-size: 2.1rem; font-weight: 700; line-height: 1; letter-spacing: -0.01em; }
+  .tile .l { font-size: 0.9rem; color: var(--ink-2); }
+  .tile .s { font-size: 0.8rem; color: var(--muted); }
+  .tw { overflow-x: auto; margin: 1rem 0 1.5rem; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: var(--display); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); background: var(--surface-2); font-weight: 600; white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  th.num { text-align: right; }
+  .pill { display: inline-block; font-family: var(--display); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 999px; white-space: nowrap; }
+  .p0 { background: var(--crit-soft); color: var(--crit); }
+  .p1 { background: var(--warn-soft); color: var(--warn); }
+  .p2 { background: var(--accent-soft); color: var(--accent); }
+  .ok { background: color-mix(in srgb, var(--good) 14%, var(--surface)); color: var(--good-ink); }
+  .role { display: inline-block; font-family: var(--mono); font-size: 0.74rem; padding: 0.1rem 0.4rem; border: 1px solid var(--line); border-radius: 3px; color: var(--ink-2); white-space: nowrap; }
+  .finding { border-left: 3px solid var(--line); padding: 0.1rem 0 0.1rem 1rem; margin: 1.25rem 0; }
+  .finding.crit { border-left-color: var(--crit); }
+  .finding.warn { border-left-color: var(--warn); }
+  .finding.good { border-left-color: var(--good); }
+  .finding h3 { margin-top: 0; font-size: 1.05rem; }
+  .finding .ev-line { font-size: 0.88rem; color: var(--muted); margin-top: 0.4rem; }
+  figure { margin: 1.5rem 0; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 1rem 1.1rem 0.6rem; }
+  figure h4 { margin: 0 0 0.25rem; font-family: var(--display); font-size: 1rem; font-weight: 600; }
+  figure .fs { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.75rem; }
+  figcaption { font-size: 0.85rem; color: var(--ink-2); margin-top: 0.5rem; }
+  .legend { display: flex; gap: 1.25rem; font-size: 0.85rem; color: var(--ink-2); margin: 0.25rem 0 0.5rem; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: -2px; margin-right: 0.4rem; }
+  svg text { font-family: var(--body); fill: var(--ink-2); font-size: 12px; }
+  svg .val { fill: var(--ink); font-variant-numeric: tabular-nums; }
+  svg .grid { stroke: var(--grid); stroke-width: 1; }
+  svg .base { stroke: var(--line); stroke-width: 1; }
+  .tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 0.8rem; padding: 0.35rem 0.55rem; border-radius: 4px; opacity: 0; transition: opacity 0.12s; z-index: 5; max-width: 260px; }
+  .note { background: var(--surface-2); border-radius: 6px; padding: 0.85rem 1rem; font-size: 0.95rem; margin: 1rem 0; max-width: 78ch; }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem 2rem; }
+  .small { font-size: 0.88rem; color: var(--ink-2); }
+  details { margin: 0.75rem 0; }
+  summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+  .cols { columns: 2; column-gap: 2rem; font-size: 0.88rem; }
+  .cols li { break-inside: avoid; margin: 0.15rem 0; }
+  @media (max-width: 700px) { .cols { columns: 1; } }
+  footer { border-top: 1px solid var(--line); margin-top: 3rem; padding-top: 1rem; font-size: 0.85rem; color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .tip { transition: none; } }
+</style>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Product analytics review · International Mobile Top-Up</div>
+    <h1>IMTU Amplitude Events Audit</h1>
+    <p class="sub">How the Boss Revolution and Boss Money apps instrument mobile top-up today, where the data is wrong or silent, and what to change so both apps can be measured with one structure.</p>
+    <div class="meta">
+      <span><b>Reviewed</b> 9 September 2026</span>
+      <span><b>Window</b> last 30 days (10 Aug to 9 Sep 2026) unless stated</span>
+      <span><b>Projects</b> <a href="https://app.amplitude.com/analytics/BOSS/space/robyow9q" target="_blank" rel="noopener">BOSS org</a>: BR app Prod (650506), Money app Prod (420385)</span>
+      <span><b>Evidence</b> <a href="https://app.amplitude.com/analytics/BOSS/dashboard/bm14j7e2" target="_blank" rel="noopener">audit dashboard bm14j7e2</a> (16 charts)</span>
+      <span><b>Spec</b> <a href="https://docs.google.com/spreadsheets/d/1zpnqglr0dC4tw_AC4FdxFM3UlAFSwJGZ-mGPhojaLrs/edit?gid=1401783006#gid=1401783006" target="_blank" rel="noopener">BR6 MTU Amplitude Events sheet</a></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap layout">
+<nav class="toc" aria-label="Contents">
+  <div class="eyebrow">Contents</div>
+  <ol>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#method">Scope and method</a></li>
+    <li><a href="#works">What works</a></li>
+    <li><a href="#structure">Structure and governance</a></li>
+    <li><a href="#quality">Data quality</a></li>
+    <li><a href="#missing">Missing events and properties</a></li>
+    <li><a href="#apps">Boss Revolution vs Boss Money</a></li>
+    <li><a href="#plan">Recommendations</a></li>
+    <li><a href="#appendix">Appendices</a></li>
+    <li class="sub-item"><a href="#app-a">A. Evidence charts</a></li>
+    <li class="sub-item"><a href="#app-b">B. Specified, never fired</a></li>
+    <li class="sub-item"><a href="#app-c">C. Live, not in the sheet</a></li>
+    <li class="sub-item"><a href="#app-d">D. Event inventory and usage</a></li>
+    <li class="sub-item"><a href="#app-e">E. Existing dashboards</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<section id="summary">
+  <h2>Summary</h2>
+  <p>The IMTU instrumentation is broad and, at the purchase step, unusually complete: the success screen carries offer, recipient, price, promotion and source-of-entry context on 100% of events. What it lacks is <b>governance and a few load-bearing fields</b>. Nothing is documented in Amplitude, 71% of events have never been queried, the spec sheet and the live taxonomy have drifted apart in both directions, and the questions the business asks most often (payment method, why subscriptions are cancelled, whether a renewal succeeded, revenue) cannot be answered from the current events.</p>
+
+  <div class="tiles">
+    <div class="tile"><span class="n">179</span><span class="l">IMTU events live in the BR app</span><span class="s">0 have a description, category or owner in Amplitude</span></div>
+    <div class="tile"><span class="n">71%</span><span class="l">of IMTU events never queried</span><span class="s">114 of 160 events with usage stats have zero saved-chart or query usage</span></div>
+    <div class="tile"><span class="n">45 / 42</span><span class="l">spec drift, both directions</span><span class="s">45 events in the sheet never fired; 42 live events are not in the sheet</span></div>
+    <div class="tile"><span class="n">52.6% / 68.2%</span><span class="l">purchase funnel, BR / Money</span><span class="s">not comparable: the two apps have no common entry event</span></div>
+  </div>
+
+  <ul>
+    <li><b>Six fixes are P0</b> because they corrupt numbers people already report: a literal <code>"empty"</code> string instead of null on <code>recurrent_unit</code> and <code>top_up_started_from</code>; <code>default_subscription_toggle</code> missing on 18.6% of order screens; the generic <code>failed</code> reason on 36.5% of failures; 13,700 orders a month (1.6%) that reach the processing screen and never reach a terminal status event; the daily revenue chart summing a button tap instead of the success screen; and no <code>payment_method</code> on any MTU event.</li>
+    <li><b>Subscriptions are the biggest blind spot.</b> Cancellation has no reason and no tenure, renewals (the backend charge) do not exist in Amplitude at all, there is no <code>subscription_id</code>, and the pay-time toggle event <code>MTUSubscriptionPayTap</code> specified in March was never built. The double-billing case from the September duplicate-subscription analysis could not have been seen in Amplitude.</li>
+    <li><b>Both apps share one event set</b> (same names, same properties, <code>hosting_app</code> tells them apart), which is the right design. But the Money app has no MTU home event, still emits legacy <code>IMTU*</code> events on about 3% of orders, and each app has entry-point events the other lacks, so a cross-app funnel has no first step.</li>
+    <li><b>Naming has decayed:</b> a typo event (<code>Collpase</code>) still fires beside its fix, five renamed pairs run in parallel or left dead events behind, <code>offer_Id</code> duplicates <code>offer_id</code>, one event is camelCase (<code>MtuProductLeftToCart</code>) with camelCase properties, and the <code>MTU</code> prefix collides with Money Transfer's <code>MTUser…</code> screens.</li>
+    <li><b>Privacy:</b> recipient phone numbers, the sender's phone number and user id ride on every IMTU event as plain event properties, and <code>MtuProductLeftToCart</code> adds recipient name and four phone formats.</li>
+    <li><b>Recommended path:</b> register the IMTU set in the Amplitude tracking plan with owners and descriptions, fix the seven data-quality defects in one app release, add the subscription lifecycle events server-side, then retire duplicates. Detail and ticket-ready scope in <a href="#plan">Recommendations</a>.</li>
+  </ul>
+</section>
+
+<section id="method">
+  <h2>Scope and method</h2>
+  <p>Only International Mobile Top-Up (IMTU, event prefix <code>MTU</code>) was reviewed, across both apps that host the shared IMTU module. Sources:</p>
+  <ul>
+    <li><b>Amplitude taxonomy</b>: every event and event property in <a href="https://app.amplitude.com/data/BOSS/650506/events/main/latest" target="_blank" rel="noopener">BR app Prod (650506)</a>, 1,519 event types, and <a href="https://app.amplitude.com/data/BOSS/420385/events/main/latest" target="_blank" rel="noopener">Money app Prod (420385)</a>, 1,439 event types, pulled on 9 September 2026 with status, first and last seen, description and category.</li>
+    <li><b>Live data</b>: 19 ad hoc queries on the last 30 days, saved as permanent charts on the <a href="https://app.amplitude.com/analytics/BOSS/dashboard/bm14j7e2" target="_blank" rel="noopener">audit dashboard</a>. Every figure below links to its chart.</li>
+    <li><b>The spec</b>: all 17 tabs of the <a href="https://docs.google.com/spreadsheets/d/1zpnqglr0dC4tw_AC4FdxFM3UlAFSwJGZ-mGPhojaLrs/edit?gid=1401783006#gid=1401783006" target="_blank" rel="noopener">BR6 MTU Amplitude Events sheet</a> (Events, BR7 IMTU HomePage, Carrier promotion flow, Update to existing events, Order processing, Punch cards, Apple/Google Pay and the DCS ticket tabs), parsed for event names and property definitions and diffed against the live taxonomy.</li>
+    <li><b>Existing analytics</b>: the 39 dashboards and 111 saved charts that reference IMTU, to see which events analysts rely on and how a few key charts are defined.</li>
+  </ul>
+  <p class="small">Event names in this document link to their entry in the Amplitude Data catalog. Counts are event totals unless the text says users. "None" means the property is absent; <code>"empty"</code> in quotes means the app sent that literal string.</p>
+</section>
+
+<section id="works">
+  <h2>What the current structure gets right</h2>
+  <div class="finding good">
+    <h3>The purchase record is rich and fully populated</h3>
+    <p>On <span class="ev">MTUOrderStatusSuccessScr</span> (707,640 events in 30 days) the properties <code>offer_id</code>, <code>recipient_country</code>, <code>recipient_carrier</code>, <code>mtu_confirmation_number</code>, <code>offer_amount</code>, <code>fee_amount</code>, <code>total_amount</code>, <code>featured_offer</code> and <code>offer_type</code> are present on 100% of events. That is enough to segment revenue proxies by destination, carrier, product type and promotion without any backend join.</p>
+    <p class="ev-line">Chart: <a href="https://app.amplitude.com/analytics/BOSS/chart/nkveexl1" target="_blank" rel="noopener">(none) count per key property</a> · <a href="https://app.amplitude.com/analytics/BOSS/chart/3icyttvz" target="_blank" rel="noopener">by offer_type</a></p>
+  </div>
+  <div class="finding good">
+    <h3>Source attribution exists and is 95% populated</h3>
+    <p><code>top_up_started_from</code> is an event property carried from the entry point through to the success screen. It resolves 94.8% of purchases to one of 20 entry surfaces (search 29.0%, recent people list 27.6%, people page 17.5%, quick send 12.3%). The earlier belief that it only existed as an always-empty user property is wrong; the event property works and should be the standard attribution field.</p>
+    <p class="ev-line">Chart: <a href="https://app.amplitude.com/analytics/BOSS/chart/qe1xnoc3" target="_blank" rel="noopener">success screen by top_up_started_from</a></p>
+  </div>
+  <div class="finding good">
+    <h3>One event set serves both apps</h3>
+    <p>The IMTU module emits the same <code>MTU*</code> events with the same property set in both projects, and <code>hosting_app</code> is 100% <code>calling-app</code> in the BR project and 99.99% <code>money-app</code> in the Money project. Any chart built in one project can be rebuilt in the other by changing the project, which is the foundation the cross-app view needs.</p>
+    <p class="ev-line">Chart: <a href="https://app.amplitude.com/analytics/BOSS/chart/iur77opl" target="_blank" rel="noopener">success screen by hosting_app and platform</a></p>
+  </div>
+  <div class="finding good">
+    <h3>Failure and marketing events reconcile</h3>
+    <p><span class="ev">MTUOrderStatusFailedScr</span> (138,786) and the marketing event <span class="ev">MarketingTxnFailed</span> filtered to MTU (138,485) agree within 0.2%, so the two pipelines see the same failures.</p>
+    <p class="ev-line">Chart: <a href="https://app.amplitude.com/analytics/BOSS/chart/csevgfiv" target="_blank" rel="noopener">MarketingTxnCompleted and MarketingTxnFailed by product_category</a></p>
+  </div>
+</section>
+
+<section id="structure">
+  <h2>Structure and governance findings</h2>
+
+  <div class="finding crit">
+    <h3>S1. Nothing is registered in the tracking plan</h3>
+    <p>All 179 IMTU events in the BR project have status <em>unexpected</em> (182 including two blocked), meaning none was ever added to the Amplitude tracking plan. Zero events and zero of the 2,090 event properties carry a description, category, owner or expected value list. In the Money project 169 of 191 are unexpected and only 6 are marked live. The spreadsheet is the only documentation, and it lives outside the tool analysts use.</p>
+    <p class="ev-line">Source: <a href="https://app.amplitude.com/data/BOSS/650506/events/main/latest" target="_blank" rel="noopener">BR app Prod event catalog</a> · <a href="https://app.amplitude.com/data/BOSS/420385/events/main/latest" target="_blank" rel="noopener">Money app Prod event catalog</a></p>
+  </div>
+
+  <div class="finding warn">
+    <h3>S2. The spec sheet and the live taxonomy have drifted apart</h3>
+    <p>Of 182 event names in the sheet, <b>45 have never fired</b> in the BR project (full list in <a href="#app-b">Appendix B</a>). Some were consciously dropped (the DCS-1426 filter dismiss events), but most are gaps: the whole "List of Promos page" and "List of Transactions page" blocks, the customer-service tap, <span class="ev">MTUSubscriptionPayTap</span>, <span class="ev">MTUOrderStatusRefundedScr</span>, <span class="ev">MTUOrderStatusScheduledScr</span>, <span class="ev">MTUTermsScr</span>. In the other direction, <b>42 live events are not in the sheet</b> (<a href="#app-c">Appendix C</a>), including the busiest entry event in the product, <span class="ev">MTUTopupBtn</span> (7.6 million all-time events, the most-queried IMTU event), the July 2026 retry events, the promo card events and the <code>MTUFilter*</code> events.</p>
+    <p>Property values also diverge from the sheet: the sheet writes <code>recents people list</code> and <code>mobile top up</code>, the app sends <code>recents-people-list</code> and <code>Mobile Top Up</code>. Anyone building a filter from the sheet gets an empty chart.</p>
+  </div>
+
+  <div class="finding warn">
+    <h3>S3. Naming has three prefixes, two suffix conventions and one collision</h3>
+    <ul>
+      <li><b>Prefixes:</b> <code>MTU</code> (current), <code>IMTU</code> (legacy Money app flow, still firing in both projects), <code>Mtu</code> (<span class="ev">MtuProductLeftToCart</span>, a Braze cart-abandonment event whose properties are camelCase: <code>carrierCode</code>, <code>productCode</code>, <code>txId</code>).</li>
+      <li><b>Collision:</b> the <code>MTU</code> prefix matches Money Transfer's <code>MTUser…</code> and <code>MTUpi…</code> screens (<span class="ev">MTUserDOBScr</span>, <span class="ev">MTUserHomeAddressScr</span>, <span class="ev">MTUpiEnterKeyScr</span>). Any "starts with MTU" filter, cohort or search picks up Money Transfer identity screens as top-up events. Five such events exist in BR, eight in Money.</li>
+      <li><b>Suffixes:</b> BR6 events end in <code>Btn</code>/<code>Scr</code>/<code>Select</code>; BR7 home events end in <code>Tap</code>/<code>View</code>/<code>Swipe</code>. The same "see all" action is <span class="ev">MTUHomePromotionsSeeAllTap</span> in one place and <span class="ev">MTUHomePromoSeeAllPromotionsTap</span> in another. <code>MTUFilterBundle</code>, <code>MTUFilterData</code>, <code>MTUFilterTopup</code> and <code>MTUDeeplinkOpened</code> have no action suffix at all.</li>
+      <li><b>Property case:</b> <code>offer_Id</code> exists beside <code>offer_id</code> on the order, success and failed events. Money app entry buttons exist as both <code>PostCallMTUBtn</code> and <code>PostCallMtuBtn</code>.</li>
+      <li><b>Redundant meta:</b> every IMTU event carries <code>event_name</code> and <code>component_name</code>, which repeat the event type.</li>
+    </ul>
+  </div>
+
+  <div class="finding warn">
+    <h3>S4. Entry points are not standardised</h3>
+    <p>Eleven different events start a top-up depending on where the user is: <span class="ev">MTUTopupBtn</span>, <span class="ev">MTUBtn</span>, <span class="ev">TopUpBtn</span>, <span class="ev">MTUHomeStartTopUpBtn</span>, <span class="ev">FundsServicesMTUBtn</span>, <span class="ev">HomeOnboardingActivityMTUBtn</span>, <span class="ev">PostCallMTUBtn</span>, <span class="ev">ContactMTUOfferBtn</span>, <span class="ev">ContactMTUCarrierBtn</span>, <span class="ev">RAFMtuCrossSellGiveNowBtn</span> in BR, plus <code>SendIMTUBtn</code> and <code>RequestIMTUBtn</code> in Money. The <code>top_up_started_from</code> property already names the surface, so the entry event should be one event with that property, not eleven.</p>
+  </div>
+
+  <div class="finding warn">
+    <h3>S5. Analysts use 29% of the events</h3>
+    <p>Of 160 IMTU events with usage statistics, 114 have never appeared in a saved chart or query. Screens that fire millions of times (<span class="ev">MTUHomeActivityModuleView</span> 7.4M, <span class="ev">MTUPromoCardsView</span> 6.1M, <span class="ev">MTUHomeSubscriptionsSectionView</span> 5.3M, <span class="ev">MTUTxnDetailsScr</span> 4.3M, <span class="ev">MTUSendTopUpContactListScr</span> 3.0M) have zero usage. Either they answer no question, in which case they cost ingestion for nothing, or nobody knows they exist, which points back to S1. The 20 most-queried events are in <a href="#app-d">Appendix D</a>.</p>
+  </div>
+
+  <div class="finding crit">
+    <h3>S6. Personal data rides on every event</h3>
+    <p><code>recipient_phone_number</code> (a full E.164 number), <code>phone_number</code> (the sender) and <code>user_id</code> are event properties on every IMTU event in both projects. <span class="ev">MtuProductLeftToCart</span> adds <code>msisdn</code>, <code>raw_number</code>, <code>national_formatted</code>, <code>international_formatted</code> and <code>recipient_name</code>. A recipient identifier is legitimately needed for duplicate-subscription and velocity analysis, but it should be a salted hash, and the sender fields belong in the user profile, not on 180 event types.</p>
+  </div>
+</section>
+
+<section id="quality">
+  <h2>Data quality findings</h2>
+  <p>Each item states the defect, the measured impact over the last 30 days in the BR project, and the chart that shows it.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>Defect</th><th>Where</th><th class="num">Impact (30d)</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>Q1</td><td>Literal string <code>"empty"</code> sent instead of null; Money app also sends <code>"null"</code></td><td><code>recurrent_unit</code>, <code>top_up_started_from</code> on all order events</td><td class="num">529,817 success events (74.9%) carry <code>recurrent_unit = "empty"</code>; 37,021 (5.2%) carry <code>top_up_started_from = "empty"</code></td><td><a href="https://app.amplitude.com/analytics/BOSS/chart/stkq29c4" target="_blank" rel="noopener">recurrent_unit</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/od6wv5h1" target="_blank" rel="noopener">Money fill</a></td></tr>
+      <tr><td>Q2</td><td>Default toggle state missing on the order screen</td><td><code>default_subscription_toggle</code> on <span class="ev">MTUOrderScr</span></td><td class="num">221,370 of 1,188,524 (18.6%) are none</td><td><a href="https://app.amplitude.com/analytics/BOSS/chart/bw7b6e3i" target="_blank" rel="noopener">flag fill</a></td></tr>
+      <tr><td>Q3</td><td>Subscription flag missing on the complete tap</td><td><code>is_subscription</code> on <span class="ev">MTUOrderCompleteBtn</span></td><td class="num">33,205 of 875,951 (3.8%) are none</td><td><a href="https://app.amplitude.com/analytics/BOSS/chart/bw7b6e3i" target="_blank" rel="noopener">flag fill</a></td></tr>
+      <tr><td>Q4</td><td>Home variant flag missing</td><td><code>is_br7_mtu_home</code> on <span class="ev">MTUHomeScr</span></td><td class="num">75,815 of 1,556,039 (4.9%) are none</td><td><a href="https://app.amplitude.com/analytics/BOSS/chart/bw7b6e3i" target="_blank" rel="noopener">flag fill</a></td></tr>
+      <tr><td>Q5</td><td>Generic failure reason</td><td><code>failed_reason</code> on <span class="ev">MTUOrderStatusFailedScr</span></td><td class="num">50,693 of 138,786 failures (36.5%) are just <code>failed</code></td><td><a href="https://app.amplitude.com/analytics/BOSS/chart/rmi5zkxe" target="_blank" rel="noopener">failed_reason</a></td></tr>
+      <tr><td>Q6</td><td>Orders with no terminal status event</td><td><span class="ev">MTUOrderProcessingScr</span> vs Success + Failed + Queued</td><td class="num">871,032 processing vs 857,330 terminal: 13,702 (1.6%) unaccounted; Scheduled and Refunded screens never instrumented</td><td><a href="https://app.amplitude.com/analytics/BOSS/chart/8q2t6rrf" target="_blank" rel="noopener">reconciliation</a></td></tr>
+      <tr><td>Q7</td><td>Dead experiment properties still on events</td><td><code>A_B_subscription_toggle_test_group</code>, <code>A_B_subscription_toggle_test_id</code>, <code>A_B_br7_homepage_test_id</code>, <code>featured_card_variant</code></td><td class="num">98.6% and 100% none; <code>featured_card_variant</code> is none on 97% (removal in DCS-5331)</td><td><a href="https://app.amplitude.com/analytics/BOSS/chart/iur77opl" target="_blank" rel="noopener">A/B fill</a></td></tr>
+      <tr><td>Q8</td><td>Typo event still firing beside its fix</td><td><span class="ev">MTUOrderTotalPriceCollpase</span> vs <span class="ev">MTUOrderTotalPriceCollapse</span></td><td class="num">371 vs 21,548 events; the typo is still referenced in the DCS-5300 spec</td><td><a href="https://app.amplitude.com/analytics/BOSS/chart/fdvwj5mr" target="_blank" rel="noopener">duplicate pairs</a></td></tr>
+      <tr><td>Q9</td><td>Two events for one action</td><td><span class="ev">MTUHomePromotionsSeeAllTap</span> / <span class="ev">MTUHomePromoSeeAllPromotionsTap</span>; <span class="ev">MTUHomeActivitySeeAllTap</span> / <span class="ev">MTUHomeActivitySeeAllTransactionsTap</span></td><td class="num">46,516 + 5,237; 48,480 + 22,278</td><td><a href="https://app.amplitude.com/analytics/BOSS/chart/fdvwj5mr" target="_blank" rel="noopener">duplicate pairs</a></td></tr>
+      <tr><td>Q10</td><td>Renames left dead events, and a new rename is splitting a series now</td><td><span class="ev">MTUReceiptScr</span> (0) vs <span class="ev">MTUOrderStatusViewFullReceiptScr</span> (49,792); <span class="ev">MTUHomeSearchBtn</span> (0) vs <span class="ev">MTUHomeSearchBarBtn</span> (272,549); <span class="ev">MTUSubscriptionDuplicateWarningView</span> (21,943) vs <span class="ev">MTUSubscriptionDuplicateWarningModalView</span> (3, first seen 8 Sep)</td><td class="num">Dead events stay in dropdowns; the duplicate-warning series will split as the new build ships</td><td><a href="https://app.amplitude.com/analytics/BOSS/chart/6y6o7jei" target="_blank" rel="noopener">renamed pairs</a></td></tr>
+      <tr><td>Q11</td><td>Legacy Money-app flow events leak into both projects</td><td><span class="ev">IMTUOrderScr</span>, <span class="ev">IMTUReceiptScr</span>, <span class="ev">IMTUbuy_btn</span>, <span class="ev">IMTUProcessingResult</span>, <span class="ev">IMTUContactsScr</span></td><td class="num">BR: 185 and 118 events; Money: 8,966 <code>IMTUOrderScr</code> vs 323,595 <code>MTUOrderScr</code> (2.8%)</td><td><a href="https://app.amplitude.com/analytics/BOSS/chart/ts90xu02" target="_blank" rel="noopener">Money legacy</a></td></tr>
+      <tr><td>Q12</td><td>Toggle taps cannot be netted per order</td><td><code>default_state</code> and <code>new_state</code> on <span class="ev">MTUSubscriptionToggleTap</span></td><td class="num">on to off 248,257; off to off 30,651; off to on 27,374; on to on 10,829. The "same state" pairs exist because <code>default_state</code> is the screen default, not the state before the tap; no <code>previous_state</code></td><td><a href="https://app.amplitude.com/analytics/BOSS/chart/hlh7j7tj" target="_blank" rel="noopener">toggle</a></td></tr>
+      <tr><td>Q13</td><td>Revenue chart built on a button tap</td><td><a href="https://app.amplitude.com/analytics/BOSS/chart/tmn7ym6m" target="_blank" rel="noopener">MTU revenue daily</a> sums <code>total_amount</code> on <span class="ev">MTUOrderCompleteBtn</span></td><td class="num">Complete taps exceed successes by 168,374 (23.8%) in 30 days, so the chart overstates revenue by failed and retried orders</td><td><a href="https://app.amplitude.com/analytics/BOSS/chart/8q2t6rrf" target="_blank" rel="noopener">reconciliation</a></td></tr>
+      <tr><td>Q14</td><td>Payment method values mix two taxonomies</td><td><code>payment_method</code> on <span class="ev">MarketingTxnCompleted</span> (the only MTU event that has it)</td><td class="num"><code>debit</code> 619,491, <code>Customer Credit Card Purchase</code> 458,328, <code>Customer Transfer from Retailer</code> 303,548, <code>credit</code> 60,350, <code>prepaid</code> 25,964, <code>Hard Card Topup</code> 5,605</td><td><a href="https://app.amplitude.com/analytics/BOSS/chart/csevgfiv" target="_blank" rel="noopener">payment_method</a></td></tr>
+    </tbody>
+  </table></div>
+
+  <figure id="fig-fill">
+    <h4>Where a flag is missing, and where a dead flag still rides along</h4>
+    <p class="fs">Share of events where the property is absent, BR app Prod, last 30 days. Dead experiment properties shown in the second group.</p>
+    <svg id="svg-fill" width="100%" viewBox="0 0 760 300" role="img" aria-label="Bar chart of the share of events missing each property"></svg>
+    <figcaption>Anything above zero on a required flag is a defect; anything near 100% on an experiment flag means the test is over and the property should go. Charts: <a href="https://app.amplitude.com/analytics/BOSS/chart/bw7b6e3i" target="_blank" rel="noopener">flag fill</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/iur77opl" target="_blank" rel="noopener">A/B fill</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/qe1xnoc3" target="_blank" rel="noopener">top_up_started_from</a>.</figcaption>
+  </figure>
+
+  <figure id="fig-fail">
+    <h4>Why orders fail, as the app reports it</h4>
+    <p class="fs"><span class="ev">MTUOrderStatusFailedScr</span> by <code>failed_reason</code>, BR app Prod, last 30 days, 138,786 failures.</p>
+    <svg id="svg-fail" width="100%" viewBox="0 0 760 330" role="img" aria-label="Bar chart of failure reasons"></svg>
+    <figcaption>The largest bucket is the one that says nothing. The backend knows the K2 decline code; passing it through as <code>failed_reason_code</code> would make a third of failures diagnosable. Chart: <a href="https://app.amplitude.com/analytics/BOSS/chart/rmi5zkxe" target="_blank" rel="noopener">failed_reason</a>.</figcaption>
+  </figure>
+</section>
+
+<section id="missing">
+  <h2>Missing events and properties</h2>
+  <p>These are questions the product team asks that the current events cannot answer, ordered by how often the question comes up.</p>
+
+  <div class="finding crit">
+    <h3>M1. Payment method on the order</h3>
+    <p>No <code>MTU*</code> event carries <code>payment_method</code>. It exists only on <span class="ev">MarketingTxnCompleted</span>, a cross-channel marketing event whose values mix card type with transaction type (Q14). <a href="https://idtjira.atlassian.net/browse/DCS-5327" target="_blank" rel="noopener">DCS-5327</a> adds the property for Apple Pay and Google Pay only. It should be added for every method with one closed value list: <code>credit_card</code>, <code>debit_card</code>, <code>prepaid_card</code>, <code>apple_pay</code>, <code>google_pay</code>, <code>boss_share</code>, <code>promo_balance</code>, plus <code>card_on_file</code> (true/false) and <code>is_first_card_use</code>.</p>
+  </div>
+
+  <div class="finding crit">
+    <h3>M2. The subscription lifecycle after the first purchase</h3>
+    <p>Amplitude sees the subscription being created (<code>recurrent_unit</code> on the success screen), edited and cancelled, and nothing else. There is no <code>subscription_id</code> on any event, so a cancellation cannot be joined to the purchase that created it. There are no renewal events: the recurring charge is a backend timer, and its success, failure and retry never reach Amplitude. The September duplicate-subscription analysis found 3,469 concurrently active timers double-billing 1,094 customers; none of that is visible here. Needed, sent server-side with the user id: <code>MTUSubscriptionRenewalAttempted</code>, <code>MTUSubscriptionRenewalSucceeded</code>, <code>MTUSubscriptionRenewalFailed</code> (with <code>failure_reason</code>, <code>attempt_number</code>), <code>MTUSubscriptionPaused</code>, <code>MTUSubscriptionExpired</code>, each carrying <code>subscription_id</code>, <code>cycle_number</code>, <code>recurrent_unit</code>, <code>recurrent_interval</code>, <code>offer_id</code>, <code>total_amount</code>.</p>
+  </div>
+
+  <div class="finding crit">
+    <h3>M3. Why people cancel</h3>
+    <p><span class="ev">MTUEditSubscriptionCancelSuccess</span> carries offer, recipient and recurrence but no <code>cancel_reason</code>, no <code>subscription_age_days</code>, no <code>cycles_completed</code> and no <code>cancel_source</code> (home widget, transaction details, activity tab). The home redesign review found that 55% of users who tap the subscription card cancel within the hour; the review had to infer intent from sequence because no property states it.</p>
+  </div>
+
+  <div class="finding warn">
+    <h3>M4. Final toggle state at payment</h3>
+    <p><span class="ev">MTUSubscriptionPayTap</span> with <code>toggle_enabled</code>, <code>is_subscription</code> and <code>duplicate_subscription_warning_shown</code> was specified in March 2026 and never built. The team uses <code>is_subscription</code> on the complete tap instead, which is missing 3.8% of the time (Q3). The toggle-tap event also needs <code>previous_state</code> (Q12) so opt-out can be netted per order without sequencing.</p>
+  </div>
+
+  <div class="finding warn">
+    <h3>M5. Offer list context</h3>
+    <p><span class="ev">MTUOfferListScr</span> records that the list opened and whether a featured card was rendered, but not how many offers were shown, whether the list was empty, which offer position the user tapped, or whether the featured card entered the viewport. Add <code>offer_count</code>, <code>featured_offer_id</code>, <code>has_promo_offers</code>, <code>price_min</code>, <code>price_max</code> to the screen, <code>position</code> to <span class="ev">MTUOfferSelectBtn</span>, and a <code>MTUOfferFeaturedCardImpression</code> event. An empty-result state (<code>MTUNoOffersScr</code>) does not exist; the legacy <span class="ev">IMTUNoCarriers</span> and <code>IMTUNoProducts</code> covered this in the old flow and were never carried over.</p>
+  </div>
+
+  <div class="finding warn">
+    <h3>M6. Backend outcomes beyond success and failure</h3>
+    <p>Orders that are scheduled, refunded, reversed or time out have no screen event (Q6). Rather than four more screens, add one <code>MTUOrderStatusChanged</code> server event with <code>order_status</code> (<code>success</code>, <code>failed</code>, <code>queued</code>, <code>scheduled</code>, <code>refunded</code>, <code>reversed</code>, <code>timeout</code>), <code>status_reason_code</code>, and <code>mtu_confirmation_number</code> so it joins to the client screens.</p>
+  </div>
+
+  <div class="finding warn">
+    <h3>M7. Failure diagnostics</h3>
+    <p><code>failed_reason</code> is a UI copy key, not the backend code (Q5). Add <code>failed_reason_code</code> (the K2 or payment gateway code) and <code>failed_stage</code> (<code>payment</code>, <code>carrier</code>, <code>validation</code>, <code>fraud</code>) to <span class="ev">MTUOrderStatusFailedScr</span> and <span class="ev">MarketingTxnFailed</span>. The retry events added in July 2026 (<span class="ev">MTUTxnDetailsRetryNowBtn</span>, <span class="ev">MTUHomeActivityChangePaymentMethodRetryBtn</span> and siblings) should carry the same code so retry success can be measured by cause.</p>
+  </div>
+
+  <div class="finding warn">
+    <h3>M8. Search and lookup</h3>
+    <p>Search is the largest entry surface (29% of purchases) and the only events are the bar tap and the "start top up" taps. Nothing records a query with no result, a number the carrier lookup could not resolve, or a lookup error. Add <code>MTUSearchResultsView</code> (<code>result_count</code>, <code>query_type</code> number/name) and <code>MTUCarrierLookupFailed</code> (<code>error_code</code>, <code>recipient_country</code>).</p>
+  </div>
+
+  <div class="finding warn">
+    <h3>M9. Activity and transaction context</h3>
+    <p><span class="ev">MTUHomeActivityPastTransactionCardTap</span> carries only <code>transaction_id</code>. Without <code>transaction_status</code>, <code>recipient_country</code>, <code>recipient_carrier</code> and <code>is_subscription</code> on the tap, the leak between the card and the order screen (28.8% in the home review) cannot be explained. The same applies to <span class="ev">MTUTxnDetailsScr</span>, which has no status property although failed transactions are exactly where retry actions live.</p>
+  </div>
+
+  <div class="finding warn">
+    <h3>M10. User-level IMTU state</h3>
+    <p>The only IMTU user properties are <code>Is IMTU sender</code> (Yes/No from the customer data platform), <code>imtu_cls_label</code> and <code>imtu_retention_prob</code>. Cohorts such as "has an active subscription", "last top-up more than 60 days ago" or "sends to two or more countries" have to be rebuilt from raw events every time. Add <code>imtu_active_subscriptions</code>, <code>imtu_last_purchase_date</code>, <code>imtu_lifetime_purchases</code>, <code>imtu_primary_destination</code>, <code>imtu_card_on_file</code>, refreshed daily.</p>
+  </div>
+
+  <div class="finding warn">
+    <h3>M11. Revenue as a revenue event</h3>
+    <p>Amplitude's revenue features (LTV, the built-in <code>paying</code> property, revenue by cohort) need a revenue event with <code>$revenue</code> or <code>$price</code>. IMTU has none; revenue is approximated by summing <code>total_amount</code> on a screen or, worse, a button (Q13). Send a <code>MTUPurchase</code> revenue event from the success path with <code>$price</code> = <code>total_amount</code>, <code>$quantity</code> = 1, <code>$productId</code> = <code>offer_id</code>, <code>$revenueType</code> = <code>one_time</code> / <code>subscription_first</code> / <code>subscription_renewal</code>.</p>
+  </div>
+
+  <div class="finding warn">
+    <h3>M12. Screen exits and abandonment</h3>
+    <p>Until September 2026 no IMTU screen had an exit event; <span class="ev">MTUOrderScrBackBtn</span> appeared on 2 September (19 events) and <code>MTUOrderScrCloseBtn</code> exists only in the Money project. Abandonment is currently measured by absence in a funnel, which cannot separate "left" from "lost the session". Add back/close events to the offer list, carrier list and edit-subscription screens with <code>time_on_screen_ms</code>, in both apps.</p>
+  </div>
+</section>
+
+<section id="apps">
+  <h2>Boss Revolution vs Boss Money</h2>
+  <p>The two apps embed the same IMTU module and emit the same events, so the comparison is mostly about what surrounds the module.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>Dimension</th><th>Boss Revolution (650506)</th><th>Boss Money (420385)</th><th>Read</th></tr></thead>
+    <tbody>
+      <tr><td>Purchases (success screen, 30d)</td><td class="num">707,640</td><td class="num">205,939</td><td>BR is 77% of app purchases, consistent with the 12-month split</td></tr>
+      <tr><td>Subscription share of purchases</td><td class="num">25.1% (monthly 18.1%, weekly 7.0%)</td><td class="num">26.8% (monthly 17.5%, weekly 9.3%)</td><td>Same behaviour; Money leans slightly weekly</td></tr>
+      <tr><td>Product mix (<code>offer_type</code>)</td><td>Top Up 49.4%, Bundle 44.9%, Data 5.7%</td><td>Bundle 57.0%, Top Up 36.5%, Data 6.0%</td><td>Money buyers skew to bundles; worth a destination-mix check</td></tr>
+      <tr><td>Entry event</td><td><span class="ev">MTUHomeScr</span> (1.56M) then <span class="ev">MTUTopupBtn</span></td><td>No MTU home; <span class="ev">MTUSendTopUpContactListScr</span> (212,789) or <span class="ev">MTUCarrierListScr</span> (392,419); <code>MTUHomeScr</code> is blocked</td><td>No common first step, so the two funnels are not comparable</td></tr>
+      <tr><td>Funnel to success (1 day, unique users)</td><td class="num">52.6% from home</td><td class="num">68.2% from contact list</td><td>Money starts one step deeper; from the offer list both convert about 79 to 80%</td></tr>
+      <tr><td>Where top-ups start</td><td>search 29.0%, recents 27.6%, people page 17.5%, quick send 12.3%, calling home 4.2%</td><td>recents 44.1%, search 38.1%, quick send 11.9%; no people page or calling surfaces</td><td>Attribution works in both; values are the same vocabulary</td></tr>
+      <tr><td>Promo surfaces as purchase source</td><td class="num">0.34% (promo cards 1,506, all promotions 408)</td><td class="num">0.28% (321 + 172 + 79)</td><td>Promo widgets are visible in millions of views and produce a few thousand purchases</td></tr>
+      <tr><td>Legacy <code>IMTU*</code> events</td><td>Trace (185 <code>IMTUOrderScr</code>)</td><td>2.8% of orders still on the legacy flow (8,966)</td><td>Old app versions or an unmigrated path in Money</td></tr>
+      <tr><td>Literal null strings</td><td><code>"empty"</code></td><td><code>"empty"</code> and <code>"null"</code></td><td>Two client implementations of the same bug</td></tr>
+      <tr><td>Events only in this app</td><td><span class="ev">MTUSubscriptionDuplicateWarningModalView</span>, <span class="ev">MTUSubscriptionDuplicateWarningContinueBtn</span>, <span class="ev">MTUBtn</span>, <span class="ev">MTUHistoryBtn</span>, <span class="ev">MTUPromosBtn</span>, <span class="ev">MTUReceiptEGiftBannerBtn</span></td><td><code>MTUOrderScrCloseBtn</code>, <code>MTUEditSubscrScrCloseBtn</code></td><td>Release drift between the two hosts; the module should ship the same events to both</td></tr>
+      <tr><td>Purchase property set</td><td>31 properties on the success screen</td><td>30 properties, same names</td><td>Parity is good; both lack <code>payment_method</code>, <code>subscription_id</code>, <code>is_subscription</code></td></tr>
+      <tr><td>Analyst assets</td><td>MTU Dashboard, MTU KPIs, MTU User Behaviour, cart abandonment, toggle and home reviews</td><td>IMTU in MoneyApp (66 charts), MA. MTU User Behavior, Money cart abandonment</td><td>Two parallel dashboard families; no cross-app view exists</td></tr>
+    </tbody>
+  </table></div>
+
+  <figure id="fig-funnel">
+    <h4>Purchase funnel by app, last 30 days</h4>
+    <p class="fs">Unique users completing each step within one day. BR starts at <span class="ev">MTUHomeScr</span>; Money has no home event and starts at <span class="ev">MTUSendTopUpContactListScr</span>.</p>
+    <div class="legend"><span><i style="background:var(--series-br)"></i>Boss Revolution</span><span><i style="background:var(--series-money)"></i>Boss Money</span></div>
+    <svg id="svg-funnel" width="100%" viewBox="0 0 760 300" role="img" aria-label="Grouped bar chart of funnel step users for both apps"></svg>
+    <figcaption>The first bars are not the same thing, which is the point: until both apps emit one entry event, "conversion" means something different in each project. Charts: <a href="https://app.amplitude.com/analytics/BOSS/chart/23zsjmnw" target="_blank" rel="noopener">BR funnel</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/79sjkgkk" target="_blank" rel="noopener">Money funnel</a>.</figcaption>
+  </figure>
+
+  <p><b>To measure both apps as one product</b>: (1) give the Money app the same <span class="ev">MTUHomeScr</span> or, better, a single <code>MTUEntryTap</code> in both apps with <code>top_up_started_from</code>; (2) build IMTU dashboards once in either project with a <code>hosting_app</code> breakdown, or create a cross-project portfolio view; (3) retire the legacy <code>IMTU*</code> flow in Money and the <code>Imtu…</code> lower-case variants that appeared in 2024; (4) ship module analytics changes to both hosts in the same release so the "only in this app" row stays empty.</p>
+</section>
+
+<section id="plan">
+  <h2>Recommendations</h2>
+  <p>Ordered by the damage done to numbers people already use. Roles follow the DCS Jira convention. Each P0 item is small enough for one story.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>Priority</th><th>Change</th><th>Role</th><th>Why now</th><th>Fixes</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill p0">P0</span></td><td>Send null, not the string <code>"empty"</code> or <code>"null"</code>, for absent <code>recurrent_unit</code> and <code>top_up_started_from</code>; both apps</td><td><span class="role">[APP]</span></td><td>Every subscription-vs-regular split filters on a magic string</td><td>Q1</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>Populate <code>default_subscription_toggle</code>, <code>is_subscription</code> and <code>is_br7_mtu_home</code> on every fire; add <code>previous_state</code> to <span class="ev">MTUSubscriptionToggleTap</span></td><td><span class="role">[APP]</span></td><td>18.6% of order screens are unclassifiable in the toggle analysis</td><td>Q2, Q3, Q4, Q12</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>Add <code>payment_method</code> (closed list), <code>card_on_file</code> and <code>is_first_card_use</code> to <span class="ev">MTUOrderCompleteBtn</span>, <span class="ev">MTUOrderProcessingScr</span> and all <code>MTUOrderStatus*</code> events; extend <a href="https://idtjira.atlassian.net/browse/DCS-5327" target="_blank" rel="noopener">DCS-5327</a> beyond wallets</td><td><span class="role">[APP]</span> <span class="role">[BE]</span></td><td>Payment method is the most requested cut that does not exist</td><td>M1, Q14</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>Pass the backend decline code as <code>failed_reason_code</code> and <code>failed_stage</code> on failed and retry events</td><td><span class="role">[BE]</span> <span class="role">[APP]</span></td><td>36.5% of failures are undiagnosable</td><td>Q5, M7</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>Server event <code>MTUOrderStatusChanged</code> with <code>order_status</code> and <code>mtu_confirmation_number</code></td><td><span class="role">[BE]</span></td><td>13,700 orders a month have no outcome in Amplitude</td><td>Q6, M6</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>Rebuild <a href="https://app.amplitude.com/analytics/BOSS/chart/tmn7ym6m" target="_blank" rel="noopener">MTU revenue daily</a> and any chart summing amounts on <span class="ev">MTUOrderCompleteBtn</span> onto <span class="ev">MTUOrderStatusSuccessScr</span>; long term, send a <code>MTUPurchase</code> revenue event</td><td><span class="role">[TPM]</span> <span class="role">[BE]</span></td><td>Reported revenue is inflated by 24% of taps that did not succeed</td><td>Q13, M11</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>Register all IMTU events and properties in the Amplitude tracking plan with description, category (IMTU), owner and value lists; block the typo and dead events; make the sheet a mirror, not the source</td><td><span class="role">[TPM]</span></td><td>Zero documentation in the tool; 71% of events unused</td><td>S1, S2, S5</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>Subscription lifecycle server events (renewal attempted, succeeded, failed, paused, expired) with <code>subscription_id</code>, <code>cycle_number</code>, <code>failure_reason</code>; add <code>subscription_id</code> to every client subscription event</td><td><span class="role">[BE]</span> <span class="role">[APP]</span></td><td>Renewals, the recurring revenue and the double-billing risk are invisible</td><td>M2</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td><code>cancel_reason</code>, <code>cancel_source</code>, <code>subscription_age_days</code>, <code>cycles_completed</code> on <span class="ev">MTUEditSubscriptionCancelSuccess</span>; build <span class="ev">MTUSubscriptionPayTap</span> as specified</td><td><span class="role">[APP]</span> <span class="role">[DESIGN]</span></td><td>Cancellation is the largest subscription behaviour and has no stated cause</td><td>M3, M4</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>Retire duplicates: stop <span class="ev">MTUOrderTotalPriceCollpase</span>, merge the two See-All pairs, block <span class="ev">MTUReceiptScr</span>, <span class="ev">MTUHomeSearchBtn</span>, <span class="ev">MTUOfferSelect</span>, <span class="ev">MTUOfferFeaturedSelect</span>; decide one name for the duplicate-warning modal before the 8 Sep build reaches volume</td><td><span class="role">[APP]</span> <span class="role">[TPM]</span></td><td>Parallel events split series and mislead dropdowns</td><td>Q8, Q9, Q10</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>Remove <code>A_B_subscription_toggle_test_group</code>, <code>A_B_subscription_toggle_test_id</code>, <code>A_B_br7_homepage_test_id</code>, <code>featured_card_variant</code> (<a href="https://idtjira.atlassian.net/browse/DCS-5331" target="_blank" rel="noopener">DCS-5331</a>), <code>offer_Id</code>, <code>event_name</code>, <code>component_name</code></td><td><span class="role">[APP]</span></td><td>Dead and duplicate properties cost ingestion and confuse group-bys</td><td>Q7, S3</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>Hash <code>recipient_phone_number</code> (salted) and drop <code>phone_number</code>, <code>user_id</code>, <code>msisdn</code>, <code>raw_number</code>, <code>recipient_name</code> from event properties</td><td><span class="role">[APP]</span> <span class="role">[BE]</span></td><td>Personal data on 180 event types</td><td>S6</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>One entry event <code>MTUEntryTap</code> with <code>top_up_started_from</code> in both apps; add <span class="ev">MTUHomeScr</span> or its equivalent to the Money app; ship module events to both hosts in the same release</td><td><span class="role">[APP]</span></td><td>No cross-app funnel is possible today</td><td>S4, apps</td></tr>
+      <tr><td><span class="pill p2">P2</span></td><td>Offer list context: <code>offer_count</code>, <code>position</code>, <code>has_promo_offers</code>, featured card impression, <code>MTUNoOffersScr</code></td><td><span class="role">[APP]</span></td><td>Offer selection cannot be explained by what was shown</td><td>M5</td></tr>
+      <tr><td><span class="pill p2">P2</span></td><td>Search and lookup events; transaction status on activity and details taps; screen exit events with time on screen</td><td><span class="role">[APP]</span></td><td>Largest entry surface and largest home widget are half-instrumented</td><td>M8, M9, M12</td></tr>
+      <tr><td><span class="pill p2">P2</span></td><td>Daily IMTU user properties (active subscriptions, last purchase, lifetime purchases, primary destination, card on file)</td><td><span class="role">[BE]</span></td><td>Every cohort is rebuilt from raw events</td><td>M10</td></tr>
+      <tr><td><span class="pill p2">P2</span></td><td>Naming standard: <code>MTU</code> prefix only, PascalCase events, <code>Scr</code>/<code>Tap</code>/<code>View</code>/<code>Swipe</code>/<code>Result</code> suffixes, snake_case properties, closed value lists in kebab-case; rename <code>MtuProductLeftToCart</code>; use a distinct prefix for Money Transfer identity screens</td><td><span class="role">[TPM]</span></td><td>Three prefixes and a collision with Money Transfer</td><td>S3</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Proposed additions, ready for a spec tab</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Event</th><th>Fires when</th><th>Properties</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td><code>MTUEntryTap</code></td><td>Any control that starts a top-up</td><td><code>top_up_started_from</code>, <code>has_promo_badge</code>, <code>recipient_prefilled</code></td><td>App, both hosts</td></tr>
+      <tr><td><code>MTUOrderStatusChanged</code></td><td>Backend order state changes after submission</td><td><code>mtu_confirmation_number</code>, <code>order_status</code>, <code>status_reason_code</code>, <code>offer_id</code>, <code>total_amount</code>, <code>payment_method</code>, <code>is_subscription</code>, <code>subscription_id</code></td><td>Server</td></tr>
+      <tr><td><code>MTUPurchase</code> (revenue)</td><td>Order confirmed successful</td><td><code>$price</code>, <code>$quantity</code>, <code>$productId</code>, <code>$revenueType</code>, <code>recipient_country</code>, <code>recipient_carrier</code>, <code>offer_type</code>, <code>payment_method</code></td><td>Server</td></tr>
+      <tr><td><code>MTUSubscriptionRenewalAttempted</code> / <code>Succeeded</code> / <code>Failed</code></td><td>Recurring timer fires</td><td><code>subscription_id</code>, <code>cycle_number</code>, <code>attempt_number</code>, <code>failure_reason</code>, <code>recurrent_unit</code>, <code>recurrent_interval</code>, <code>offer_id</code>, <code>total_amount</code>, <code>payment_method</code></td><td>Server</td></tr>
+      <tr><td><code>MTUSubscriptionPaused</code> / <code>Expired</code></td><td>Timer paused after failures or offer retired</td><td><code>subscription_id</code>, <code>reason</code>, <code>cycles_completed</code></td><td>Server</td></tr>
+      <tr><td><code>MTUSubscriptionPayTap</code></td><td>Pay tapped with the toggle visible</td><td><code>toggle_enabled</code>, <code>is_subscription</code>, <code>duplicate_subscription_warning_shown</code>, <code>frequency</code></td><td>App (spec exists)</td></tr>
+      <tr><td><code>MTUOfferFeaturedCardImpression</code></td><td>Featured card enters the viewport</td><td><code>featured_offer_id</code>, <code>position</code>, <code>offer_count</code></td><td>App</td></tr>
+      <tr><td><code>MTUNoOffersScr</code></td><td>Carrier or offer lookup returns nothing</td><td><code>recipient_country</code>, <code>recipient_carrier</code>, <code>error_code</code></td><td>App</td></tr>
+      <tr><td><code>MTUSearchResultsView</code></td><td>Search results rendered</td><td><code>result_count</code>, <code>query_type</code></td><td>App</td></tr>
+      <tr><td><code>MTUCarrierLookupFailed</code></td><td>Number could not be resolved to a carrier</td><td><code>recipient_country</code>, <code>error_code</code></td><td>App</td></tr>
+      <tr><td><code>MTU*ScrBackBtn</code> / <code>MTU*ScrCloseBtn</code></td><td>User leaves offer list, carrier list, order or edit-subscription screen</td><td><code>time_on_screen_ms</code>, screen context</td><td>App, both hosts</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note"><b>Sequencing.</b> The P0 client changes are one story per host app and should ship together so the Boss Revolution and Boss Money series change on the same day. The tracking-plan registration can start now with no code. The server events depend on the k2 timer and order services and are the only items that need a backend epic.</div>
+</section>
+
+<section id="appendix">
+  <h2>Appendices</h2>
+
+  <h3 id="app-a">A. Evidence charts</h3>
+  <p class="small">All on the <a href="https://app.amplitude.com/analytics/BOSS/dashboard/bm14j7e2" target="_blank" rel="noopener">IMTU Amplitude Events Audit (Sep 2026)</a> dashboard, last 30 days, run on 9 September 2026.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Chart</th><th>What it shows</th><th>Project</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/23zsjmnw" target="_blank" rel="noopener">BR purchase funnel: home to success</a></td><td>5-step funnel, 52.6%</td><td>650506</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/79sjkgkk" target="_blank" rel="noopener">Money app purchase funnel: contact list to success</a></td><td>5-step funnel, 68.2%</td><td>420385</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/8q2t6rrf" target="_blank" rel="noopener">Order outcome reconciliation</a></td><td>Submissions vs processing vs terminal screens</td><td>650506</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/nkveexl1" target="_blank" rel="noopener">Success screen: (none) count per key property</a></td><td>Fill of nine purchase properties</td><td>650506</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/bw7b6e3i" target="_blank" rel="noopener">Fill of is_subscription, default_subscription_toggle, is_br7_mtu_home</a></td><td>Flag completeness</td><td>650506</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/iur77opl" target="_blank" rel="noopener">hosting_app, platform and dead A/B properties</a></td><td>App and platform split; experiment leftovers</td><td>650506</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/stkq29c4" target="_blank" rel="noopener">Success screen by recurrent_unit</a></td><td>Literal "empty" string</td><td>650506</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/qe1xnoc3" target="_blank" rel="noopener">Success screen by top_up_started_from</a></td><td>Entry surface attribution</td><td>650506</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/3icyttvz" target="_blank" rel="noopener">Success screen by offer_type</a></td><td>Product mix</td><td>650506</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/rmi5zkxe" target="_blank" rel="noopener">Failed screen by failed_reason</a></td><td>Failure reasons</td><td>650506</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/fdvwj5mr" target="_blank" rel="noopener">Duplicate and misspelled event pairs</a></td><td>Parallel events</td><td>650506</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/6y6o7jei" target="_blank" rel="noopener">Renamed and legacy event pairs</a></td><td>Dead events and legacy leakage</td><td>650506</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/hlh7j7tj" target="_blank" rel="noopener">Toggle tap by default_state x new_state</a></td><td>Toggle instrumentation</td><td>650506</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/csevgfiv" target="_blank" rel="noopener">MarketingTxnCompleted by product_category and payment_method</a></td><td>Only carrier of payment method</td><td>650506</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/ts90xu02" target="_blank" rel="noopener">Money app: MTU vs legacy IMTU events</a></td><td>Legacy flow share</td><td>420385</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/od6wv5h1" target="_blank" rel="noopener">Money app: success screen property fill</a></td><td>Parity check</td><td>420385</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="app-b">B. Specified in the sheet, never fired in the BR project (45)</h3>
+  <p class="small">Tab in brackets. Items marked <em>dropped</em> were explicitly deferred in the sheet.</p>
+  <ul class="cols">
+    <li>MTUCarrierPromoCountryFilterSwipeDown [DCS-1426] dropped</li><li>MTUCarrierPromoCountryFilterXBtn [DCS-1426] dropped</li><li>MTUCarrierPromosScroll [DCS-1767, Events]</li><li>MTUContactCustomerServiceTap [Events]</li><li>MTUEditSubscrScrCloseBtn [BR7] Money only</li><li>MTUHomeActivityEditSubscriptionTap [Events]</li><li>MTUHomeActivityPastTransactionsCardTap [Events] shipped as …TransactionCardTap</li><li>MTUHomeActivitySeePastTransactionsTap [Events]</li><li>MTUHomeActivitySendAgainTap [Events] shipped as …SendAgainBtn</li><li>MTUHomePromoCardTap [BR7] shipped as MTUPromoCardTap</li><li>MTUHomePromoCardView [Events]</li><li>MTUHomePromoCardsSwipe [BR7, Events] shipped as MTUPromoCardsSwipe</li><li>MTUHomePromoCardsView [BR7] shipped as MTUPromoCardsView</li><li>MTUHomePromoSeeAllTap [Events]</li><li>MTUHomePromoUsePromoTap [Events]</li><li>MTUHomeRecipientAvatarTap [BR7]</li><li>MTUHomeXsellCardTap [BR7]</li><li>MTUHomeXsellCardsView [BR7, Events]</li><li>MTUHomeXsellEgiftCardTap [Events]</li><li>MTUHomeXsellEsimCardTap [Events]</li><li>MTUOrderOfferDetailsCollapse [Events] shipped as MTUOfferDetailsCollapseBtn</li><li>MTUOrderOfferDetailsExpand [Events] shipped as MTUOfferDetailsExpandBtn</li><li>MTUOrderScrCloseBtn [BR7] Money only</li><li>MTUOrderStatusRefundedScr [DCS-1265, Events, Update]</li><li>MTUOrderStatusScheduledScr [Events]</li><li>MTUOrderSubscriptionUpsellDismissBtn [DCS-1265, Events, Update] replaced by CloseBtn / SwipeDown</li><li>MTUPromoListAvailabilityFilterSelect [Events]</li><li>MTUPromoListCountryFilterSelect [Events]</li><li>MTUPromoListPromoCardTap [Events]</li><li>MTUPromoListScroll [Events]</li><li>MTUPromoListView [Events]</li><li>MTUSubscriptionDuplicateWarningCloseBtn [BR7]</li><li>MTUSubscriptionPayTap [Events]</li><li>MTUSubscriptionsStartTopUpBtn [Events]</li><li>MTUTermsScr [Events]</li><li>MTUTransactionsAllFilterTap [Events]</li><li>MTUTransactionsContactAvatarTap [Events]</li><li>MTUTransactionsListScroll [Events]</li><li>MTUTransactionsListView [Events]</li><li>MTUTransactionsPastTransactionTap [Events]</li><li>MTUTransactionsQuickSendTap [Events]</li><li>MTUTransactionsSubscriptionFilterTap [Events]</li><li>MTUViewHomePromoCardDetailsTap [BR7, Events] shipped as MTUViewPromoCardDetailsTap</li><li>MTUViewHomePromoSeeOffersTap [Events]</li><li>MTUHome [BR7] section label, not an event</li>
+  </ul>
+
+  <h3 id="app-c">C. Live in the BR project, not in the sheet (42)</h3>
+  <ul class="cols">
+    <li>IMTU/HistoryList</li><li>IMTUCarriersListShown</li><li>IMTUCarriersProductsFetchingFailure</li><li>IMTUContactsScr</li><li>IMTUGetProductsSuccess</li><li>IMTUNoCarriers</li><li>IMTUOrderScr</li><li>IMTUProcessingResult</li><li>IMTUProcessingShown</li><li>IMTUProductsListShown</li><li>IMTUProductsScr</li><li>IMTUReceiptScr</li><li>IMTUadd_card_popup_shown</li><li>IMTUbuy_btn</li><li>IMTUcarrier_selected</li><li>IMTUcontact_selected</li><li>IMTUcvv_popup_shown</li><li>IMTUproduct_selected</li><li>MTUBtn</li><li>MTUDeeplinkOpened</li><li>MTUFilterBundle</li><li>MTUFilterData</li><li>MTUFilterTopup</li><li>MTUHistoryBtn</li><li>MTUHomeActivityChangeOfferRetryBtn</li><li>MTUHomeActivityChangePaymentMethodRetryBtn</li><li>MTUHomeActivityChangePhoneNumberRetryBtn</li><li>MTUOrderStatusViewFullReceiptScr</li><li>MTUOrderTotalPriceCollapse</li><li>MTUPromoCardTap</li><li>MTUPromoCardsSwipe</li><li>MTUPromoCardsView</li><li>MTUPromosBtn</li><li>MTUTopupBtn</li><li>MTUTxnDetailsChangeOfferRetryBtn</li><li>MTUTxnDetailsChangePhoneNumberRetryBtn</li><li>MTUTxnDetailsRetryLaterBtn</li><li>MTUTxnDetailsRetryNowBtn</li><li>MTUViewPromoCardDetailsTap</li><li>MTUserDOBExitBtn (Money Transfer, prefix collision)</li><li>MTUserDOBScr (Money Transfer, prefix collision)</li><li>MtuProductLeftToCart</li>
+  </ul>
+
+  <h3 id="app-d">D. Event inventory and usage</h3>
+  <div class="two">
+    <div>
+      <p class="small"><b>Most queried IMTU events</b> (all-time query count, BR project)</p>
+      <div class="tw"><table>
+        <thead><tr><th>Event</th><th class="num">All-time volume</th><th class="num">Queries</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ev">MTUTopupBtn</span></td><td class="num">7,599,715</td><td class="num">3,154</td></tr>
+          <tr><td><span class="ev">MTUOrderCompleteBtn</span></td><td class="num">5,477,856</td><td class="num">1,698</td></tr>
+          <tr><td><span class="ev">MTUOrderScr</span></td><td class="num">7,192,025</td><td class="num">1,595</td></tr>
+          <tr><td><span class="ev">MTUSubscriptionToggleTap</span></td><td class="num">1,284,652</td><td class="num">1,061</td></tr>
+          <tr><td><span class="ev">MTUEditSubscriptionCancelSuccess</span></td><td class="num">437,164</td><td class="num">449</td></tr>
+          <tr><td><span class="ev">MTUOrderSubscriptionUpsellSaveCompleteOrderBtn</span></td><td class="num">623,887</td><td class="num">343</td></tr>
+          <tr><td><span class="ev">MTUHomeScr</span></td><td class="num">9,242,026</td><td class="num">217</td></tr>
+          <tr><td><span class="ev">MTUEditSubscriptionCancelBtn</span></td><td class="num">470,693</td><td class="num">194</td></tr>
+          <tr><td><span class="ev">MTUSubscriptionDuplicateWarningView</span></td><td class="num">67,954</td><td class="num">179</td></tr>
+          <tr><td><span class="ev">MTUOrderSubscriptionUpsellScr</span></td><td class="num">1,044,364</td><td class="num">165</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div>
+      <p class="small"><b>Highest-volume IMTU events never queried</b></p>
+      <div class="tw"><table>
+        <thead><tr><th>Event</th><th class="num">All-time volume</th><th class="num">Queries</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ev">MTUHomeActivityModuleView</span></td><td class="num">7,377,676</td><td class="num">0</td></tr>
+          <tr><td><span class="ev">MTUPromoCardsView</span></td><td class="num">6,088,195</td><td class="num">0</td></tr>
+          <tr><td><span class="ev">MTUHomeSubscriptionsSectionView</span></td><td class="num">5,303,525</td><td class="num">0</td></tr>
+          <tr><td><span class="ev">MTUTxnDetailsScr</span></td><td class="num">4,293,708</td><td class="num">0</td></tr>
+          <tr><td><span class="ev">MTUSendTopUpContactListScr</span></td><td class="num">3,028,414</td><td class="num">0</td></tr>
+          <tr><td><span class="ev">MTUOfferListScrScroll</span></td><td class="num">2,057,172</td><td class="num">0</td></tr>
+          <tr><td><span class="ev">MTUOfferUpsellNoBtn</span></td><td class="num">1,294,146</td><td class="num">0</td></tr>
+          <tr><td><span class="ev">MTUHomeActivityTransactionCardsSwipe</span></td><td class="num">1,121,058</td><td class="num">0</td></tr>
+          <tr><td><span class="ev">MTUHomeTooltipStepView</span></td><td class="num">1,013,798</td><td class="num">0</td></tr>
+          <tr><td><span class="ev">MTUTxnDetailsSendAgainBtn</span></td><td class="num">1,008,066</td><td class="num">0</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+  <p class="small">Inventory: BR app Prod has 1,519 event types, 184 matching the MTU/IMTU prefix (179 IMTU after removing the five Money Transfer collisions), 182 with status <em>unexpected</em>, 2 <em>blocked</em>, 10 not seen in 30 days. Money app Prod has 1,439 event types, 191 matching the prefix (183 IMTU), 169 <em>unexpected</em>, 16 <em>blocked</em>, 6 <em>live</em>, 32 not seen in 30 days. 160 events have usage statistics; 114 have zero queries.</p>
+
+  <h3 id="app-e">E. Existing IMTU dashboards</h3>
+  <p class="small">39 dashboards and 111 charts reference IMTU. The ones below are the actively used or recently built families; the audit dashboard should be merged into one of them once the fixes ship.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Dashboard</th><th>Owner</th><th>Project</th><th class="num">Charts</th><th class="num">Views</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/dashboard/k5w7eh02" target="_blank" rel="noopener">MTU User Behaviour</a></td><td>Yuliana Turchyn</td><td>650506</td><td class="num">13</td><td class="num">154</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/dashboard/udapxwg7" target="_blank" rel="noopener">[BR] Lifecycle: Cart Abandonment - IMTU</a></td><td>Aron Souza</td><td>650506</td><td class="num">22</td><td class="num">52</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/dashboard/uwycvtev" target="_blank" rel="noopener">MTU Subscription Toggle Dashboard</a></td><td>Joao Tanaka</td><td>650506</td><td class="num">30</td><td class="num">36</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/dashboard/z9dkzeuz" target="_blank" rel="noopener">MTU KPIs</a></td><td>Yuliana Turchyn</td><td>650506</td><td class="num">11</td><td class="num">30</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/dashboard/8m38qhfp" target="_blank" rel="noopener">MA. MTU User Behavior</a></td><td>Yuliana Turchyn</td><td>420385</td><td class="num">13</td><td class="num">29</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/dashboard/al1l6dd0" target="_blank" rel="noopener">MTU Dashboard</a></td><td>Joao Tanaka, Yuliana Turchyn</td><td>650506</td><td class="num">34</td><td class="num">21</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/dashboard/ld594eo5" target="_blank" rel="noopener">IMTU in MoneyApp</a></td><td>Siarhei Samuseu, Vitaly Shidlovskiy</td><td>420385</td><td class="num">66</td><td class="num">10</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/dashboard/bwtn629z" target="_blank" rel="noopener">IMTU Home Redesign: Effectiveness Review (Sep 2026)</a></td><td>Joao Tanaka</td><td>650506</td><td class="num">25</td><td class="num">0</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/dashboard/o1jhxth9" target="_blank" rel="noopener">IMTU Subscription Journey - Full Evidence Pack (v2)</a></td><td>Joao Tanaka</td><td>650506</td><td class="num">46</td><td class="num">0</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/dashboard/pkdkmadp" target="_blank" rel="noopener">[BOSS Money] Lifecycle: Cart Abandonment - IMTU</a></td><td>Aron Souza</td><td>420385</td><td class="num">17</td><td class="num">0</td></tr>
+      <tr><td><a href="https://app.amplitude.com/analytics/BOSS/dashboard/z8wyviql" target="_blank" rel="noopener">IMTU Featured Offers - Performance and Bottlenecks</a></td><td>Joao Tanaka</td><td>650506</td><td class="num">2</td><td class="num">0</td></tr>
+    </tbody>
+  </table></div>
+
+  <footer>
+    Prepared 9 September 2026 from Amplitude org BOSS (127967) and the BR6 MTU Amplitude Events sheet. Related Jira: <a href="https://idtjira.atlassian.net/browse/DCS-5327" target="_blank" rel="noopener">DCS-5327</a> (Apple/Google Pay property), <a href="https://idtjira.atlassian.net/browse/DCS-5331" target="_blank" rel="noopener">DCS-5331</a> (featured_card_variant removal), <a href="https://idtjira.atlassian.net/browse/DCS-5300" target="_blank" rel="noopener">DCS-5300</a> (toggle V2 properties), <a href="https://idtjira.atlassian.net/browse/DCS-1647" target="_blank" rel="noopener">DCS-1647</a> (marketing transaction events), <a href="https://idtjira.atlassian.net/browse/DCS-1265" target="_blank" rel="noopener">DCS-1265</a> and <a href="https://idtjira.atlassian.net/browse/DCS-1182" target="_blank" rel="noopener">DCS-1182</a> (order properties and source attribution).
+  </footer>
+</section>
+</main>
+</div>
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  // Event names link to the Amplitude Data catalog entry for the project.
+  var BR = "https://app.amplitude.com/data/BOSS/650506/events/main/latest/";
+  document.querySelectorAll("span.ev").forEach(function (el) {
+    var a = document.createElement("a");
+    a.className = "ev"; a.textContent = el.textContent; a.target = "_blank"; a.rel = "noopener";
+    a.href = BR + encodeURIComponent(el.textContent.trim());
+    el.replaceWith(a);
+  });
+
+  var tip = document.getElementById("tip");
+  function showTip(e, text) { tip.textContent = text; tip.style.opacity = 1; tip.style.left = (e.clientX + 12) + "px"; tip.style.top = (e.clientY + 12) + "px"; }
+  function hideTip() { tip.style.opacity = 0; }
+  var NS = "http://www.w3.org/2000/svg";
+  function mk(tag, attrs, parent) { var n = document.createElementNS(NS, tag); for (var k in attrs) n.setAttribute(k, attrs[k]); parent.appendChild(n); return n; }
+  function fmt(n) { return n.toLocaleString("en-US"); }
+
+  // Fill chart: horizontal bars, share missing.
+  (function () {
+    var svg = document.getElementById("svg-fill"); if (!svg) return;
+    var rows = [
+      { l: "default_subscription_toggle on MTUOrderScr", v: 18.6, g: "req" },
+      { l: "top_up_started_from = \"empty\" on success", v: 5.2, g: "req" },
+      { l: "is_br7_mtu_home on MTUHomeScr", v: 4.9, g: "req" },
+      { l: "is_subscription on MTUOrderCompleteBtn", v: 3.8, g: "req" },
+      { l: "offer_id, country, carrier, amounts on success", v: 0.0, g: "req" },
+      { l: "A_B_subscription_toggle_test_group on MTUOrderScr", v: 98.6, g: "dead" },
+      { l: "A_B_br7_homepage_test_id on MTUHomeScr", v: 100, g: "dead" },
+      { l: "featured_card_variant on MTUOfferFeaturedSelectBtn", v: 97.1, g: "dead" }
+    ];
+    var W = 760, left = 330, right = 60, top = 28, rowH = 30, gap = 14;
+    var plotW = W - left - right;
+    var x = function (v) { return left + plotW * v / 100; };
+    var y = top;
+    [0, 25, 50, 75, 100].forEach(function (t) {
+      mk("line", { x1: x(t), x2: x(t), y1: top - 8, y2: top + rows.length * rowH + gap, "class": "grid" }, svg);
+      var tx = mk("text", { x: x(t), y: top - 12, "text-anchor": "middle" }, svg); tx.textContent = t + "%";
+    });
+    var lab1 = mk("text", { x: 0, y: top + 12, "font-weight": 600 }, svg); lab1.textContent = "Required flags";
+    rows.forEach(function (r, i) {
+      if (i === 5) { y += gap; var lab2 = mk("text", { x: 0, y: y + 12, "font-weight": 600 }, svg); lab2.textContent = "Dead experiment flags"; }
+      var cy = y + (i === 0 || i === 5 ? 18 : 0);
+      if (i === 0 || i === 5) { y += 18; }
+      var color = r.g === "dead" ? "var(--muted)" : (r.v >= 10 ? "var(--crit)" : (r.v > 0 ? "var(--warn)" : "var(--good)"));
+      var t = mk("text", { x: left - 10, y: y + 19, "text-anchor": "end" }, svg); t.textContent = r.l;
+      var w = Math.max(plotW * r.v / 100, r.v > 0 ? 3 : 0);
+      var rect = mk("rect", { x: left, y: y + 6, width: w, height: 18, rx: 3, fill: color }, svg);
+      var val = mk("text", { x: left + w + 6, y: y + 19, "class": "val" }, svg); val.textContent = r.v.toFixed(1) + "%";
+      rect.addEventListener("mousemove", function (e) { showTip(e, r.l + ": " + r.v.toFixed(1) + "% of events have no value"); });
+      rect.addEventListener("mouseleave", hideTip);
+      y += rowH;
+    });
+    mk("line", { x1: left, x2: left, y1: top - 8, y2: y, "class": "base" }, svg);
+    svg.setAttribute("viewBox", "0 0 " + W + " " + (y + 6));
+  })();
+
+  // Failure reasons
+  (function () {
+    var svg = document.getElementById("svg-fail"); if (!svg) return;
+    var total = 138786;
+    var rows = [
+      ["failed (generic)", 50693], ["failedNoCredit", 36166], ["offerTemporaryUnavailable", 16191],
+      ["carrierProblemContactCarrier", 9021], ["invalidMsisdnOrWrongCarrier", 5901], ["failedInvalidCardNumber", 5280],
+      ["failedCardDeclined", 4864], ["failedCardRestricted", 4585], ["8 other values", 6085]
+    ];
+    var W = 760, left = 250, right = 120, top = 28, rowH = 30;
+    var plotW = W - left - right, max = 55000;
+    var x = function (v) { return left + plotW * v / max; };
+    [0, 10000, 20000, 30000, 40000, 50000].forEach(function (t) {
+      mk("line", { x1: x(t), x2: x(t), y1: top - 8, y2: top + rows.length * rowH, "class": "grid" }, svg);
+      var tx = mk("text", { x: x(t), y: top - 12, "text-anchor": "middle" }, svg); tx.textContent = t === 0 ? "0" : (t / 1000) + "k";
+    });
+    rows.forEach(function (r, i) {
+      var y = top + i * rowH;
+      var t = mk("text", { x: left - 10, y: y + 19, "text-anchor": "end" }, svg); t.textContent = r[0];
+      var color = i === 0 ? "var(--crit)" : "var(--series-br)";
+      var rect = mk("rect", { x: left, y: y + 6, width: x(r[1]) - left, height: 18, rx: 3, fill: color }, svg);
+      var pct = (100 * r[1] / total).toFixed(1);
+      var val = mk("text", { x: x(r[1]) + 6, y: y + 19, "class": "val" }, svg); val.textContent = fmt(r[1]) + " (" + pct + "%)";
+      rect.addEventListener("mousemove", function (e) { showTip(e, r[0] + ": " + fmt(r[1]) + " failures, " + pct + "% of 138,786"); });
+      rect.addEventListener("mouseleave", hideTip);
+    });
+    mk("line", { x1: left, x2: left, y1: top - 8, y2: top + rows.length * rowH, "class": "base" }, svg);
+    svg.setAttribute("viewBox", "0 0 " + W + " " + (top + rows.length * rowH + 6));
+  })();
+
+  // Funnel grouped bars
+  (function () {
+    var svg = document.getElementById("svg-funnel"); if (!svg) return;
+    var steps = ["Entry (differs)", "Offer list", "Order screen", "Complete tap", "Success"];
+    var br = [417782, 276362, 244020, 234197, 219557];
+    var mo = [80967, 68800, 62478, 59865, 55212];
+    var W = 760, left = 130, right = 90, top = 24, rowH = 46, barH = 15;
+    var plotW = W - left - right, max = 450000;
+    var x = function (v) { return left + plotW * v / max; };
+    [0, 100000, 200000, 300000, 400000].forEach(function (t) {
+      mk("line", { x1: x(t), x2: x(t), y1: top - 8, y2: top + steps.length * rowH, "class": "grid" }, svg);
+      var tx = mk("text", { x: x(t), y: top - 12, "text-anchor": "middle" }, svg); tx.textContent = t === 0 ? "0" : (t / 1000) + "k";
+    });
+    steps.forEach(function (s, i) {
+      var y = top + i * rowH;
+      var t = mk("text", { x: left - 10, y: y + 20, "text-anchor": "end" }, svg); t.textContent = s;
+      var pctB = i === 0 ? "" : " (" + (100 * br[i] / br[i - 1]).toFixed(1) + "% of previous)";
+      var pctM = i === 0 ? "" : " (" + (100 * mo[i] / mo[i - 1]).toFixed(1) + "% of previous)";
+      var r1 = mk("rect", { x: left, y: y + 4, width: x(br[i]) - left, height: barH, rx: 3, fill: "var(--series-br)" }, svg);
+      var v1 = mk("text", { x: x(br[i]) + 6, y: y + 16, "class": "val" }, svg); v1.textContent = fmt(br[i]);
+      var r2 = mk("rect", { x: left, y: y + 4 + barH + 2, width: x(mo[i]) - left, height: barH, rx: 3, fill: "var(--series-money)" }, svg);
+      var v2 = mk("text", { x: x(mo[i]) + 6, y: y + 16 + barH + 2, "class": "val" }, svg); v2.textContent = fmt(mo[i]);
+      r1.addEventListener("mousemove", function (e) { showTip(e, "Boss Revolution, " + s + ": " + fmt(br[i]) + " users" + pctB); });
+      r2.addEventListener("mousemove", function (e) { showTip(e, "Boss Money, " + s + ": " + fmt(mo[i]) + " users" + pctM); });
+      r1.addEventListener("mouseleave", hideTip); r2.addEventListener("mouseleave", hideTip);
+    });
+    mk("line", { x1: left, x2: left, y1: top - 8, y2: top + steps.length * rowH, "class": "base" }, svg);
+    var note = mk("text", { x: left, y: top + steps.length * rowH + 18 }, svg);
+    note.textContent = "End to end: Boss Revolution 52.6%, Boss Money 68.2%";
+    svg.setAttribute("viewBox", "0 0 " + W + " " + (top + steps.length * rowH + 28));
+  })();
+})();
+</script>
