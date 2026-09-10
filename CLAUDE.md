@@ -46,6 +46,11 @@ Always follow the DCS team's Jira template guidelines when creating tickets:
 Key rules:
 - Summary prefix must match role: `[BE]`, `[APP]`, `[DESIGN]`, `[TPM]`, `[QA]`
 - Description structure: TL;DR → Spec link → What needs to be done → (optional sections)
+- **No placeholders anywhere in a ticket.** Never write `TBD`, `TBC`, `N/A`, `[link]` or an
+  empty bracket, and never on a Spec, Confluence or Figma line. If the link or value does
+  not exist yet, leave the field empty and omit the line entirely.
+  **Why:** a `TBD` reads as a filled-in reference at a glance, so a missing spec or design
+  link stops being visible in review. A blank field is honest and easy to spot.
 - Acceptance Criteria goes in its dedicated field (ADF format), never in the description. **Always populate it on every ticket.**
 - Required fields on every story: Epic link, Assignee, Priority, Story Points, Team Type
   (Story Points per the defaults table below, which overrides this for some roles)
