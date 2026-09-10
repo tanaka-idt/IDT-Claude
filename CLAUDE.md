@@ -52,6 +52,17 @@ Key rules:
 - **Whenever you create tickets that are related to each other, link them.** A shared
   epic parent is not a link, and neither is naming the sibling key in the description.
 
+**Defaults by role.** Apply these without asking, unless the request names someone else:
+
+| Role | Assignee | Story Points |
+| --- | --- | --- |
+| `[DESIGN]` | Viktoryia Shmidt (`712020:f413ae5c-bfd0-4674-a838-7fc82aaeb484`) | always `0` |
+| `[TPM]` / PM | (per request) | always `0` |
+| all other roles | (per request) | estimate as usual |
+
+Story Points is still a required field on these tickets, so set it explicitly to `0` rather
+than leaving it empty.
+
 **Field IDs differ by issue type. Using the wrong one fails with "not on the appropriate
 screen".** Verified against DCS create metadata 2026-08-26:
 
