@@ -35,7 +35,7 @@ SCOPES = [
 BASE = Path(__file__).parent
 CREDS_FILE = BASE / "credentials.json"
 TOKEN_FILE = BASE / "token.json"
-RAW_BASE = "https://raw.githubusercontent.com/tanaka-idt/IDT-Claude/main/"
+RAW_BASE = "https://raw.githubusercontent.com/tanaka-idt/IDT-Claude/main/felix_evidence/"
 
 STYLE_MAP = {"h1": "HEADING_1", "h2": "HEADING_2", "h3": "HEADING_3", "h4": "HEADING_4",
              "p": "NORMAL_TEXT", "b": "NORMAL_TEXT", "n": "NORMAL_TEXT",
@@ -56,6 +56,11 @@ def get_credentials():
     return creds
 
 
+def u16(s):
+    """Docs API indices count UTF-16 code units, so emoji count as two."""
+    return len(s.encode("utf-16-le")) // 2
+
+
 def build_requests(blocks):
     """Text blocks -> batchUpdate requests. Tables and images are placeholders
     ([[MARKER]]) that are replaced afterwards, because insertTable/insertInlineImage
@@ -65,7 +70,7 @@ def build_requests(blocks):
         if kind in ("table", "image"):
             line = f"[[{text}]]\n"
             reqs.append({"insertText": {"location": {"index": cur}, "text": line}})
-            cur += len(line)
+            cur += u16(line)
             continue
 
         line = text + "\n"
@@ -79,26 +84,26 @@ def build_requests(blocks):
             para["indentStart"] = {"magnitude": 24, "unit": "PT"}
             fields += ",indentStart"
         reqs.append({"updateParagraphStyle": {
-            "range": {"startIndex": cur, "endIndex": cur + len(line)},
+            "range": {"startIndex": cur, "endIndex": cur + u16(line)},
             "paragraphStyle": para, "fields": fields}})
 
         if kind == "b":
             reqs.append({"createParagraphBullets": {
-                "range": {"startIndex": cur, "endIndex": cur + len(line)},
+                "range": {"startIndex": cur, "endIndex": cur + u16(line)},
                 "bulletPreset": "BULLET_DISC_CIRCLE_SQUARE"}})
         if kind == "n":
             reqs.append({"createParagraphBullets": {
-                "range": {"startIndex": cur, "endIndex": cur + len(line)},
+                "range": {"startIndex": cur, "endIndex": cur + u16(line)},
                 "bulletPreset": "NUMBERED_DECIMAL_ALPHA_ROMAN"}})
         if kind == "cap":
             reqs.append({"updateTextStyle": {
-                "range": {"startIndex": cur, "endIndex": cur + len(text)},
+                "range": {"startIndex": cur, "endIndex": cur + u16(text)},
                 "textStyle": {"italic": True,
                               "fontSize": {"magnitude": 9, "unit": "PT"}},
                 "fields": "italic,fontSize"}})
         if kind == "quote":
             reqs.append({"updateTextStyle": {
-                "range": {"startIndex": cur, "endIndex": cur + len(text)},
+                "range": {"startIndex": cur, "endIndex": cur + u16(text)},
                 "textStyle": {"weightedFontFamily": {"fontFamily": "Roboto Mono"},
                               "fontSize": {"magnitude": 9.5, "unit": "PT"}},
                 "fields": "weightedFontFamily,fontSize"}})
@@ -106,9 +111,9 @@ def build_requests(blocks):
         if kind in ("b", "p") and "  ::  " in text:
             lead = text.split("  ::  ")[0]
             reqs.append({"updateTextStyle": {
-                "range": {"startIndex": cur, "endIndex": cur + len(lead)},
+                "range": {"startIndex": cur, "endIndex": cur + u16(lead)},
                 "textStyle": {"bold": True}, "fields": "bold"}})
-        cur += len(line)
+        cur += u16(line)
     return reqs
 
 
@@ -130,7 +135,7 @@ def find_marker(docs, doc_id, marker):
     doc = docs.documents().get(documentId=doc_id).execute()
     for el in doc["body"]["content"]:
         if para_text(el).strip() == f"[[{marker}]]":
-            return el["startIndex"], len(para_text(el)), doc
+            return el["startIndex"], u16(para_text(el)), doc
     return None, None, doc
 
 
@@ -170,12 +175,12 @@ def insert_table(docs, doc_id, marker, data):
         reqs.append({"insertText": {"location": {"index": start}, "text": txt}})
         if r == 0:
             reqs.append({"updateTextStyle": {
-                "range": {"startIndex": start, "endIndex": start + len(txt)},
+                "range": {"startIndex": start, "endIndex": start + u16(txt)},
                 "textStyle": {"bold": True}, "fields": "bold"}})
         elif txt in VERDICT_COLOR and c == 0:
             red, green, blue = VERDICT_COLOR[txt]
             reqs.append({"updateTextStyle": {
-                "range": {"startIndex": start, "endIndex": start + len(txt)},
+                "range": {"startIndex": start, "endIndex": start + u16(txt)},
                 "textStyle": {"bold": True, "foregroundColor": {"color": {
                     "rgbColor": {"red": red, "green": green, "blue": blue}}}},
                 "fields": "bold,foregroundColor"}})

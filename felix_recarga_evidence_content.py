@@ -23,6 +23,7 @@ SUBTITLE = ("Second-pass teardown of Félix's recarga journey, rebuilt from Fél
             "evidence behind it and the implications for the BOSS Revolution WhatsApp IMTU channel (A8).")
 META_LINE = ("10 September 2026  ·  Author João Tanaka  ·  Supersedes the 29 August 2026 analysis: "
              "https://docs.google.com/document/d/18ajLNYrY49XjDsz4DwEVrElQknsdr5wWuGfl9QN3kLk/edit"
+             "  ·  Google Doc version: https://docs.google.com/document/d/1MiP_fI-gY0ZIfxcdfYEnrTTVTUVkWtl3Ysth8T-MHAY/edit"
              "  ·  No live transaction was run")
 
 PREV_DOC = "https://docs.google.com/document/d/18ajLNYrY49XjDsz4DwEVrElQknsdr5wWuGfl9QN3kLk/edit"
