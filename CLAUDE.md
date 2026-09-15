@@ -117,6 +117,57 @@ issue type and grep for the field name rather than guessing.
   sprint planning. A key buried in a description does not appear there, so an unlinked
   dependency gets picked up in the wrong order.
 
+## Sprint Goals
+
+When asked for sprint goals, pull the sprint's real contents from Jira first. Never draft from
+memory, from the epic names, or from the previous sprint's list.
+
+**Gathering the data.** Query `project = DCS AND Sprint = "DCS Sprint <N>"` for `summary`,
+`status`, `issuetype`, `parent` and `customfield_18836` (Team Type), then group by epic. Look the
+sprint id up rather than inferring it. The response is large (Sprint 77 held 122 tickets) and
+will overflow the tool result, so extract a compact table with `jq` instead of reading raw JSON.
+Pull the previous sprint's ticket list too: comparing it against the goals actually written for
+that sprint is the best calibration available.
+
+**Format.** Numbered, one line each, role tag in parentheses at the end. Sub-items use `N.1)`,
+and only where a goal has separable parts.
+
+```
+1) Insurance modular component: finalize early-eligibility check for release (APP)
+2) IMTU Subscriptions V2: ship the payment bar (APP):
+2.1) Move toggle into payment bar
+5) Apple Pay / Google Pay: implement one-time and subscription flows (BE)
+10) Spike - Configurable Exclusion of Offers from Subscription Eligibility (Country / IMTU Type) (BE)
+```
+
+Role tags: `APP`, `BE`, `APP + BE`, `App+QA`, `BE + App + Design`, `DESIGN`, `QA`, `PM/TPM`,
+`Strategy`, `Config`. Outcome verbs: Ship, Deliver, Finalize, Implement, Advance, Define, Launch,
+Investigate, Turn ON. Terse PM English, short lines.
+
+**What earns a goal**
+
+| Rule | Detail |
+| --- | --- |
+| Initiative level | A goal maps to an epic or a coherent slice of one, never to a single ticket |
+| Spikes get their own line | Format `Spike - <ticket title> (BE)`. A To Do spike still counts: its deliverable is a decision, so it closes inside the sprint whatever happens downstream |
+| No cap on the count | 6 to 11 is normal. Never reject a candidate because the list is "full" |
+| Verb must match status | Ship / Finalize / Launch needs backing tickets at In Progress or beyond. A To Do stack gets Deliver / Implement / Define |
+
+**What never earns a goal:** `QA - DCS-xxxx` mirror tickets (they shadow a dev ticket, they are
+not independent work), colour swap work, eSIM TPM taxonomy chores, RAF event-doc chores, small
+bugs, and any initiative with no committed build behind it this sprint (a spec sign-off plus a
+contract spike is not enough).
+
+**Sub-items name separable new behaviour, not backing tickets.** Defects against the feature and
+enabling chores sit under the goal unnamed, even when they gate the release. A goal with a single
+sub-item is fine.
+**Why:** the sub-list says what the goal means. An inventory of the epic buries the actual
+commitment and makes the list unreadable.
+
+**Always hand over a short "deliberately not a goal" list** with the goals, naming the significant
+work left off and the exact line to use if it should go in after all. That is what makes the
+scoping calls visible instead of silent, and it is where missing goals get caught.
+
 ## Document Conventions
 
 **IMPORTANT: Do not use em dashes (—).** This applies to everything produced here: Google
