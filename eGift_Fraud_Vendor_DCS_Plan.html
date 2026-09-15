@@ -1,0 +1,1172 @@
+<title>eGift Fraud Decisioning Handover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&family=Spectral:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#EDEFF3;
+    --surface:#FFFFFF;
+    --surface-2:#E4E7EC;
+    --surface-3:#F5F6F9;
+    --ink:#12161C;
+    --ink-2:#414A58;
+    --ink-3:#6E7887;
+    --rule:#CED4DD;
+    --rule-soft:#E0E4EA;
+
+    --accent:#4B40B8;
+    --accent-soft:#E7E5F7;
+    --block:#B23A1F;
+    --block-soft:#F8E6E0;
+    --pass:#0E8C7A;
+    --pass-soft:#DEF0EC;
+    --watch:#9A6E14;
+    --watch-soft:#F6EEDB;
+
+    --sans:"Libre Franklin","Helvetica Neue",Arial,sans-serif;
+    --serif:"Spectral",Georgia,"Times New Roman",serif;
+    --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#0F1216;
+      --surface:#171B21;
+      --surface-2:#1F242C;
+      --surface-3:#141820;
+      --ink:#E4E8EE;
+      --ink-2:#AEB6C2;
+      --ink-3:#828B99;
+      --rule:#2A3039;
+      --rule-soft:#232830;
+
+      --accent:#7A6EE0;
+      --accent-soft:#221E45;
+      --block:#D26744;
+      --block-soft:#33190F;
+      --pass:#149C8A;
+      --pass-soft:#0B2A27;
+      --watch:#B4882C;
+      --watch-soft:#2C2310;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0F1216;
+    --surface:#171B21;
+    --surface-2:#1F242C;
+    --surface-3:#141820;
+    --ink:#E4E8EE;
+    --ink-2:#AEB6C2;
+    --ink-3:#828B99;
+    --rule:#2A3039;
+    --rule-soft:#232830;
+
+    --accent:#7A6EE0;
+    --accent-soft:#221E45;
+    --block:#D26744;
+    --block-soft:#33190F;
+    --pass:#149C8A;
+    --pass-soft:#0B2A27;
+    --watch:#B4882C;
+    --watch-soft:#2C2310;
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{animation:none!important;transition:none!important}}
+
+  body{
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--serif);
+    font-size:17px;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1060px;margin:0 auto;padding-block:40px 110px;padding-left:20px;padding-right:20px}
+
+  a{color:var(--accent);text-decoration:none;border-bottom:1px solid color-mix(in oklab,var(--accent) 35%,transparent)}
+  a:hover{border-bottom-color:var(--accent)}
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+
+  /* ---------- masthead ---------- */
+  .masthead{border-bottom:2px solid var(--ink);padding-bottom:24px}
+  .eyebrow{
+    font-family:var(--sans);font-weight:600;font-size:11px;letter-spacing:.17em;
+    text-transform:uppercase;color:var(--accent);margin:0 0 14px
+  }
+  h1{
+    font-family:var(--sans);font-weight:700;font-size:clamp(31px,5.4vw,50px);
+    line-height:1.04;letter-spacing:-.025em;margin:0;text-wrap:balance;max-width:19ch
+  }
+  .standfirst{margin:18px 0 0;max-width:68ch;color:var(--ink-2);font-size:18.5px}
+  .meta{
+    display:flex;flex-wrap:wrap;gap:7px 28px;margin:24px 0 0;
+    font-family:var(--mono);font-size:12px;color:var(--ink-3)
+  }
+  .meta b{color:var(--ink-2);font-weight:500}
+
+  /* ---------- sections ---------- */
+  section{margin:58px 0 0}
+  .sec-head{
+    display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+    border-bottom:1px solid var(--rule);padding-bottom:10px;margin-bottom:8px
+  }
+  h2{font-family:var(--sans);font-weight:700;font-size:23px;letter-spacing:-.018em;margin:0;color:var(--ink)}
+  h3{font-family:var(--sans);font-weight:600;font-size:17.5px;letter-spacing:-.008em;margin:30px 0 8px;color:var(--ink);text-wrap:balance}
+  .kicker{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap}
+  .sec-note{margin:12px 0 0;color:var(--ink-2);max-width:68ch}
+  p{max-width:68ch}
+  .lede{font-size:18.5px;color:var(--ink-2)}
+
+  /* ---------- correction cards ---------- */
+  .corrections{display:grid;gap:14px;margin-top:22px}
+  .corr{
+    background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--block);
+    padding:20px 22px
+  }
+  .corr .tag{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--block);font-weight:600;display:block;margin-bottom:8px
+  }
+  .corr h3{margin:0 0 8px;font-size:17px}
+  .corr p{margin:0 0 10px;font-size:16px;color:var(--ink-2);max-width:none}
+  .corr p:last-child{margin-bottom:0}
+  .corr .said{
+    font-family:var(--mono);font-size:12.5px;color:var(--ink-3);
+    background:var(--surface-3);border:1px solid var(--rule-soft);padding:9px 12px;margin:0 0 12px
+  }
+
+  /* ---------- figure / chart ---------- */
+  figure{margin:26px 0 0;background:var(--surface);border:1px solid var(--rule);padding:22px 22px 18px}
+  figcaption{font-family:var(--sans);font-weight:600;font-size:15px;color:var(--ink);margin:0 0 4px}
+  .fig-sub{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);margin:0 0 18px}
+  .fig-note{font-size:14.5px;color:var(--ink-3);margin:16px 0 0;max-width:none;line-height:1.5}
+
+  .stack{display:flex;width:100%;height:46px;gap:2px}
+  .seg{position:relative;display:flex;align-items:center;justify-content:center;min-width:3px;border-radius:2px}
+  .seg span{
+    font-family:var(--mono);font-size:12px;font-weight:600;color:#fff;
+    font-variant-numeric:tabular-nums;white-space:nowrap
+  }
+  .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px 22px;margin-top:18px}
+  .lg{display:flex;gap:10px;align-items:flex-start}
+  .sw{width:11px;height:11px;border-radius:2px;flex:0 0 auto;margin-top:5px}
+  .lg-body{min-width:0}
+  .lg-name{font-family:var(--sans);font-weight:600;font-size:14px;color:var(--ink);display:block;line-height:1.35}
+  .lg-val{font-family:var(--mono);font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .lg-note{font-size:13.5px;color:var(--ink-3);line-height:1.45;display:block;margin-top:2px}
+
+  .bars{display:grid;gap:11px;margin-top:6px}
+  .barrow{display:grid;grid-template-columns:168px 1fr;gap:14px;align-items:center}
+  .barlab{font-family:var(--mono);font-size:12px;color:var(--ink-2);line-height:1.3}
+  .barlab i{display:block;font-style:normal;color:var(--ink-3);font-size:11px}
+  .bartrack{display:flex;align-items:center;gap:9px}
+  .barfill{height:17px;background:var(--accent);border-radius:0 2px 2px 0}
+  .barfill.muted{background:var(--ink-3)}
+  .barval{font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+  /* ---------- gate spine ---------- */
+  .gates{display:grid;gap:10px;margin-top:22px;counter-reset:gate}
+  .gate{
+    display:grid;grid-template-columns:46px 1fr 156px;gap:0 18px;align-items:start;
+    background:var(--surface);border:1px solid var(--rule);padding:17px 20px
+  }
+  .gate .no{
+    font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--accent);
+    background:var(--accent-soft);border-radius:3px;text-align:center;padding:4px 0;line-height:1.3
+  }
+  .gate h3{margin:0 0 5px;font-size:16px}
+  .gate p{margin:0;font-size:14.8px;color:var(--ink-2);line-height:1.5;max-width:none}
+  .gate .when{
+    font-family:var(--mono);font-size:12px;color:var(--ink-2);text-align:right;
+    font-variant-numeric:tabular-nums;line-height:1.5
+  }
+  .gate .when em{display:block;font-style:normal;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-top:5px}
+  .fixed .when em{color:var(--block)}
+  .soft .when em{color:var(--pass)}
+  .unk .when em{color:var(--watch)}
+  .gate.fixed{border-left:3px solid var(--block)}
+  .gate.soft{border-left:3px solid var(--pass)}
+  .gate.unk{border-left:3px solid var(--watch)}
+
+  /* ---------- tracks ---------- */
+  .tracks{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+  .track{background:var(--surface);border:1px solid var(--rule);padding:22px}
+  .track .tt{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--accent);margin:0 0 8px}
+  .track h3{margin:0 0 10px;font-size:17px}
+  .track p{font-size:15px;color:var(--ink-2);margin:0 0 12px;max-width:none}
+  .track ul{margin:0;padding-left:19px;font-size:14.8px;color:var(--ink-2)}
+  .track li{margin-bottom:6px}
+  .track li::marker{color:var(--ink-3)}
+
+  /* ---------- phases ---------- */
+  .phase{
+    display:grid;grid-template-columns:200px 1fr;gap:0 30px;
+    padding:30px 0;border-bottom:1px solid var(--rule-soft)
+  }
+  .phase:last-child{border-bottom:0}
+  .rail{font-family:var(--mono);font-size:12px;line-height:1.55;padding-top:4px}
+  .rail .pno{display:block;color:var(--accent);font-weight:600;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+  .rail .win{display:block;color:var(--ink);font-weight:500}
+  .rail .spr{display:block;color:var(--ink-3);margin-top:4px}
+  .rail .own{display:block;color:var(--ink-3);margin-top:10px;padding-top:10px;border-top:1px solid var(--rule-soft)}
+  .rail .own b{display:block;color:var(--ink-2);font-weight:500}
+  .pbody h3{margin:0 0 8px;font-size:19px}
+  .pbody > p{font-size:16px;margin:0 0 16px}
+  .exits{background:var(--surface-3);border:1px solid var(--rule-soft);padding:16px 18px;margin:16px 0 0}
+  .exits .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600;display:block;margin-bottom:9px}
+  .exits ul{margin:0;padding-left:19px}
+  .exits li{font-size:14.8px;color:var(--ink-2);margin-bottom:7px;line-height:1.5}
+  .exits li:last-child{margin-bottom:0}
+  .exits li::marker{color:var(--pass)}
+  .work{margin:18px 0 0;display:grid;gap:12px}
+  .wi{border-left:2px solid var(--rule);padding-left:15px}
+  .wi .wn{font-family:var(--sans);font-weight:600;font-size:15px;color:var(--ink);display:block}
+  .wi .wo{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);display:block;margin:2px 0 6px}
+  .wi ul{margin:0;padding-left:18px}
+  .wi li{font-size:14.5px;color:var(--ink-2);margin-bottom:4px;line-height:1.5}
+  .wi li::marker{color:var(--ink-3)}
+
+  /* ---------- tables ---------- */
+  .tblwrap{overflow-x:auto;margin-top:20px;border:1px solid var(--rule);background:var(--surface)}
+  table{border-collapse:collapse;width:100%;min-width:660px}
+  th,td{text-align:left;padding:12px 15px;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+  th{
+    font-family:var(--sans);font-weight:600;font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--ink-3);background:var(--surface-3);border-bottom:1px solid var(--rule);white-space:nowrap
+  }
+  td{font-size:14.8px;color:var(--ink-2);line-height:1.5}
+  tr:last-child td{border-bottom:0}
+  td b{color:var(--ink);font-weight:600}
+  td.k,td.d{font-family:var(--mono);font-size:12.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  td.d{color:var(--ink-3)}
+  .pill{
+    display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.05em;
+    text-transform:uppercase;padding:3px 7px;border-radius:3px;white-space:nowrap
+  }
+  .p-block{background:var(--block-soft);color:var(--block)}
+  .p-watch{background:var(--watch-soft);color:var(--watch)}
+  .p-pass{background:var(--pass-soft);color:var(--pass)}
+  .p-acc{background:var(--accent-soft);color:var(--accent)}
+
+  /* ---------- risk ---------- */
+  .risks{display:grid;gap:13px;margin-top:22px}
+  .risk{background:var(--surface);border:1px solid var(--rule);padding:19px 21px}
+  .risk h3{margin:0 0 9px;font-size:16.5px}
+  .risk .rg{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px}
+  .risk .rg div{min-width:0}
+  .risk .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600;display:block;margin-bottom:5px}
+  .risk p{margin:0;font-size:14.8px;color:var(--ink-2);line-height:1.5;max-width:none}
+  .risk .owner{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);margin-top:13px;padding-top:11px;border-top:1px solid var(--rule-soft)}
+
+  /* ---------- jira ---------- */
+  .epic{background:var(--surface);border:1px solid var(--rule);padding:19px 21px;margin-top:13px}
+  .epic h3{margin:0 0 4px;font-size:16px}
+  .epic .es{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);margin:0 0 13px}
+  .epic ol{margin:0;padding-left:20px}
+  .epic li{font-size:14.5px;color:var(--ink-2);margin-bottom:6px;line-height:1.5}
+  .epic li::marker{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+  .rp{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--accent)}
+
+  /* ---------- notes ---------- */
+  .notes{display:grid;gap:11px;margin-top:20px}
+  .note{display:grid;grid-template-columns:120px 1fr;gap:18px;padding:14px 0;border-bottom:1px solid var(--rule-soft)}
+  .note:last-child{border-bottom:0}
+  .note .nt{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--watch);padding-top:2px}
+  .note p{margin:0;font-size:14.8px;color:var(--ink-2);max-width:none;line-height:1.5}
+
+  .closer{
+    margin-top:58px;padding:26px 28px;background:var(--surface);
+    border:1px solid var(--rule);border-top:3px solid var(--accent)
+  }
+  .closer h2{font-size:20px;margin-bottom:12px}
+  .closer p{font-size:16.5px;color:var(--ink-2);margin:0 0 12px}
+  .closer p:last-child{margin-bottom:0}
+
+  .colophon{margin-top:44px;padding-top:20px;border-top:1px solid var(--rule);font-family:var(--mono);font-size:11.5px;color:var(--ink-3);line-height:1.7}
+  .colophon a{font-size:11.5px}
+
+  @media (max-width:860px){
+    .tracks{grid-template-columns:1fr}
+    .phase{grid-template-columns:1fr;gap:16px}
+    .rail{padding-top:0;display:flex;flex-wrap:wrap;gap:6px 20px}
+    .rail .own{border-top:0;padding-top:0;margin-top:0;flex-basis:100%}
+    .gate{grid-template-columns:40px 1fr;gap:0 14px}
+    .gate .when{grid-column:2;text-align:left;margin-top:9px}
+    .risk .rg{grid-template-columns:1fr}
+    .barrow{grid-template-columns:1fr;gap:5px}
+    .note{grid-template-columns:1fr;gap:5px}
+  }
+  @media (max-width:430px){
+    body{font-size:16px}
+    .legend{grid-template-columns:1fr}
+  }
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">DCS Project Plan &middot; eGift Fraud Decisioning</p>
+  <h1>Moving eGift decisioning off IDT Pay</h1>
+  <p class="standfirst">What DCS has to do to hand eGift fraud decisioning to an external vendor, what it must settle before signing anything, and why the six-week integration estimate is not the number that sets the date.</p>
+  <div class="meta">
+    <span><b>Prepared for</b> Emilio DelRio, VP Boss Revolution</span>
+    <span><b>Date</b> 15 September 2026</span>
+    <span><b>Scope</b> DTC eGift, Boss Revolution app</span>
+    <span><b>Sprint</b> DCS 77 (9-22 Sep)</span>
+  </div>
+</header>
+
+<section>
+  <div class="sec-head"><h2>Where this starts</h2><span class="kicker">read this first</span></div>
+  <p class="lede">The vendor review is real and the channel is genuinely blocked. But the brief that came out of the meeting contains three factual errors, and each one changes what DCS should build, what it should pay, and when it can be live. They are corrected below before the plan, because the plan only makes sense afterwards.</p>
+  <p>Everything in this document was checked against Jira, Confluence and Amplitude on 15 September 2026. Where a claim could not be verified it says so. The three headline figures were re-run directly against <a href="https://analytics.amplitude.com/boss/project/650506" target="_blank" rel="noopener">Amplitude project 650506</a> rather than taken from the meeting notes.</p>
+
+  <div class="corrections">
+
+    <article class="corr">
+      <span class="tag">Correction 1 &middot; the target</span>
+      <p class="said">Brief: "~90% of eGift transactions are failing due to strict IDT Pay fraud rules."</p>
+      <h3>There is no IDT Pay rules table to switch off, and IDT Pay is only one of at least five gates</h3>
+      <p>IDT Pay's fraud decisioning <em>is</em> <b>Accertify</b>, a third-party vendor already contracted, adapter-built and PCI-integrated, called from inside IDTPay. The documented chain is <code>mtu-int-api &rarr; payment-int-api &rarr; IDTPay &rarr; Accertify</code>, per <a href="https://idtjira.atlassian.net/wiki/spaces/DCS/pages/5671944225/IMTU+Wallet+Accertify+Fraud+Integration+-DRAFT" target="_blank" rel="noopener">IMTU Wallet: Accertify Fraud Integration</a>.</p>
+      <p>Four further gates decline an eGift purchase independently: <b>Fraudzilla</b> velocity rules, which DCS/DTC owns and IDT Pay does not (<a href="https://idtjira.atlassian.net/wiki/spaces/BAC/pages/3359408227/DTC+Fraudzilla" target="_blank" rel="noopener">DTC Fraudzilla</a>); <b>Jube</b>, which surfaces as "Error 59"; <b>K2's own</b> velocity and location screens (<code>VelocityMatchFail*</code>, <code>LocationScreenMatch*</code>, <code>AniLocked</code>); and <b>ShieldWall</b> on the Zendit rails, which <em>fails closed on timeout</em> (<a href="https://idtjira.atlassian.net/wiki/spaces/DPC/pages/5720932375/ShieldWall+2.0" target="_blank" rel="noopener">ShieldWall 2.0</a>).</p>
+      <p>This is not academic. <a href="https://idtjira.atlassian.net/browse/BGW-9535" target="_blank" rel="noopener">BGW-9535</a> is a live production defect titled "Transaction which was accepted by Sardine, still failed at antifraud". A vendor approval does not produce an approved transaction while a second gate still runs. <b>Standing IDT Pay down for eGift is a functional requirement of the project, not a courtesy.</b></p>
+    </article>
+
+    <article class="corr">
+      <span class="tag">Correction 2 &middot; the money</span>
+      <p class="said">Brief: "quoted approval rates of 88-90% and fees of roughly 1-1.5% per transaction."</p>
+      <h3>41% of eGift failures are issuer declines that no fraud vendor can convert, and the fee is charged on all approved GMV</h3>
+      <p>Over the clean window 1 March to 31 July 2026, 41.2% of eGift failures carry an issuer-side card decline: insufficient funds, expired, invalid or restricted card. Those decline identically under nSure or Riskified. Only 1.9% carry a velocity or limit code. The remaining 55.3% is the opaque literal <code>failed</code>, which is where the addressable pool lives and which nobody has split. See the chart below.</p>
+      <p>Both vendors bill on <b>total approved GMV</b>, not on incremental approvals. Gift cards run a roughly 3 to 8% merchant commission, so a 1% fee consumes between one eighth and one third of gross margin on every approved transaction, including the ones IDT was already approving. At the low end of that band the tier choice between 1% and 1.5% is material, not a rounding difference. Finance needs a sensitivity table over take rate and approval lift, not a point estimate.</p>
+    </article>
+
+    <article class="corr">
+      <span class="tag">Correction 3 &middot; the baseline</span>
+      <p class="said">Brief: implied the current decline rate is the number to price against.</p>
+      <h3>IDT switched Visa off on DTC eGift 18 days ago and never reverted it</h3>
+      <p><a href="https://idtjira.atlassian.net/browse/EGIFT-858" target="_blank" rel="noopener">EGIFT-858</a> "[Potential Fraud] DTC Visa", description "Disable Visa in DTC", was created and closed within 61 seconds on 28 August 2026. There is no revert ticket, no review date and no owner. It inflates the current decline rate by about <b>7 percentage points</b>: 89.1% in the fortnight before, 96.1% in the fortnight after.</p>
+      <p>Separately, 85% of August's successes fall inside 25-31 August, the documented account-farm window (<a href="https://idtjira.atlassian.net/browse/BRS-56097" target="_blank" rel="noopener">BRS-56097</a>), where the decline rate fell to its yearly low because fraud was being approved. <b>If that month goes into Riskified's six-month pricing pack unflagged, IDT hands over a window whose approvals are disproportionately fraudulent and gets a worse rate quoted back.</b></p>
+    </article>
+
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>The verified numbers</h2><span class="kicker">Amplitude 650506, re-run 15 Sep 2026</span></div>
+  <p class="sec-note">The premise survives: the channel really is blocked, at 89.9% decline in a clean window. What does not survive is the assumption that a fraud vendor addresses most of it.</p>
+
+  <figure>
+    <figcaption>Where 2,667 eGift failures actually came from</figcaption>
+    <p class="fig-sub">EGiftOrderStatusFailedScr by failed_reason &middot; 1 Mar to 31 Jul 2026 &middot; Visa enabled, no fraud episode</p>
+    <div class="stack" role="img" aria-label="Stacked bar: opaque failed 55.3 percent, issuer card declines 41.2 percent, velocity or limit 1.9 percent, other 1.6 percent">
+      <div class="seg" style="flex:55.3;background:var(--accent)"><span>55.3%</span></div>
+      <div class="seg" style="flex:41.2;background:var(--block)"><span>41.2%</span></div>
+      <div class="seg" style="flex:1.9;background:var(--pass)"></div>
+      <div class="seg" style="flex:1.6;background:var(--watch)"></div>
+    </div>
+    <div class="legend">
+      <div class="lg"><span class="sw" style="background:var(--accent)"></span><div class="lg-body">
+        <span class="lg-name">Opaque <code>failed</code></span>
+        <span class="lg-val">1,475 &middot; 55.3%</span>
+        <span class="lg-note">Unresolved. This bucket is the <em>upper bound</em> of what a vendor could address, and it is currently unknown inside.</span>
+      </div></div>
+      <div class="lg"><span class="sw" style="background:var(--block)"></span><div class="lg-body">
+        <span class="lg-name">Issuer card declines</span>
+        <span class="lg-val">1,100 &middot; 41.2%</span>
+        <span class="lg-note">Declined, no credit, invalid card, restricted, expired. No fraud vendor converts these.</span>
+      </div></div>
+      <div class="lg"><span class="sw" style="background:var(--pass)"></span><div class="lg-body">
+        <span class="lg-name">Velocity or limit</span>
+        <span class="lg-val">50 &middot; 1.9%</span>
+        <span class="lg-note">The gate everyone assumed was the problem. It fires as a seven-day incident response, not a standing constraint.</span>
+      </div></div>
+      <div class="lg"><span class="sw" style="background:var(--watch)"></span><div class="lg-body">
+        <span class="lg-name">Other</span>
+        <span class="lg-val">42 &middot; 1.6%</span>
+        <span class="lg-note">Carrier, product and payment-verification failures.</span>
+      </div></div>
+    </div>
+    <p class="fig-note">Fraud never appears as a decline reason by design: <a href="https://idtjira.atlassian.net/browse/DCS-5412" target="_blank" rel="noopener">DCS-5412</a> records that no decline code is mapped to Fraud. So gate attribution cannot come from <code>failed_reason</code> alone. It has to come from the IDTPay response code, which is exactly what Phase 0 commissions.</p>
+  </figure>
+
+  <figure>
+    <figcaption>Decline rate by window, and what each window is contaminated by</figcaption>
+    <p class="fig-sub">EGiftOrderStatusFailedScr as a share of success plus failure</p>
+    <div class="bars">
+      <div class="barrow">
+        <div class="barlab">Mar 1 - Jul 31<i>clean baseline</i></div>
+        <div class="bartrack"><div class="barfill" style="width:89.9%"></div><span class="barval">89.9%</span></div>
+      </div>
+      <div class="barrow">
+        <div class="barlab">Aug 1 - Aug 24<i>Visa still on</i></div>
+        <div class="bartrack"><div class="barfill" style="width:89.1%"></div><span class="barval">89.1%</span></div>
+      </div>
+      <div class="barrow">
+        <div class="barlab">Aug 25 - Aug 31<i>attack window</i></div>
+        <div class="bartrack"><div class="barfill muted" style="width:72.9%"></div><span class="barval">72.9%</span></div>
+      </div>
+      <div class="barrow">
+        <div class="barlab">Sep 1 - Sep 15<i>Visa disabled</i></div>
+        <div class="bartrack"><div class="barfill" style="width:96.1%"></div><span class="barval">96.1%</span></div>
+      </div>
+    </div>
+    <p class="fig-note">The 72.9% window is greyed because it is not a recovery. 200 of August's 235 successes fall in those seven days, at a 22.3% success-per-attempt rate against a 4.5% baseline. That is the account farm being approved. <b>Quote 89.9% as the baseline. Never quote a September number.</b></p>
+  </figure>
+</section>
+
+<section>
+  <div class="sec-head"><h2>What actually sets the date</h2><span class="kicker">six gates in series</span></div>
+  <p class="sec-note">"Decision end of September, pilot promptly, up to six weeks of integration" is counted from the wrong event and against the wrong long pole. The gates below run in series. Three of them cannot be compressed by adding engineers, and the integration is not one of them.</p>
+
+  <div class="gates">
+
+    <article class="gate soft">
+      <div class="no">G1</div>
+      <div>
+        <h3>Decline decomposition owned and published</h3>
+        <p>Split the 55.3% opaque bucket to IDTPay response codes and attribute every failure to a gate. Everything downstream is priced off this: the addressable pool, the approval-lift target, the 1% versus 1.5% choice, and Riskified's blended rate. It is a query, not a programme, but it has been owed since December 2025 and was never delivered.</p>
+      </div>
+      <div class="when">30 Sep 2026<em>compressible</em></div>
+    </article>
+
+    <article class="gate soft">
+      <div class="no">G2</div>
+      <div>
+        <h3>PDR held, buy-versus-build resolved, vendor selected</h3>
+        <p>IDT already has a mandatory forum for this and nobody has convened it. The <a href="https://idtjira.atlassian.net/wiki/spaces/TEAM/pages/371037206/Preliminary+Design+Reviews+Architecture+Review" target="_blank" rel="noopener">Preliminary Design Review</a> process triggers here on three independent grounds: new vendor technology, a cost-impacting change, and a contract change exposed outside DCS. It also compels IDT Pay and CAF to attend as downstream dependencies, which converts a political ask into a process step.</p>
+      </div>
+      <div class="when">9 Oct 2026<em>compressible</em></div>
+    </article>
+
+    <article class="gate fixed">
+      <div class="no">G3</div>
+      <div>
+        <h3>nSure NDA executed, if nSure is selected</h3>
+        <p>Riskified's mutual NDA with IDT Payment Services is already executed and runs through 2028. nSure has nothing signed, and IDT has no documented NDA process anywhere in 190 Confluence spaces, so this leg is genuinely unpriced. Choosing Riskified deletes this gate entirely.</p>
+      </div>
+      <div class="when">+2 to 4 weeks<em>vendor-dependent</em></div>
+    </article>
+
+    <article class="gate unk">
+      <div class="no">G4</div>
+      <div>
+        <h3>Pre-contract PII export approval and the outbound DPA</h3>
+        <p>Riskified will not quote a rate without six months of our chargeback and volume data. That is a PII transfer to an unsigned vendor. IDT's only DPA programme runs the other way, covering DPAs with customers. There is no outbound template, no register, no owner and no SLA. <b>This is the least estimable item on the path and it gates the rate, which gates the contract.</b></p>
+      </div>
+      <div class="when">no known SLA<em>unestimated</em></div>
+    </article>
+
+    <article class="gate fixed">
+      <div class="no">G5</div>
+      <div>
+        <h3>Contract plus DPA signed</h3>
+        <p>Signature, not the vendor decision, is what unblocks production data flow. The house precedent is the live <a href="https://idtjira.atlassian.net/wiki/spaces/TEAM/pages/6250987559/Kochava+AppsFlyer+Migration+Project+Hub" target="_blank" rel="noopener">Kochava to AppsFlyer migration</a>, which ran dev-only until signed and took 16 days from selection to signature. Publish the six weeks as "weeks from signature", never from decision.</p>
+      </div>
+      <div class="when">23 Oct (Riskified)<br>20 Nov (nSure)<em>gates production</em></div>
+    </article>
+
+    <article class="gate fixed">
+      <div class="no">G6</div>
+      <div>
+        <h3>Advisory run plus chargeback label maturation</h3>
+        <p>IDT's own shadow-evaluation design already models internal fraud labels as arriving about two weeks late, and card-scheme chargebacks are far slower. A four-week pilot that reads out on approval rate will have seen essentially none of the fraud it let through. Minimum eight weeks of live advisory traffic, with the read-out date structurally separated from the traffic-stop date.</p>
+      </div>
+      <div class="when">16 Nov - 25 Jan<em>cannot compress</em></div>
+    </article>
+
+  </div>
+  <p class="sec-note" style="margin-top:20px">First honest date on which "eGift approval rate improved in production because of the vendor" can be claimed: <b>9 March 2027</b> on the enforcement ramp, assuming Riskified and no slip at G4. The mobile app release train is deliberately not on this list, which is the point of the two-track split below.</p>
+</section>
+
+<section>
+  <div class="sec-head"><h2>Two tracks</h2><span class="kicker">the single most important structural choice</span></div>
+  <p class="sec-note">Put the decision server-side and the app store never sits on the critical path. Put it in an SDK and the schedule is hostage to a release train that already closed for September.</p>
+  <div class="tracks">
+    <div class="track">
+      <p class="tt">Track A &middot; the pilot path</p>
+      <h3>Server-side decision call in payment-int-api</h3>
+      <p>Call the vendor from <code>hdm-go-payment-int-api</code>, scoped to eGift by product type. This has a shipped reference implementation: <a href="https://idtjira.atlassian.net/browse/DCS-3949" target="_blank" rel="noopener">DCS-3949</a> put Accertify behind wallet transactions from exactly this service.</p>
+      <ul>
+        <li>No app release, so no store review and no train dependency</li>
+        <li>The kill switch is our own config and reverts instantly</li>
+        <li>The request payload is already assembled at the right point: <code>product_type</code>, <code>channel</code>, <code>app_group</code>, <code>offer_id</code>, <code>time_on_file</code>, <code>origin_ip</code>, <code>user_agent</code></li>
+        <li>Per-product carve-out already shipped and verified in <a href="https://idtjira.atlassian.net/browse/DCS-3472" target="_blank" rel="noopener">DCS-3472</a>, so IMTU and eSIM need not be touched</li>
+      </ul>
+    </div>
+    <div class="track">
+      <p class="tt">Track B &middot; parallel and conditional</p>
+      <h3>Vendor mobile SDK and the decline surface</h3>
+      <p>Only becomes the critical path if the vendor cannot decision acceptably without device telemetry. If it does, the whole plan re-dates by roughly 10 to 14 weeks. Get that answer in writing before the decision.</p>
+      <ul>
+        <li>The BR app is a single Flutter monorepo. Neither vendor was stated to ship a Flutter plugin</li>
+        <li>eGift has <em>no</em> feature flags at all today, so a client kill switch is net-new code in a shipped binary</li>
+        <li><a href="https://idtjira.atlassian.net/browse/ATF-2666" target="_blank" rel="noopener">ATF-2666</a> records that a native fraud SDK starts before Dart on Android and at plugin registration on iOS, so a remote flag cannot stop it in the launch where you need it</li>
+        <li>Store privacy review is the gate that slips: it is <b>AT RISK and unassigned right now</b> on the live AppsFlyer migration</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>The plan</h2><span class="kicker">six phases, Sep 2026 to Mar 2027</span></div>
+  <p class="sec-note">Sprint 77 (id 38431) runs 9-22 Sep and Sprint 78 (id 38502) runs 23 Sep to 6 Oct. Both are real. Sprint 79 onward do not exist in Jira yet and their ids are not derivable, so dates beyond 6 October are projections on the verified 14-day cadence and the ids must be looked up when the board is extended.</p>
+
+  <div class="phase">
+    <div class="rail">
+      <span class="pno">Phase 0</span>
+      <span class="win">15 Sep - 2 Oct 2026</span>
+      <span class="spr">Sprint 77 tail, Sprint 78</span>
+      <span class="own"><b>DCS BE</b>Ilya Tsimashevich<br><b>eGift Product</b>Diana Scolari</span>
+    </div>
+    <div class="pbody">
+      <h3>Own the baseline and take the free approval-rate lift</h3>
+      <p>This is the cheapest phase, the easiest to skip with a decision due in two weeks, and the one that determines whether IDT buys the right thing. It is also the control arm: if re-enabling Visa and reading the live limits recovers most of the addressable decline, the vendor case is much weaker and the room should see that arm.</p>
+      <div class="work">
+        <div class="wi">
+          <span class="wn">Decline-cause decomposition</span>
+          <span class="wo">owner: DCS Backend &middot; blocks everything downstream</span>
+          <ul>
+            <li>Resolve the 55.3% opaque <code>failed</code> bucket to IDTPay response codes, normalising the prefixed and unprefixed <code>failed_reason</code> variants so categories are not double-counted</li>
+            <li>Confirm whether <a href="https://idtjira.atlassian.net/browse/DCS-5412" target="_blank" rel="noopener">DCS-5412</a>, the response-code mapping fix, touches the eGift path at all or only <code>mtu_processor.go</code></li>
+            <li>Establish eGift's IDTPay <code>TransServiceId</code> and <code>Owner</code> value so the eGift slice of the statusChange stream can be isolated</li>
+            <li>Record the ShieldWall failure and timeout contribution separately, since it fails closed</li>
+          </ul>
+        </div>
+        <div class="wi">
+          <span class="wn">Visa re-enable and the control arm</span>
+          <span class="wo">owner: eGift Product &middot; decide by 19 Sep</span>
+          <ul>
+            <li>Decide and record whether the DTC Visa disable stays in force. It has been on for 18 days with no owner and no review date</li>
+            <li>If re-enabled, hold the Fraudzilla limits constant and measure for 14 days so the Visa effect is isolable</li>
+            <li>Report the delta against the 89.1% Aug 1-24 and 89.9% Mar-Jul baselines</li>
+          </ul>
+        </div>
+        <div class="wi">
+          <span class="wn">Live rule-set readout</span>
+          <span class="wo">owner: CAF, escalated as an ownership gap</span>
+          <ul>
+            <li>Read the current eGift velocity and limit rules out of the Admin UI. The documented $200 limit was raised to $1,000 on 24 December 2025 as a holiday-season change, with no ticket to revert it, and nobody has read what is live today</li>
+            <li>Confirm no regression of the failed-transactions-count-toward-limit defect, fixed under MTNCS-4485 and released 15 January 2026</li>
+            <li>Name eGift explicitly as an unowned line of business on a shared fraud gate. The CAF application inventory lists Fraudzilla as MTU-only, so asking "the Fraudzilla owner" about eGift will correctly bounce</li>
+          </ul>
+        </div>
+      </div>
+      <div class="exits">
+        <span class="lbl">Exit criteria</span>
+        <ul>
+          <li>A named owner and a dated Jira ticket exist, with the deliverable written into the Acceptance Criteria field rather than promised in a meeting. The December 2025 incident review closed with Root Cause blank and this same measurement owed and undelivered</li>
+          <li>All 2,667 failures in the clean window are attributed across Fraudzilla, Jube, IDTPay/Accertify, K2 and ShieldWall</li>
+          <li>Visa is re-enabled, or a written decision not to re-enable exists with a named owner and a review date</li>
+          <li>A baseline data pack exists with 25-31 Aug flagged as an excluded incident window and the EGIFT-858 Visa disable labelled on the timeline</li>
+          <li>The addressable pool is stated as a bounded range, never a point estimate, with the issuer-decline share explicitly excluded as unconvertible</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="rail">
+      <span class="pno">Phase 1</span>
+      <span class="win">15 Sep - 9 Oct 2026</span>
+      <span class="spr">runs parallel to Phase 0</span>
+      <span class="own"><b>Drafts</b>Ana Jishkariani, DCS TPM<br><b>Convenes</b>Emilio DelRio</span>
+    </div>
+    <div class="pbody">
+      <h3>Make the decision defensible</h3>
+      <p>Today the entire evaluation lives outside Atlassian. A site-wide search returns zero Jira issues and zero Confluence pages for either vendor. The only tracking artefact is <a href="https://idtjira.atlassian.net/browse/EGIFT-861" target="_blank" rel="noopener">EGIFT-861</a>, an empty Open task with no description and no comments, sitting in a flat list beside gift-card supplier sourcing tickets. Structurally, a chargeback-liability and decisioning-authority decision is being run as a procurement errand, and that is why IDT Pay and CAF have never been in the room.</p>
+      <div class="work">
+        <div class="wi">
+          <span class="wn">The PDR and the architecture review</span>
+          <span class="wo">owner: DCS TPM drafting, VP Boss Revolution sponsoring</span>
+          <ul>
+            <li>Write the decision paper as a PDR in the TEAM space. Do not attach it to EGIFT-861: every EGIFT ticket lacks an epic parent, so the project has no structure to give it visibility</li>
+            <li>Circulate at least one day ahead and record the meeting, per the process</li>
+            <li>Record Emilio DelRio's sponsorship on the page itself. He has zero Jira footprint across ATF, EGIFT, DCS and AL, so any approver set he names has to be written down outside Jira</li>
+            <li>Answer in one line each: why not extend <b>Sardine</b>, already live in the same app via <a href="https://idtjira.atlassian.net/browse/BGW-9357" target="_blank" rel="noopener">BGW-9357</a>, and why eGift was never put behind <b>Accertify</b>, already contracted and PCI-integrated</li>
+          </ul>
+        </div>
+        <div class="wi">
+          <span class="wn">Buy versus finish building</span>
+          <span class="wo">owner: VP Boss Revolution with CAF and AI Lab</span>
+          <ul>
+            <li>There is a funded internal programme to do this: <a href="https://idtjira.atlassian.net/browse/ATF-2265" target="_blank" rel="noopener">ATF-2265</a> (Blocked) and <a href="https://idtjira.atlassian.net/browse/AL-100" target="_blank" rel="noopener">AL-100</a> (In Progress), plus FY2026 board goal 9, which commits to moving IMTU and eGift onto the internal Fraud Modeling System and is still reported in progress</li>
+            <li>The block is precisely located and cheap to state: Mark Moorman has owed the specific fraud routing conditions on <a href="https://idtjira.atlassian.net/browse/ATF-2527" target="_blank" rel="noopener">ATF-2527</a> since 15 May 2026. Put that single ask in writing with a date</li>
+            <li>Note honestly that the internal programme is unstaffed below the epic, not merely blocked: three delivery stories have sat unassigned in Triage since 23 April 2026, and eGift has zero delivery tickets anywhere in ATF</li>
+            <li>State whether the vendor supersedes, bridges or coexists with the <a href="https://idtjira.atlassian.net/wiki/spaces/TEAM/pages/5673320464/PDR+MTU+Fraud+Detection+with+Terminus" target="_blank" rel="noopener">Terminus PDR</a>. That document is what will reopen this decision at the first architecture review</li>
+          </ul>
+        </div>
+        <div class="wi">
+          <span class="wn">Eight questions both vendors must answer in writing</span>
+          <span class="wo">owner: DCS TPM with eGift Product &middot; none of these are in either deck</span>
+          <ul>
+            <li><b>Flutter.</b> The BR app is a Flutter monorepo, not native and not React Native. Plugin, or is a wrapper unbudgeted DCS work</li>
+            <li><b>Account takeover.</b> The documented eGift vector is SMS-code phishing against the genuine cardholder's own saved card (<a href="https://idtjira.atlassian.net/browse/DCS-3472" target="_blank" rel="noopener">DCS-3472</a>). ATO commonly falls outside standard fraud-liability cover. Get the category confirmed, because this may be the whole difference between nSure's 1% and 1.5% tiers, and it may be excluded by both</li>
+            <li><b>Decision enum.</b> Binary only. eGift has no async review or transaction hold, and CHALLENGE is documented as unsupported for exactly that reason</li>
+            <li><b>Which layer.</b> Fraudzilla velocity, the IDTPay/Accertify card decision, or both. If only the card decision, the channel stays blocked after go-live</li>
+            <li><b>Fail-open or fail-closed</b> on vendor timeout, and whether fail-open approvals are indemnified. On a percentage-of-approved-GMV liability model this is a contract term, not an engineering default</li>
+            <li><b>Exact field list</b>, so PCI scope can be determined. BIN, last four and expiry are cardholder data even though they are not a full PAN</li>
+            <li><b>Definition of "approved"</b> for billing, given K2 can decline after the vendor approves</li>
+            <li><b>Auditor access</b> and retention of per-transaction decision records. BDO is sampling fraud decision evidence right now, and this term is very hard to add after signature</li>
+          </ul>
+        </div>
+        <div class="wi">
+          <span class="wn">Server-side feasibility spike</span>
+          <span class="wo">owner: DCS Backend, arbitrated by Yuri Rykovsky &middot; the most schedule-relevant spike in the plan</span>
+          <ul>
+            <li>Confirm the DTC app eGift purchase path uses the same purchase service as the retail path that already carries a server-side fraud decision point. If it does, Track A is a call-site swap rather than a new integration</li>
+            <li>Confirm the eGift fraud-check profile can point at an external provider the way DCS-3949 pointed wallet transactions at Accertify</li>
+            <li>Confirm eGift can be carved out by <code>product_type</code> without touching IMTU or eSIM</li>
+          </ul>
+        </div>
+      </div>
+      <div class="exits">
+        <span class="lbl">Exit criteria</span>
+        <ul>
+          <li>The PDR page exists in the TEAM space and the review has been held, with IDT Pay and CAF present</li>
+          <li>Buy-versus-build is recorded with a reason, not left open</li>
+          <li>Written vendor answers to all eight questions are attached to the PDR</li>
+          <li>A vendor is selected against the decomposed baseline, not against the meeting-note figure</li>
+          <li>The server-side question is answered, which determines whether the app train is on the critical path at all</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="rail">
+      <span class="pno">Phase 2</span>
+      <span class="win">9 Oct - 13 Nov 2026</span>
+      <span class="spr">best case 23 Oct (Riskified)</span>
+      <span class="own"><b>Signs</b>Emilio DelRio<br><b>Privacy</b>Compliance<br><b>Data pack</b>BI with CAF</span>
+    </div>
+    <div class="pbody">
+      <h3>Contracting, privacy and PCI gates</h3>
+      <p>Nothing downstream of signature can be pulled forward by engineering effort. IDT signs the contract and the DPA as a single item by the business owner, so there is no separate procurement workstream to hide behind, and there is no vendor security review or third-party risk process to lean on either. The 133-row AppsFlyer migration plan contains zero rows for InfoSec review, TPRM, SOC 2 review or pen test. The absence of a process is not permission, and it is not a gate you can schedule around.</p>
+      <div class="work">
+        <div class="wi">
+          <span class="wn">Contract, NDA and DPA</span>
+          <span class="wo">owner: VP Boss Revolution as business signer, with Legal</span>
+          <ul>
+            <li>If nSure: execute the NDA first, and treat it as a hard unpriced addition to the front of this leg</li>
+            <li>Negotiate liability cap against assumed chargeback exposure, minimum commitment, term, SLA remedies, exit and data-return. IDT convention explicitly excludes commercial terms from engineering evaluations, so nobody is currently reading these</li>
+            <li>Ask Legal for the <b>Accertify agreement as the paperwork template</b>. It is the closest precedent: an external card-fraud vendor already contracted and PCI-integrated at IDT</li>
+            <li>Secure auditor-grade access to per-transaction decision reasons and retention as a contract term</li>
+          </ul>
+        </div>
+        <div class="wi">
+          <span class="wn">Privacy and the pre-contract export</span>
+          <span class="wo">owner: Compliance &middot; start this now, before the vendor is chosen</span>
+          <ul>
+            <li>Establish who approves a pre-contract PII export and what the turnaround is</li>
+            <li>Establish whether an NDA or DPA covered the <b>MaxMind historical POC</b>, which exported real billing names, addresses, emails, IPs and BINs for 48,056 transactions with no recorded gate. If yes, reuse that template. If no, this is a first-of-its-kind approval and the leg is materially longer</li>
+            <li>Surface the export inside the org-wide data retention policy review, which is Not started and due end of September, rather than have it discovered afterwards</li>
+            <li>Get PCI scope determined in writing by IDTPay from the vendor's exact field list, not from the vendor's assurance that it never receives a full PAN</li>
+          </ul>
+        </div>
+        <div class="wi">
+          <span class="wn">The six-month data pack</span>
+          <span class="wo">owner: BI with CAF &middot; this is a Snowflake query, not new engineering</span>
+          <ul>
+            <li>Chargeback data is already in the warehouse and surfaced in Looker (<a href="https://idtjira.atlassian.net/browse/ATF-703" target="_blank" rel="noopener">ATF-703</a>, Done). Pull from <code>presentation.k2_trans</code> joined to <code>presentation.idtpay_latest_transaction</code>, reusing the existing 180-day MTU recipient join</li>
+            <li>Agree the chargeback-rate definition with CAF <em>before</em> sending numbers. IDT's own KPI framework marks its formula as not final and leaves dispute-outcome treatment unresolved, so a rate sent on one definition and re-derived later on another will reopen pricing</li>
+            <li>Label 25-31 Aug as an excluded incident window and flag the Visa disable</li>
+            <li>Scope the lookback to January 2026 onward: <code>EGiftOrderPayBtn</code> first appears 7 January 2026, so there is no attempt denominator before that</li>
+            <li>Mark device identifier as not available historically, and label AVS, CVV and 3DS as unavailable if they are genuinely null upstream rather than merely unmapped. Those fields materially affect the rate Riskified quotes</li>
+          </ul>
+        </div>
+      </div>
+      <div class="exits">
+        <span class="lbl">Exit criteria</span>
+        <ul>
+          <li>Contract and DPA signed, with an outbound DPA where IDT is controller and the vendor is processor</li>
+          <li>A named person has approved the pre-contract PII export, or the export is scoped to post-signature and a later rate is accepted</li>
+          <li>PCI scope determined in writing by IDTPay</li>
+          <li>A written answer on whether outsourcing card-fraud decisioning creates any obligation for IDT Payment Services as a licensed money transmitter. Note that card-fraud decisioning is separate from sanctions and OFAC screening, which stays with IDT and is not being outsourced. Say that explicitly, because reviewers will otherwise read this as outsourcing AML</li>
+          <li>The labelled data pack has been delivered</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="rail">
+      <span class="pno">Phase 3</span>
+      <span class="win">12 Oct - 27 Nov 2026</span>
+      <span class="spr">Sprints 79-82 (projected)</span>
+      <span class="own"><b>BE lead</b>Ilya Tsimashevich<br><b>Allocates</b>Yuri Rykovsky<br><b>QA</b>Sergei Kolos</span>
+    </div>
+    <div class="pbody">
+      <h3>Track A build, dev-only until signature</h3>
+      <p>Build proceeds before signature. Only production data flow waits for it, which is exactly how the live AppsFlyer migration is being run. The integration surface is small and already named: four DCS-owned Go services, one natural call site, and a request payload that is already marshalled at the right point in the flow.</p>
+      <div class="work">
+        <div class="wi">
+          <span class="wn">Decision call and profile routing</span>
+          <span class="wo">owner: DCS Backend</span>
+          <ul>
+            <li>Add an eGift fraud-decision profile in <code>payment-int-api</code> routing to the vendor, behind a product-scoped server switch</li>
+            <li>Map the vendor verdict onto the existing <code>anti_fraud</code> contract (status, recommendation, challenge_type, flags, reason). The schema already exists and does not need inventing</li>
+            <li>Implement the agreed fail-open or fail-closed behaviour on timeout and outage</li>
+          </ul>
+        </div>
+        <div class="wi">
+          <span class="wn">Incumbent stand-down and blast-radius containment</span>
+          <span class="wo">owner: DCS Backend with IDTPay (Patrice Menhart, Alexey Chudnikov)</span>
+          <ul>
+            <li>Scope IDTPay/Accertify off eGift by <code>product_type</code>, <code>TransServiceId</code> or <code>MerchantNumber</code>, or establish that the Accertify invocation is global and a build is required</li>
+            <li>Write the rollback runbook: four-eyes review on rule changes, a change window, and a captured pre and post diff of IMTU rule state, because the change is made on the same admin screen that governs IMTU velocity rules</li>
+            <li>Establish the rollback SLA per path. A server-side scoping change reverts immediately; a client-side flag is read once per launch and does not</li>
+          </ul>
+        </div>
+        <div class="wi">
+          <span class="wn">Feedback loops and offline replay</span>
+          <span class="wo">owner: DCS Backend with CAF and BI</span>
+          <ul>
+            <li>Build the outbound outcome feed, reusing the pattern already shipped for MaxMind (ATF-2663, ATF-2720, ATF-2630, all Done). This is a solved pattern with working code, not a new build</li>
+            <li>Build the chargeback feed <b>with an explicit reconciliation assertion</b> that every chargeback reached the vendor. <a href="https://idtjira.atlassian.net/browse/ATF-2776" target="_blank" rel="noopener">ATF-2776</a> proves the class of bug: automatic blacklisting silently never fired for Boss Money Wallet because the payload shape differed</li>
+            <li>Use <a href="https://idtjira.atlassian.net/browse/BGW-9391" target="_blank" rel="noopener">BGW-9391</a> as the shape reference for the dispute webhook and the dispute-to-transaction link. It sits in BGW, not DCS, so link it with Blocks</li>
+            <li>Run the offline replay of historical eGift declines against the vendor score, reusing the ATF-2618 batch-scoring job and the ATF-2596 validation method. <b>This is what converts nSure's lack of a shadow mode from a blocker into an IDT-side build item</b></li>
+          </ul>
+        </div>
+      </div>
+      <div class="exits">
+        <span class="lbl">Exit criteria</span>
+        <ul>
+          <li>The vendor is callable from <code>hdm-go-payment-int-api</code> behind an eGift-scoped profile</li>
+          <li>Advisory mode works: the verdict is recorded and never reaches the decline path, including on retry and on queued messages</li>
+          <li>IDTPay/Accertify decisioning for eGift can be stood down and restored by configuration, verified in a non-production environment</li>
+          <li>A QA regression pass confirms IMTU and eSIM decisioning is unchanged before and after the eGift carve-out</li>
+          <li>The offline replay harness runs and joins vendor scores to confirmed outcomes</li>
+          <li>The chargeback feed carries a per-chargeback reconciliation assertion</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="rail">
+      <span class="pno">Phase 4</span>
+      <span class="win">16 Nov 2026 - 25 Jan 2027</span>
+      <span class="spr">minimum 8 weeks of live traffic</span>
+      <span class="own"><b>Charter</b>Ana Jishkariani<br><b>Approvers</b>named at the PDR<br><b>Money</b>Finance with BLNG</span>
+    </div>
+    <div class="pbody">
+      <h3>Production advisory run</h3>
+      <p>Run the vendor as a non-decisive scored input recorded alongside the live decision, exactly as MaxMind runs today and as the Accertify Adapter is structured. This window cannot be compressed by engineering, staffing or vendor cooperation, because what it is waiting for is labels, not code. Note what happens if this step is skipped: <a href="https://idtjira.atlassian.net/browse/ATF-2801" target="_blank" rel="noopener">ATF-2801</a> documents a Boss product that ran with no fraud rules in production, silently passing all traffic, at a cost of roughly $70K.</p>
+      <div class="work">
+        <div class="wi">
+          <span class="wn">Advisory run and measurement</span>
+          <span class="wo">owner: DCS Backend with DCS TPM</span>
+          <ul>
+            <li>Hold the Fraudzilla and IDTPay configuration constant for the duration, so the comparison stays interpretable</li>
+            <li>Report weekly: would-have-approved versus actual, split by decline gate</li>
+            <li>Count K2-sourced declines after vendor approval separately, so the vendor is neither credited nor billed for transactions K2 subsequently rejects</li>
+            <li>Build the Grafana board for approval rate, decline reason, decision latency, vendor availability and chargeback rate. This is net-new: <a href="https://idtjira.atlassian.net/browse/DCS-5338" target="_blank" rel="noopener">DCS-5338</a> (Grafana fraud boards) was closed Won't fix on 4 September 2026</li>
+          </ul>
+        </div>
+        <div class="wi">
+          <span class="wn">Pilot governance</span>
+          <span class="wo">owner: DCS TPM &middot; written before any traffic starts</span>
+          <ul>
+            <li>Agree duration, numeric thresholds and named approvers <em>before</em> the pilot starts. This is the discipline that stops a four-week approval-rate read-out being treated as a pass</li>
+            <li>Carry an explicit pending-label state on every shadow record from day one, resolved later from the fraud-label topic, exactly as IDT's own shadow design does</li>
+            <li>Set the read-out date past label maturation and separate it in writing from the traffic-stop date</li>
+            <li>Fix the thresholds numerically: minimum approval-rate lift on the addressable pool, maximum fraud rate on newly approved volume, maximum decision latency, minimum vendor availability</li>
+            <li>Rehearse a production rollback and record the measured revert time against the agreed SLA</li>
+          </ul>
+        </div>
+        <div class="wi">
+          <span class="wn">Finance and billing readiness</span>
+          <span class="wo">owner: Finance with Billing (BLNG) &middot; neither is currently in this conversation</span>
+          <ul>
+            <li>Build an <b>independent count</b> of approved transactions and approved GMV that does not come from vendor reporting. On a percentage-of-approved-GMV model the vendor both makes the approval decision and bills on it</li>
+            <li>Establish who books eGift chargebacks in the P&amp;L and who owns the vendor reimbursement receivable. IDT keeps receiving the chargeback under any liability-shift model; the shift is a reimbursement arrangement layered on top, not a removal of chargeback flow</li>
+            <li>Establish who files representments. Those workflows live in BLNG</li>
+            <li>Design the interaction deliberately: IDT's existing automatic blacklist-and-shutdown-on-chargeback logic will now fire on transactions a vendor approved</li>
+            <li>Hand Finance a sensitivity table over take rate and approval lift, not a single point estimate</li>
+          </ul>
+        </div>
+      </div>
+      <div class="exits">
+        <span class="lbl">Exit criteria</span>
+        <ul>
+          <li>A pilot charter agreed before traffic started, naming duration, thresholds, approvers and the rollback SLA</li>
+          <li>At least eight weeks of live traffic scored in advisory mode, with zero vendor-driven declines</li>
+          <li>The disagreement analysis is published: vendor verdict against IDT verdict against realised outcome</li>
+          <li>The independent approved-GMV count reconciles against vendor reporting</li>
+          <li>A production rollback has actually been rehearsed, not just documented</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="rail">
+      <span class="pno">Phase 5</span>
+      <span class="win">26 Jan - 9 Mar 2027</span>
+      <span class="spr">staged ramp, approver gate per step</span>
+      <span class="own"><b>Cutover</b>DCS BE with IDTPay and CAF<br><b>Liability</b>Finance with VP</span>
+    </div>
+    <div class="pbody">
+      <h3>Enforcement cutover and liability ramp</h3>
+      <p>The first date on which "approval rate improved in production because of the vendor" can honestly be claimed. <b>A pause on eGift selling is not architecturally required.</b> DCS fraud decisioning is already gated by configuration, not code: <a href="https://idtjira.atlassian.net/browse/DCS-3297" target="_blank" rel="noopener">DCS-3297</a> introduced a <code>by_pass_fraud_check</code> field with an explicit fallback to prior behaviour, and there is prior art for draining in-flight and challenged fraud decisions across a backend change under ATF-1627. Do not accept a "pause selling" line item without first being shown why those paths cannot carry the cutover.</p>
+      <div class="work">
+        <div class="wi">
+          <span class="wn">Staged cutover</span>
+          <span class="wo">owner: DCS Backend with IDTPay and CAF</span>
+          <ul>
+            <li>Enable enforcement for eGift <code>product_type</code> behind config, at 10% then 50% then 100%, two weeks minimum per stage with a named approver gate between stages</li>
+            <li>Never enforce above the vendor's covered liability percentage. For nSure that means aligning the ramp to its 30-day training plus 10/50/100 liability schedule</li>
+            <li>Drain in-flight and challenged transactions using the ATF-1627 procedure rather than reaching for a selling pause</li>
+            <li>Monitor IMTU and eSIM approval rates through the cutover window as the blast-radius control</li>
+          </ul>
+        </div>
+        <div class="wi">
+          <span class="wn">Liability and reconciliation</span>
+          <span class="wo">owner: Finance with VP Boss Revolution</span>
+          <ul>
+            <li>Run the first monthly reconciliation against IDT's independent count and confirm the variance is explainable</li>
+            <li>Confirm the ATO exclusion position in practice, on the first real ATO chargeback</li>
+            <li>Track the liability ramp against contract milestones</li>
+          </ul>
+        </div>
+      </div>
+      <div class="exits">
+        <span class="lbl">Exit criteria</span>
+        <ul>
+          <li>Enforcement is live for eGift only, with the legacy path restorable inside the charter's rollback SLA</li>
+          <li>IDTPay/Accertify decisioning is confirmed stood down for eGift in production, with evidence that no second gate is silently declining vendor-approved transactions</li>
+          <li>Approval rate on the addressable pool has moved past the charter threshold, measured against the Mar-Jul 89.9% baseline</li>
+          <li>Fraud rate on newly approved volume is inside the charter threshold on <em>matured</em> labels, not pending ones</li>
+          <li>Monthly billing reconciliation runs with a documented variance tolerance and a dispute route</li>
+          <li>A Pre-Go-Live Review has been held, per the PDR process</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="rail">
+      <span class="pno">Track B</span>
+      <span class="win">12 Oct 2026 - 5 Feb 2027</span>
+      <span class="spr">target app 26.12.x or 27.1.x</span>
+      <span class="own"><b>App bench</b>Marc Constanti, Viktar Vaitovich, Maksimilian Yakauleu<br><b>Design</b>Viktoryia Shmidt</span>
+    </div>
+    <div class="pbody">
+      <h3>Client SDK and the decline surface, parallel and conditional</h3>
+      <p>Deliberately kept off the critical path. It becomes the critical path, adding roughly 10 to 14 weeks, if and only if the vendor cannot decision acceptably without device SDK telemetry. The September train closed when the 26.9.1 RC was cut on 11 September, so the realistic first SDK-carrying build is 26.12.x. On the current cadence, missing a cut costs two to three weeks, and iOS trails Play by about three days.</p>
+      <div class="work">
+        <div class="wi">
+          <span class="wn">SDK integration</span>
+          <span class="wo">owner: DCS App, a bench of three already carrying IMTU subscriptions</span>
+          <ul>
+            <li><b>Resolve the overlap first.</b> DCS already ships a behavioural-signal collector: the <code>risk_signals</code> Flutter package plus Safe_Device and FreeRASP, live since June 2026. Decide whether the vendor SDK replaces, wraps or duplicates it. Duplicating accelerometer and navigation collection doubles the privacy-declaration surface for no extra signal, and this question is in neither vendor's pitch</li>
+            <li>Scope the Flutter wrapper if neither vendor ships a plugin. Use <a href="https://idtjira.atlassian.net/browse/ATF-2727" target="_blank" rel="noopener">ATF-2727</a> as the estimate template: it took 26 days and its real cost drivers were per-flavour config files, private-repo credentials in every CI pipeline, and an emulator guard</li>
+            <li>Add the remote-config flag to <code>remote_config.dart</code>, which held 159 keys at the 26.9.1 cut. Prefer a string enum (<code>idtpay</code> / <code>shadow</code> / <code>nsure</code> / <code>riskified</code>) over a boolean so shadow, cutover and rollback are one lever. Compile it with default equal to legacy IDTPay decisioning, and make absent or invalid read as OFF</li>
+            <li>Coordinate with BAT, BGW and NEST: a native SDK touches pubspec, Podfile, build.gradle and Info.plist, shared across four app targets in the monorepo</li>
+            <li>Require a <b>measured</b> all-ABI Android bundle delta, cold-start delta and CPU burst from a real build before signature. Talsec's measured +30.3 MB against a claimed +13 MB is the house precedent for why a datasheet figure is not acceptable</li>
+          </ul>
+        </div>
+        <div class="wi">
+          <span class="wn">Store privacy and disclosure</span>
+          <span class="wo">owner: named per-platform owners, assigned at the PDR &middot; this is the gate that slips</span>
+          <ul>
+            <li>Assign an owner per platform <em>before</em> the decision. On the live AppsFlyer migration this gate is AT RISK and unassigned ten days past its window, and three of four apps have no app-level privacy manifest</li>
+            <li>If the SDK collects data classes beyond those already declared, Google Play requires a prominent-disclosure screen shown <em>before the SDK initializes</em>. NEST-16591 is the live worked example: a bottom sheet, device-country detection, a persisted decision, a Settings entry, a flag, legal copy and a bounded wait before SDK start</li>
+            <li>Note the iOS privacy-policy URL change is itself a binary change, adding a second app-train dependency beyond the kill switch</li>
+          </ul>
+        </div>
+        <div class="wi">
+          <span class="wn">Customer-facing decline surface</span>
+          <span class="wo">owner: DCS Design and DCS App &middot; the conversion half of the business case</span>
+          <ul>
+            <li>Ship actionable eGift decline copy and a retry path. Today the customer sees generic text, <a href="https://idtjira.atlassian.net/browse/DCS-4794" target="_blank" rel="noopener">DCS-4794</a> is still To Do, and a velocity rejection was previously surfaced as an unrelated "Too soon" error. <b>Even a perfect vendor does not recover a customer who is told only that the transaction could not be completed</b></li>
+            <li>Follow the existing copy policy: never reveal fraud detection, use generic wording, but give the customer something to do</li>
+            <li>Decide whether a step-up (CVV or 3DS) path is offered on a soft decline. That also settles the CVV question Erik Bole raised on ATF-2527 that nobody answered</li>
+            <li>Build a review or challenge queue <em>only</em> if a vendor actually returns a review verdict, and only with a named queue owner and an SLA</li>
+          </ul>
+        </div>
+      </div>
+      <div class="exits">
+        <span class="lbl">Exit criteria</span>
+        <ul>
+          <li>A written answer exists on whether the vendor requires SDK telemetry to decision acceptably. If yes, this moves onto the critical path and the whole plan re-dates</li>
+          <li>The SDK-versus-<code>risk_signals</code> overlap is resolved: replace, wrap, or run alongside</li>
+          <li>The kill-switch flag compiles with legacy decisioning as its default, verified by test with remote config unavailable</li>
+          <li>iOS App Privacy and Play Data Safety declarations updated, with a named owner per platform</li>
+          <li>Physical-device QA pass on both apps. Emulator crashes in vendor security SDKs already forced real-device testing once</li>
+          <li>Decline copy and a retry path are live, and the pilot measures completed purchases rather than approval rate alone</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<section>
+  <div class="sec-head"><h2>Who has to be in the room</h2><span class="kicker">five orgs, not one</span></div>
+  <p class="sec-note">DCS owns detection, never decisioning. That boundary is why this cannot sit inside DCS alone, and it is also the strongest internal evidence for the business case: IDT's own fraud alerting ticket, <a href="https://idtjira.atlassian.net/browse/DCS-5350" target="_blank" rel="noopener">DCS-5350</a>, documents that no control fired on a live attack.</p>
+  <div class="tblwrap">
+    <table>
+      <thead><tr><th>Team</th><th>Jira</th><th>What they hold</th><th>What DCS needs from them</th><th>By when</th></tr></thead>
+      <tbody>
+        <tr><td><b>DCS</b><br>Digital Channel Services</td><td class="k">DCS<br>board 2057</td><td>The eGift app, the four Go services in the purchase path, and the per-product fraud config</td><td>The build, the baseline, the epic and the spec page. All of it is currently unwritten</td><td class="d">now</td></tr>
+        <tr><td><b>IDT Pay</b><br>Core Services<br><span class="rp">Patrice Menhart, Alexey Chudnikov</span></td><td class="k">IDTPAY</td><td>The Accertify call that decisions eGift card payments today</td><td>Agreement to stand decisioning down for eGift, plus the PCI determination from the vendor field list. <b>Without this the vendor's approval does not produce an approved transaction</b></td><td class="d">9 Oct (PDR)</td></tr>
+        <tr><td><b>CAF</b><br>Compliance and Anti-Fraud<br><span class="rp">Elene Jokhadze, Mark Moorman, Dzmitry Struk</span></td><td class="k">ATF</td><td>Fraudzilla, the Accertify Adapter, the Terminus rule engine, and the competing internal programme</td><td>The live eGift rule readout, the buy-versus-build position, the routing conditions owed on ATF-2527 since May, and the chargeback-rate definition</td><td class="d">9 Oct (PDR)</td></tr>
+        <tr><td><b>AI Lab</b><br><span class="rp">German Chukhrai</span></td><td class="k">AL</td><td>AL-100, the in-flight IMTU and eGift Terminus migration, and the Champion/Challenger shadow harness</td><td>An honest answer on what has actually been delivered against AL-100, since its status is unreliable. Do not take a dependency on the promote and rollback tooling: AL-474 and AL-475 are still in Triage</td><td class="d">9 Oct (PDR)</td></tr>
+        <tr><td><b>DPC</b><br>Digital Payments Core<br><span class="rp">David Phelps, Yuri Rykovsky</span></td><td class="k">DPC</td><td>K2, Zendit, and ShieldWall, which fails closed on timeout</td><td>The K2 and ShieldWall decline contribution, and confirmation that K2 will not decline after a vendor approves</td><td class="d">30 Sep (G1)</td></tr>
+        <tr><td><b>Billing</b></td><td class="k">BLNG</td><td>Chargeback, refund and representment workflows</td><td>Who files representments under a liability-shift model, and how vendor reimbursement reconciles in billing. <b>They have never been in this conversation</b></td><td class="d">13 Nov</td></tr>
+        <tr><td><b>Legal and Compliance</b></td><td class="k">CPL</td><td>Contract, DPA and the PII export question</td><td>An outbound DPA where IDT is controller. No template, register, owner or SLA exists. CPL will not originate this: it must be raised into it with a named reviewer</td><td class="d">2 Oct</td></tr>
+        <tr><td><b>eGift Product</b><br><span class="rp">Diana Scolari</span></td><td class="k">EGIFT</td><td>The catalogue, the Visa kill switch, and the only vendor ticket that exists</td><td>The Visa revert decision, the commercial eGift view, and the vendor thread itself</td><td class="d">19 Sep</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>Decision register</h2><span class="kicker">nothing here has an owner today</span></div>
+  <div class="tblwrap">
+    <table>
+      <thead><tr><th>Decision</th><th>Who decides</th><th>By when</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><b>Is the DTC Visa disable reverted, and when</b><br>Off for 18 days with no owner, no review date and no revert ticket. Worth about 7 points, and it costs nothing</td><td>Diana Scolari with Emilio DelRio</td><td class="d">19 Sep 2026</td><td><span class="pill p-block">unowned</span></td></tr>
+        <tr><td><b>Who owns the decline decomposition, and by what date</b><br>Write the deliverable into the ticket's Acceptance Criteria field, not into a meeting</td><td>Ana Jishkariani assigns; DCS Backend delivers</td><td class="d">18 Sep 2026</td><td><span class="pill p-block">unowned</span></td></tr>
+        <tr><td><b>Does the vendor decision go through a PDR, and who are the approvers</b><br>It triggers the process on three independent grounds. It is not optional</td><td>Emilio DelRio convenes</td><td class="d">23 Sep 2026</td><td><span class="pill p-block">not raised</span></td></tr>
+        <tr><td><b>Does the vendor require SDK telemetry, or can it decision server-side</b><br>The single highest-leverage question in the plan, and it is absent from both decks. A wrong answer here re-dates everything by 10 to 14 weeks</td><td>Vendors answer in writing; Yuri Rykovsky arbitrates</td><td class="d">2 Oct 2026</td><td><span class="pill p-watch">not asked</span></td></tr>
+        <tr><td><b>Does either vendor ship a Flutter plugin</b><br>Both quote native or React Native. The BR app is neither</td><td>DCS App lead with Yuri Rykovsky</td><td class="d">2 Oct 2026</td><td><span class="pill p-watch">not asked</span></td></tr>
+        <tr><td><b>Who approves the pre-contract PII export, and what is the turnaround</b><br>No process, owner or SLA exists. It gates Riskified's rate, which gates the contract</td><td>Compliance with Legal</td><td class="d">2 Oct 2026</td><td><span class="pill p-block">no process</span></td></tr>
+        <tr><td><b>Buy versus finish building</b><br>Does a vendor supersede, bridge or coexist with ATF-2265, AL-100 and FY2026 board goal 9. A vendor decision either reframes or retires a board commitment, which is an executive call</td><td>Emilio DelRio with CAF and AI Lab</td><td class="d">9 Oct 2026</td><td><span class="pill p-block">never framed</span></td></tr>
+        <tr><td><b>nSure or Riskified</b><br>Judged on shadow support, NDA position, pricing basis and ATO liability, against the decomposed baseline</td><td>Emilio DelRio with Yuri Rykovsky and CAF</td><td class="d">9 Oct 2026</td><td><span class="pill p-acc">in progress</span></td></tr>
+        <tr><td><b>Is the scope DTC eGift only, or retail too</b><br>Retail runs a separate stack (Jube, in RCS). This changes the GMV base the 1% is charged against, so it must be settled before pricing is accepted</td><td>Emilio DelRio with eGift Product and RCS</td><td class="d">9 Oct 2026</td><td><span class="pill p-watch">unstated</span></td></tr>
+        <tr><td><b>Binary decision only, or build hold-and-resume for a review verdict</b><br>eGift has no async review or transaction hold today</td><td>Yuri Rykovsky with CAF</td><td class="d">9 Oct 2026</td><td><span class="pill p-watch">unstated</span></td></tr>
+        <tr><td><b>Fail-open or fail-closed on vendor timeout</b><br>Open in IDT's own PDR since June 2026. On a percentage-of-approved-GMV model this is a contract term, not a default</td><td>Yuri Rykovsky with CAF and Legal</td><td class="d">27 Nov 2026</td><td><span class="pill p-watch">open since Jun</span></td></tr>
+        <tr><td><b>Who books eGift chargebacks and owns representments</b></td><td>Finance with BLNG</td><td class="d">13 Nov 2026</td><td><span class="pill p-block">unowned</span></td></tr>
+        <tr><td><b>Pilot duration, thresholds, approvers and rollback SLA</b><br>Agreed before any production traffic, or an approval-rate number gets treated as a pass</td><td>Emilio DelRio names approvers; Ana Jishkariani writes the charter</td><td class="d">6 Nov 2026</td><td><span class="pill p-watch">not started</span></td></tr>
+        <tr><td><b>Does Visa plus relaxed limits recover enough that the vendor is not needed</b><br>The honest control arm. It costs nothing and the room should see both arms</td><td>Emilio DelRio, on the Phase 0 evidence</td><td class="d">9 Oct 2026</td><td><span class="pill p-pass">Phase 0 answers it</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>Risks worth the room's attention</h2><span class="kicker">ranked by how likely they are to actually happen</span></div>
+  <div class="risks">
+
+    <article class="risk">
+      <h3>The vendor is bought to fix declines it cannot move</h3>
+      <div class="rg">
+        <div><span class="lbl">Impact</span><p>41.2% of failures are issuer declines that decline identically under any vendor, and velocity is 1.9%. Both vendors bill on total approved GMV regardless. At a 3% take rate a 1% fee eats a third of gross margin on every approved transaction, including the ones IDT was already approving.</p></div>
+        <div><span class="lbl">Mitigation</span><p>Do not sign a percentage-of-approved-GMV contract until the opaque bucket is split by IDTPay response code. State the addressable pool as a bounded range in the decision paper. Price the fee against the whole approved base, never against incremental approvals.</p></div>
+      </div>
+      <p class="owner">Owner: DCS TPM for the decomposition, VP Boss Revolution for the commercial consequence</p>
+    </article>
+
+    <article class="risk">
+      <h3>Vendor approval does not produce an approved transaction</h3>
+      <div class="rg">
+        <div><span class="lbl">Impact</span><p>eGift declines at up to five independent gates. A vendor replaces at most one or two. The channel stays blocked after go-live while IDT pays on approved GMV, and the vendor is billed for transactions K2 subsequently rejects. BGW-9535 is the live proof of exactly this failure mode with Sardine.</p></div>
+        <div><span class="lbl">Mitigation</span><p>Make the IDT Pay stand-down a functional exit criterion of Phase 3, verified in a non-production environment before the pilot. Inventory K2-sourced declines first. Define "approved" contractually, and build an independent count that does not come from vendor reporting.</p></div>
+      </div>
+      <p class="owner">Owner: DCS Backend with IDT Pay</p>
+    </article>
+
+    <article class="risk">
+      <h3>The pilot reads out on a metric that structurally cannot have gone wrong yet</h3>
+      <div class="rg">
+        <div><span class="lbl">Impact</span><p>A four-week pilot declares victory on approval rate having seen almost none of the fraud it let through, and the room approves full cutover on evidence that cannot contradict it. ATF-2801 documents the downside already realised at IDT: a product running with no effective fraud rules, silently passing everything, roughly $70K.</p></div>
+        <div><span class="lbl">Mitigation</span><p>Minimum eight weeks of live advisory traffic. A pending-label state on every record from day one. Read-out date separated from traffic-stop date in the charter. Duration, thresholds and approvers agreed before the pilot starts, with unexplained differences blocking sign-off.</p></div>
+      </div>
+      <p class="owner">Owner: DCS TPM for the charter, approvers named at the PDR</p>
+    </article>
+
+    <article class="risk">
+      <h3>The liability transfer does not cover the fraud that caused the clampdown</h3>
+      <div class="rg">
+        <div><span class="lbl">Impact</span><p>The documented eGift vector is account takeover on the genuine cardholder's own saved card. That commonly falls outside standard fraud-liability definitions and into service-dispute or friendly-fraud categories. IDT pays a liability fee that does not indemnify the loss it was bought to cover, and finds out on the first real ATO chargeback after cutover.</p></div>
+        <div><span class="lbl">Mitigation</span><p>Put the exact DCS-3472 scenario to both vendors in writing before signature and get the liability category confirmed. It may be the whole difference between nSure's 1% and 1.5% tiers, and it may be excluded by both. If excluded, the business case is approval-rate recovery only and must be re-argued on that basis.</p></div>
+      </div>
+      <p class="owner">Owner: VP Boss Revolution with Legal</p>
+    </article>
+
+    <article class="risk">
+      <h3>Buy-versus-build is never resolved and the decision is reopened at architecture review</h3>
+      <div class="rg">
+        <div><span class="lbl">Impact</span><p>IDT signs a chargeback-liability contract that cuts across a live FY2026 board commitment, selected by a process CAF never saw. The defensible DCS precedent is DCS-4461, where a question put to IDT Pay and the fraud team went unanswered for four and a half months and the ticket closed with it still open.</p></div>
+        <div><span class="lbl">Mitigation</span><p>Route the decision as a PDR, which compels IDT Pay and CAF attendance. Put the single outstanding ask to Mark Moorman in writing with a date. State plainly that the Terminus PDR itself carries no accepted status and a TBD section, so it is not a settled architecture either, and that eGift has zero delivery tickets in ATF.</p></div>
+      </div>
+      <p class="owner">Owner: VP Boss Revolution to convene, DCS TPM to draft</p>
+    </article>
+
+    <article class="risk">
+      <h3>The kill switch cannot ship when it is needed</h3>
+      <div class="rg">
+        <div><span class="lbl">Impact</span><p>eGift has no feature flags at all today, so a client-side kill switch is net-new code in a shipped binary. A native SDK starts before Dart on Android and at plugin registration on iOS, so a remote flag cannot stop it in the current launch. Week 5 is then spent discovering the rollback lever cannot ship until the next train.</p></div>
+        <div><span class="lbl">Mitigation</span><p>Keep the decision server-side, where the call site is ours and disables instantly. If the vendor requires SDK telemetry, say so at the PDR and re-date the plan there rather than in December. Compile any client flag with legacy decisioning as its default, absent or invalid reading as OFF.</p></div>
+      </div>
+      <p class="owner">Owner: Yuri Rykovsky for the server-side call, DCS App lead for the flag</p>
+    </article>
+
+    <article class="risk">
+      <h3>A scoping mistake degrades IMTU or eSIM</h3>
+      <div class="rg">
+        <div><span class="lbl">Impact</span><p>All three products share one payment path, one Store API metadata contract and one admin surface. The eGift rule change is made on the same screen that governs IMTU velocity rules. Revenue loss on two products that work, caused by a change intended for one that does not.</p></div>
+        <div><span class="lbl">Mitigation</span><p>Per-product config already exists and shipped, so the carve-out is config rather than new code. Add four-eyes review on rule changes, a change window, a captured pre and post diff of IMTU rule state, and use the existing config-change notification email as the audit trail. IMTU and eSIM regression is a Phase 3 exit criterion.</p></div>
+      </div>
+      <p class="owner">Owner: DCS Backend with CAF</p>
+    </article>
+
+    <article class="risk">
+      <h3>Approval-rate gains do not convert into completed purchases</h3>
+      <div class="rg">
+        <div><span class="lbl">Impact</span><p>The customer sees generic decline text with no reason and no retry path. The pilot reports a lift that never shows up in revenue, and the business case is judged on the wrong metric.</p></div>
+        <div><span class="lbl">Mitigation</span><p>Put decline copy and a retry path in Track B scope with a named design owner, driven by the Phase 0 decomposition so only reasons worth surfacing are surfaced. Measure completed purchases in the charter, not approval rate alone.</p></div>
+      </div>
+      <p class="owner">Owner: DCS Design and DCS App</p>
+    </article>
+
+    <article class="risk">
+      <h3>The client workstream lands unbudgeted on a bench of three</h3>
+      <div class="rg">
+        <div><span class="lbl">Impact</span><p>The whole DCS app bench is three Flutter developers already carrying IMTU subscriptions. The house comparable is stark: ATF-2666 has run 67 days and is still not enforcing in production, and ATF-2727, explicitly not the production rollout, took 26 days on its own.</p></div>
+        <div><span class="lbl">Mitigation</span><p>Get the Flutter answer in writing before the decision and keep Track B off the critical path. Require a measured bundle, cold-start and CPU delta from a real build before signature. Copy the ATF-2727 scope list as the estimate template.</p></div>
+      </div>
+      <p class="owner">Owner: DCS App lead with Yuri Rykovsky</p>
+    </article>
+
+    <article class="risk">
+      <h3>Capacity collision in December</h3>
+      <div class="rg">
+        <div><span class="lbl">Impact</span><p>A schedule whose clock starts at a November signature runs its integration and pilot ramp straight into the lowest-capacity fortnight of the year. On the verified 14-day cadence, Sprint 84 projects to roughly 16-29 December.</p></div>
+        <div><span class="lbl">Mitigation</span><p>Discount that sprint's capacity explicitly. Aim for code-complete by 1 December so the December window carries advisory-run monitoring rather than build. Look up real sprint ids once the board is extended: ids are non-sequential and cannot be inferred.</p></div>
+      </div>
+      <p class="owner">Owner: DCS Scrum Master with DCS TPM</p>
+    </article>
+
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>Jira scaffold</h2><span class="kicker">nothing below exists today</span></div>
+  <p class="sec-note">There is no epic, no spike, no spec page and no sprint slot for any of this. Nothing is on the DCS board, so nothing will be groomed for the October train unless it is created now. Create these in <b>DCS</b>, not EGIFT: the EGIFT project has no epic structure and no engineering team behind it. Link every epic to <a href="https://idtjira.atlassian.net/browse/DCS-5238" target="_blank" rel="noopener">DCS-5238</a>, <a href="https://idtjira.atlassian.net/browse/DCS-5350" target="_blank" rel="noopener">DCS-5350</a>, <a href="https://idtjira.atlassian.net/browse/EGIFT-861" target="_blank" rel="noopener">EGIFT-861</a>, <a href="https://idtjira.atlassian.net/browse/ATF-2265" target="_blank" rel="noopener">ATF-2265</a> and <a href="https://idtjira.atlassian.net/browse/AL-100" target="_blank" rel="noopener">AL-100</a>, so the dependencies appear in the linked-issues panel rather than in a description.</p>
+
+  <div class="epic">
+    <h3>Epic 1 &middot; eGift decline baseline and decision instrumentation</h3>
+    <p class="es">Phase 0 &middot; Sprint 77 tail and Sprint 78 &middot; blocks every other epic</p>
+    <ol>
+      <li><span class="rp">[BE]</span> Resolve the opaque eGift <code>failed_reason</code> bucket to IDT Pay response codes on the eGift purchase path</li>
+      <li><span class="rp">[BE]</span> Obtain the eGift TransServiceId and IDT Pay Owner value and isolate eGift in the idtpay statusChange stream</li>
+      <li><span class="rp">[BE]</span> Read and publish the live Fraudzilla eGift velocity and limit rule set from the DTC Admin UI</li>
+      <li><span class="rp">[BE]</span> Baseline the ShieldWall and K2 decline contribution separately from IDT Pay</li>
+      <li><span class="rp">[TPM]</span> Publish the eGift decline decomposition for 1 March to 31 July 2026, split by decision gate</li>
+      <li><span class="rp">[TPM]</span> Revert or confirm the DTC Visa disable from EGIFT-858 and measure the effect over two weeks</li>
+      <li><span class="rp">[TPM]</span> Confirm the retention window for eGift decline events before any win-back audience is promised</li>
+      <li><span class="rp">[QA]</span> Verify decline-reason instrumentation end to end on the eGift purchase path</li>
+    </ol>
+  </div>
+
+  <div class="epic">
+    <h3>Epic 2 &middot; eGift fraud decisioning: the decision pack</h3>
+    <p class="es">Phase 1 &middot; PDR, buy-versus-build and the vendor question set</p>
+    <ol>
+      <li><span class="rp">[TPM]</span> Publish the eGift fraud decisioning PDR in the TEAM space and convene the architecture review</li>
+      <li><span class="rp">[TPM]</span> Record the cross-org decision owner and approver set for removing eGift decisioning from IDT Pay</li>
+      <li><span class="rp">[TPM]</span> Obtain written positions from CAF and AI Lab on whether an external vendor supersedes, bridges or duplicates ATF-2265 and AL-100</li>
+      <li><span class="rp">[TPM]</span> Put the account-takeover fraud pattern from DCS-3472 to both vendors and obtain the liability category in writing</li>
+      <li><span class="rp">[TPM]</span> Obtain each vendor's Flutter support position, decision enum and required field list in writing</li>
+      <li><span class="rp">[TPM]</span> Confirm whether a DTC web eGift purchase flow exists before weighting web against native in the vendor scorecard</li>
+      <li><span class="rp">[BE Spike]</span> Confirm the fraud decision call site for the DTC eGift purchase path</li>
+      <li><span class="rp">[BE Spike]</span> Confirm eGift can be scoped out of the IDT Pay Accertify call by product type without affecting IMTU or eSIM</li>
+    </ol>
+  </div>
+
+  <div class="epic">
+    <h3>Epic 3 &middot; eGift external fraud vendor: server-side integration (Track A)</h3>
+    <p class="es">Phase 3 &middot; Sprints 79-82 &middot; dev-only until contract signature</p>
+    <ol>
+      <li><span class="rp">[BE]</span> Add the vendor decision call to hdm-go-payment-int-api behind a product-scoped server switch</li>
+      <li><span class="rp">[BE]</span> Map the vendor verdict enum onto the existing anti_fraud status contract</li>
+      <li><span class="rp">[BE]</span> Implement the agreed fail-open or fail-closed behaviour for vendor timeout and outage</li>
+      <li><span class="rp">[BE]</span> Scope IDT Pay Accertify decisioning off eGift by product type, with a rollback runbook and an IMTU rule-state diff</li>
+      <li><span class="rp">[BE]</span> Implement the vendor outcome and chargeback feedback feed with a per-chargeback reconciliation assertion</li>
+      <li><span class="rp">[BE]</span> Replay historical eGift declines against the vendor score and join to realised outcomes</li>
+      <li><span class="rp">[BE]</span> Produce an IDT-side independent count of approved eGift transactions and approved GMV for vendor invoicing</li>
+      <li><span class="rp">[BE]</span> Build the eGift fraud Grafana board: approval rate, decline reason, decision latency, vendor availability</li>
+      <li><span class="rp">[QA]</span> Regression: prove IMTU and eSIM decisioning is unchanged with the eGift vendor switch on and off</li>
+      <li><span class="rp">[QA]</span> Verify no shadow verdict reaches the decline path, including on retry and queued messages</li>
+    </ol>
+  </div>
+
+  <div class="epic">
+    <h3>Epic 4 &middot; eGift fraud vendor: client signals, kill switch and decline UX (Track B)</h3>
+    <p class="es">Parallel and conditional &middot; target app 26.12.x or 27.1.x</p>
+    <ol>
+      <li><span class="rp">[APP]</span> Decide and document whether the vendor SDK replaces, wraps or duplicates the risk_signals package</li>
+      <li><span class="rp">[APP]</span> Add the eGift fraud vendor remote config switch with legacy IDT Pay decisioning as the compiled default</li>
+      <li><span class="rp">[APP]</span> Propagate the vendor session or device token on the eGift purchase request</li>
+      <li><span class="rp">[APP]</span> Measure the all-ABI Android bundle delta and cold-start delta for the vendor SDK on a real build</li>
+      <li><span class="rp">[APP]</span> Surface actionable eGift decline messaging and a retry path</li>
+      <li><span class="rp">[DESIGN]</span> eGift decline and retry copy for a purchase refused on risk</li>
+      <li><span class="rp">[DESIGN]</span> Google Play pre-SDK disclosure screen for any new data classes collected by the vendor SDK</li>
+      <li><span class="rp">[QA]</span> Verify the eGift fraud vendor kill switch defaults to legacy decisioning when remote config fails to load</li>
+      <li><span class="rp">[QA]</span> Physical-device pass on both apps for the vendor SDK</li>
+    </ol>
+  </div>
+
+  <div class="epic">
+    <h3>Epic 5 &middot; eGift fraud vendor: advisory pilot, ramp and rollback</h3>
+    <p class="es">Phases 4 and 5 &middot; the phase that cannot be compressed</p>
+    <ol>
+      <li><span class="rp">[TPM]</span> Agree and publish the pilot duration, numeric thresholds and named approvers before any traffic</li>
+      <li><span class="rp">[BE]</span> Run the vendor as a non-decisive scored input recorded alongside the live decision</li>
+      <li><span class="rp">[TPM]</span> Publish the agreement matrix of vendor verdict against IDT verdict against realised outcome</li>
+      <li><span class="rp">[BE]</span> Rollback runbook and a deliberate production rollback exercise for eGift fraud decisioning</li>
+      <li><span class="rp">[BE]</span> Execute the enforcement ramp at 10, 50 and 100 percent of eGift traffic with a per-step approval hold</li>
+      <li><span class="rp">[QA]</span> Regression per enforcement ramp step across eGift, IMTU and eSIM</li>
+    </ol>
+  </div>
+
+  <div class="epic">
+    <h3>Epic 6 &middot; eGift fraud vendor: liability, reconciliation and compliance</h3>
+    <p class="es">Phases 2, 4 and 5 &middot; mostly outside DCS, which is why it needs a DCS owner</p>
+    <ol>
+      <li><span class="rp">[TPM]</span> Obtain written approval and an SLA for exporting eGift transaction data to a pre-contract vendor</li>
+      <li><span class="rp">[TPM]</span> Execute the outbound data processing agreement with IDT as controller</li>
+      <li><span class="rp">[TPM]</span> Obtain the vendor field list and a written PCI scope determination from the IDT Pay PCI owner</li>
+      <li><span class="rp">[TPM]</span> Assign a named iOS App Privacy owner and a named Play Data Safety owner for each affected app</li>
+      <li><span class="rp">[TPM]</span> Define representment ownership and chargeback reconciliation with the Billing team</li>
+      <li><span class="rp">[TPM]</span> Obtain contractual auditor access to per-transaction vendor decision records, and their retention period</li>
+      <li><span class="rp">[TPM]</span> Confirm whether outsourcing card-fraud decisioning creates any obligation for IDT Payment Services as a licensed money transmitter</li>
+      <li><span class="rp">[BE]</span> Confirm the automatic chargeback blacklisting process fires for eGift transactions</li>
+    </ol>
+  </div>
+
+  <p class="sec-note" style="margin-top:20px">Per the DCS ticket conventions: Acceptance Criteria goes in its dedicated field on every story, Design tickets get Story Points 0 and go to Viktoryia Shmidt, TPM tickets get Story Points 0, and BE and App tickets leave Story Points empty for grooming. No placeholders anywhere: where a spec or Figma link does not exist yet, omit the line rather than writing TBD.</p>
+</section>
+
+<section>
+  <div class="sec-head"><h2>What could not be verified</h2><span class="kicker">and should be confirmed before the decision</span></div>
+  <div class="notes">
+    <div class="note"><div class="nt">People</div><p><b>"Anna"</b> in the meeting action item could not be matched. Three Annas exist at IDT and none works in payments fraud. The most likely reading, and it is an inference not a finding, is <b>Ana Jishkariani</b>, the DCS TPM whose job is exactly aligning DCS with engineering and payments. Confirm the spelling with the meeting owner before assigning the action item. <b>"Edvard"</b> matches no Jira user at all; Diana Scolari holds the only vendor-evaluation ticket.</p></div>
+    <div class="note"><div class="nt">NDA</div><p>The Riskified mutual NDA is described as executed with IDT Payment Services and active through 2028, but the date is inconsistent between the brief and the deck, and the executed copy is not discoverable in any system of record. An NDA nobody can produce is not a cleared gate. Locate it before relying on it.</p></div>
+    <div class="note"><div class="nt">Web surface</div><p>It is unconfirmed whether a DTC <em>web</em> eGift purchase flow exists at all today. DTC MarCom's own label table repeatedly qualifies its allocations with "when egift works start". If there is no web surface, nSure's JavaScript-snippet advantage is worth nothing for eGift and the comparison changes materially. Ask Katsiaryna Bialevich.</p></div>
+    <div class="note"><div class="nt">Accertify scope</div><p>Two internal sources conflict. The DCS Accertify integration page implies the card-fraud chain covers eGift; the CAF application inventory lists Accertify's line of business as Money Transfer only. Both cannot be true, and the answer determines what a vendor actually replaces. This is a question for the IDT Pay team, not for either vendor.</p></div>
+    <div class="note"><div class="nt">Sprints</div><p>Sprints 79 and beyond do not exist in Jira and their ids are not derivable, because ids are non-sequential (74=34336 but 76=37582). Every date after 6 October in this plan is a projection on the verified 14-day cadence. Look the ids up once the board is extended.</p></div>
+    <div class="note"><div class="nt">GMV</div><p>The eGift DTC approved GMV figure does not exist anywhere in Confluence, so the break-even model cannot be built from it. Three numbers must be sourced before any contract: trailing twelve-month approved GMV and transaction count, the same for declined attempts split by decline source, and the current realised chargeback and fraud-loss rate on approved eGift. Ask Diana Scolari for the commercial view and BI for the warehouse extract.</p></div>
+    <div class="note"><div class="nt">Security</div><p>Noted in passing and unrelated to the decision: the Confluence page "IMTU Wallet: Accertify Fraud Integration" contains what appear to be plaintext service credentials in its example XML payload, on an instance-readable page. Worth reporting to security and the page owner for rotation and redaction.</p></div>
+  </div>
+</section>
+
+<div class="closer">
+  <h2>If only one thing happens this week</h2>
+  <p>Assign the decline decomposition to a named DCS backend engineer with a date, and put the deliverable in the ticket's Acceptance Criteria field. That measurement has been owed since the December 2025 incident review, which closed with Root Cause blank and the affected transaction count recorded as still to be determined. An unowned, undated spike will repeat that exactly.</p>
+  <p>Then decide whether Visa goes back on. It has been off for 18 days with no owner and no review date, it is worth about seven points of approval rate, it costs nothing, and it beats any vendor to production by roughly five months. It is also the control arm the room needs in order to judge the vendor case honestly.</p>
+  <p>The most likely way this plan fails is not a missed date. It is that the end-September deadline is taken at face value, a vendor is selected against the meeting-note figure, and IDT discovers in February 2027 that 41% of the declines were issuers saying no, and much of the rest was a kill switch nobody reverted plus a hand-maintained limit set that drifted conservative and was never tuned back. Phase 0 is the cheapest phase in this document and the easiest one to skip.</p>
+</div>
+
+<p class="colophon">
+  Sources: DCS, DPC, TEAM, BOSS, BAC, TRCS, Fuji and AL Confluence spaces; Jira projects DCS, ATF, AL, EGIFT, IDTPAY, BGW, BRS, RCS and BLNG; <a href="https://analytics.amplitude.com/boss/project/650506" target="_blank" rel="noopener">Amplitude project 650506</a> (BR app Prod).<br>
+  All figures re-run 15 September 2026. Sprint and status data will drift: re-check before committing scope.<br>
+  Meeting of record: eGift Fraud Vendor Review. Deck of record: eGIFTs nSure vs Riskified.
+</p>
+
+</div>
