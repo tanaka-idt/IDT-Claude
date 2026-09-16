@@ -102,6 +102,14 @@ issue type and grep for the field name rather than guessing.
   DCS is the `parent` field (DCS is a team-managed project), not `customfield_*`.
 - If every attempt fails due to screen configuration, include the AC items in the response
   so they can be pasted manually.
+- **An `[APP]` ticket created from a `[DESIGN]` ticket copies the design fields across.**
+  Read **Design Needed?** (`customfield_19305`, select: Yes `23022`, No `23023`, N/A `23024`)
+  and **Figma Link** (`customfield_19270`, plain URL string) off the design ticket and set the
+  same values on the app ticket. Neither is on the create screen, so set them with
+  `editJiraIssue` after creation.
+  **Why:** the app ticket is the one developers open. Left blank, the Figma frame lives only
+  on a sibling ticket and the dev has to hunt for it, and board filters on Design Needed? miss
+  the app work.
 - **Issue links** are created with `createIssueLink` after the tickets exist. Pick the type
   that states the real relationship, and link out to existing tickets the new work depends
   on or supersedes, not only the ones created in the same batch. Run `getIssueLinkTypes`
