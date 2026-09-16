@@ -1,0 +1,708 @@
+
+<title>DCS FY27 Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#F5F6F3; --surface:#FFFFFF; --surface-2:#EDF0EA; --line:#D5DAD1;
+  --ink:#1B2430; --ink-2:#3C4858; --muted:#6B7686; --accent:#1F5F8B; --accent-ink:#FFFFFF;
+  --risk-bg:#FBE9E7; --risk-ink:#8C2F24; --carry-bg:#E4E7E1; --carry-ink:#4B5563;
+  --pm:#3F8F5A; --design:#6F45A0; --tpm:#A88A00;
+  --be:#2F6FBF; --app:#C9463F; --qa:#0E8FA3;
+  --display:"Archivo",system-ui,sans-serif; --body:"Source Sans 3",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ground:#171B21; --surface:#1F242C; --surface-2:#262C35; --line:#343B46;
+  --ink:#E8ECF1; --ink-2:#C4CCD6; --muted:#8B96A5; --accent:#7FB3DA; --accent-ink:#0F1A24;
+  --risk-bg:#3A2320; --risk-ink:#F2B8B0; --carry-bg:#2C323B; --carry-ink:#B8C0CC;
+  --pm:#5FAE7A; --design:#A07FD0; --tpm:#D4B32C; --be:#6C9BE0; --app:#E07670; --qa:#3FB2C6;
+} }
+:root[data-theme="dark"]{
+  --ground:#171B21; --surface:#1F242C; --surface-2:#262C35; --line:#343B46;
+  --ink:#E8ECF1; --ink-2:#C4CCD6; --muted:#8B96A5; --accent:#7FB3DA; --accent-ink:#0F1A24;
+  --risk-bg:#3A2320; --risk-ink:#F2B8B0; --carry-bg:#2C323B; --carry-ink:#B8C0CC;
+  --pm:#5FAE7A; --design:#A07FD0; --tpm:#D4B32C; --be:#6C9BE0; --app:#E07670; --qa:#3FB2C6;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font:16px/1.5 var(--body);}
+.wrap{max-width:1180px;margin:0 auto;padding-block:32px 64px;padding-inline:20px;}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;color:var(--ink)}
+h1{font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-0.01em}
+h2{font-size:24px;font-weight:600;margin-top:56px;padding-top:16px;border-top:2px solid var(--ink)}
+h3{font-size:19px;font-weight:600}
+p{max-width:72ch;margin:10px 0}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:2px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.byline{color:var(--muted);margin-top:8px;font-size:15px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:24px}
+.stat{background:var(--surface);border:1px solid var(--line);padding:14px 16px}
+.stat b{display:block;font-family:var(--display);font-size:28px;font-weight:600;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:14px}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:20px;font-size:15px}
+table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--surface)}
+th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{font-family:var(--mono);font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:500;background:var(--surface-2)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:13px}
+.scroll{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--ink-2);white-space:nowrap}
+.pill.risk{background:var(--risk-bg);color:var(--risk-ink);border-color:transparent}
+.pill.carry{background:var(--carry-bg);color:var(--carry-ink);border-color:transparent}
+.pill.high{border-color:var(--ink-2)}
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin:14px 0;font-size:14px}
+.legend i{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-right:6px;border-radius:2px}
+/* gantt */
+.gantt{font-size:12px;min-width:1254px}
+.grow{display:grid;grid-template-columns:260px repeat(71,14px);align-items:center;min-height:26px;
+  background-image:repeating-linear-gradient(to right,var(--line) 0 1px,transparent 1px 28px);
+  background-position:260px 0;background-size:calc(100% - 260px) 100%;background-repeat:no-repeat}
+.grow.head{background:none;min-height:22px;color:var(--muted);font-family:var(--mono);font-size:11px}
+.glabel{position:sticky;left:0;background:var(--surface);padding:3px 10px 3px 8px;z-index:2;border-right:1px solid var(--line);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}
+.glabel small{color:var(--muted);font-family:var(--mono);font-size:11px;margin-right:6px}
+.bar{grid-row:1;height:18px;line-height:18px;color:#fff;padding:0 4px;font-family:var(--mono);font-size:10.5px;
+  overflow:hidden;white-space:nowrap;border-right:2px solid var(--surface);border-radius:2px}
+.bar.PM{background:var(--pm)} .bar.Design{background:var(--design)} .bar.TPM{background:var(--tpm)}
+.bar.BE{background:var(--be)} .bar.App{background:var(--app)} .bar.QA{background:var(--qa)}
+.q{grid-row:1;padding:2px 6px;border-left:2px solid var(--ink-2);font-weight:500;color:var(--ink)}
+.q.fy28{background:var(--risk-bg);color:var(--risk-ink)}
+.m{grid-row:1;padding:0 4px;border-left:1px solid var(--line)}
+.grow.carry .glabel{color:var(--carry-ink);font-style:italic}
+.grow.sep{border-top:2px solid var(--ink-2)}
+/* initiative cards */
+.init{background:var(--surface);border:1px solid var(--line);padding:22px 24px;margin-top:20px}
+.init header{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
+.init h3{margin-top:4px}
+.init .lead{font-size:17px;color:var(--ink-2);font-style:italic}
+.init h4{font-family:var(--display);font-size:14px;letter-spacing:.02em;text-transform:uppercase;color:var(--muted);margin:22px 0 6px;font-weight:600}
+.init ol,.init ul{max-width:76ch;padding-left:22px;margin:6px 0}
+.init li{margin:6px 0}
+.phases{max-width:720px;font-size:14px}
+.phases td:first-child{font-weight:600}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.note{background:var(--surface-2);border-left:3px solid var(--accent);padding:12px 16px;max-width:76ch}
+@media (max-width:640px){ .init{padding:16px} h2{font-size:21px} .glabel{font-size:12px} .grow{grid-template-columns:200px repeat(71,14px)} .gantt{min-width:1194px} .grow{background-position:200px 0;background-size:calc(100% - 200px) 100%} }
+@media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto} }
+</style>
+
+<div class="wrap">
+
+<div class="eyebrow">DCS product management · fiscal year 2027 · 31 Aug 2026 to 29 Aug 2027</div>
+<h1>DCS FY27 Initiative Plan</h1>
+<p class="byline">Description, implementation strategy and phased schedule for the 22 Board and Business goals on the
+<a href="https://app.asana.com/1/8556634603607/project/1215564565348002/list/1215603355542208" target="_blank" rel="noopener">DCS FY27 Asana board</a>. Prepared by João Tanaka, 16 September 2026. Companion spreadsheet:
+<a href="https://docs.google.com/spreadsheets/d/1H0JjSvVv-sGPyhukZLj1mKUy6CJN62138pXUkBZuqR8/edit" target="_blank" rel="noopener">DCS FY27 Initiatives</a> · Google Doc version: <a href="https://docs.google.com/document/d/1oxHLqsnsfQ4qObTfFYzwPgrxDrT5i25erhlFL2GOn-I/edit" target="_blank" rel="noopener">DCS FY27 Initiative Plan</a>.</p>
+<div class="stats">
+  <div class="stat"><b>22</b><span>initiatives scheduled (11 Board, 11 Business)</span></div>
+  <div class="stat"><b>57 / 51</b><span>backend FTE sprints demanded vs available at a 35% tech reserve</span></div>
+  <div class="stat"><b>45 / 51</b><span>app FTE sprints demanded vs available</span></div>
+  <div class="stat"><b>13</b><span>initiatives that finish inside FY27; 9 land in FY28</span></div>
+</div>
+<nav class="toc"><a href="#summary">Summary</a><a href="#method">How the plan was built</a><a href="#sequence">Sequence</a>
+<a href="#timeline">Timeline</a><a href="#initiatives">Initiatives</a><a href="#carry">Carry-over work</a><a href="#fy28">What lands in FY28</a><a href="#sources">Sources</a></nav>
+
+
+<h2 id="summary">Summary</h2>
+<p>The FY27 board lists 22 goals once duplicates are merged: 11 Board goals and 11 Business goals. Backend is the constraint. The goals ask for about 57 backend FTE sprints while three developers minus the 35% tech reserve provide 51 across 26 sprints, so roughly 6 sprints of backend work do not fit inside the year. App demand (45 FTE sprints) fits with a little slack, which is why backend-light initiatives run in parallel with the heavy ones.</p>
+<p>The order follows three rules. First, finish what is in flight (Terminus, the WhatsApp chatbot) and build the pieces other goals reuse (the IMTU module, Engager cards). Second, put the High-priority revenue and payments work in Q2 so it lands before the second half. Third, give the two largest builds (Bundling, ROW expansion) a full quarter of backend in Q3 with their discovery done in Q2. The Q4 slate (Engager personalisation, Wallet promo balances, IVA migration, Gamification, Crypto) is where the capacity gap shows: at the 35% reserve those initiatives start their build in the last sprints and finish in FY28.</p>
+<div class="note">Every estimate here is a PM first pass on the FY26 scale (S 1, M 2, L 4, XL 9 FTE sprints). Engineering should validate them in the Comments column of the spreadsheet before the plan is committed, as Marc and Ilya did for FY26.</div>
+
+
+<h2 id="method">How the plan was built</h2>
+<div class="two">
+<div>
+<p>Every initiative goes through the same six phases in strict order: the PM defines requirements and strategy, Design produces the screens, the TPM runs the spike and breaks the work into tickets, Backend builds the services, App builds the UI, QA tests and releases. A role that finishes one initiative starts the next the following week, so the roles form a pipeline and several initiatives are in flight at once.</p>
+<p>Capacity is modelled as parallel lanes per role. Backend and App have three people each, but 35% of their time is reserved for tech debt and company tech goals, as in FY26, which leaves two lanes for initiatives. Large backend builds take both lanes; the rest take one. The PM may start discovery up to eight weeks before the target quarter so specifications do not go stale.</p>
+</div>
+<div class="scroll"><table><thead><tr><th>Role</th><th>People</th><th class="num">Lanes</th><th>Note</th></tr></thead><tbody><tr><td>PM</td><td>1 PM</td><td class='num'>2</td><td>one PM runs two discovery tracks at a time</td></tr><tr><td>Design</td><td>1 Designer</td><td class='num'>2</td><td>one designer runs two initiatives at a time, as in FY26</td></tr><tr><td>TPM</td><td>1 TPM</td><td class='num'>2</td><td>spikes and ticket breakdown for two initiatives at a time</td></tr><tr><td>BE</td><td>3 BE devs</td><td class='num'>2</td><td>35% reserved for tech debt and company tech goals, leaving 2 lanes for initiatives</td></tr><tr><td>App</td><td>3 App devs</td><td class='num'>2</td><td>35% reserved for tech debt and company tech goals, leaving 2 lanes for initiatives</td></tr><tr><td>QA</td><td>2 QAs</td><td class='num'>2</td><td>QA and release</td></tr></tbody></table></div>
+</div>
+
+
+<h2 id="sequence">Sequence</h2>
+<p>The proposed execution order. Start is the first PM week, End is the last QA week. BE and App show size and FTE sprints.</p>
+<div class="scroll"><table><thead><tr><th class="num">#</th><th>Initiative</th><th>Goal</th><th>Product</th><th>Priority</th><th>Quarter</th><th class="num">BE</th><th class="num">App</th><th>Start</th><th>End</th><th>Status</th></tr></thead>
+<tbody><tr><td class='num'>1</td><td><a href='#G6'>Integrate MTU transaction flow to Terminus</a></td><td>Business Goal</td><td>MTU</td><td>High</td><td>Q1</td><td class='num'>M · 1</td><td class='num'>- · 0</td><td>14 Sep 2026</td><td>18 Oct 2026</td><td><span class="pill carry">carry over</span></td></tr><tr><td class='num'>2</td><td><a href='#G4'>New Channel: roll out the WhatsApp MTU chatbot</a></td><td>Business Goal</td><td>MTU</td><td>High</td><td>Q1</td><td class='num'>M · 2</td><td class='num'>- · 0</td><td>31 Aug 2026</td><td>25 Oct 2026</td><td><span class="pill carry">carry over</span></td></tr><tr><td class='num'>3</td><td><a href='#B11'>Introduce postpaid top-ups (direct billers)</a></td><td>Board Goal</td><td>MTU</td><td>High</td><td>Q1</td><td class='num'>L · 4</td><td class='num'>S · 1</td><td>31 Aug 2026</td><td>6 Dec 2026</td><td><span class="pill">fits FY27</span></td></tr><tr><td class='num'>4</td><td><a href='#G1'>MTU modular component and cross-selling MTU on Money Transfer</a></td><td>Business Goal</td><td>MTU</td><td>High</td><td>Q1</td><td class='num'>M · 2</td><td class='num'>L · 4</td><td>7 Sep 2026</td><td>17 Jan 2027</td><td><span class="pill">fits FY27</span></td></tr><tr><td class='num'>5</td><td><a href='#B2'>Reduce subscription cancellations</a></td><td>Board Goal</td><td>MTU</td><td>High</td><td>Q1</td><td class='num'>M · 2</td><td class='num'>L · 4</td><td>14 Sep 2026</td><td>14 Feb 2027</td><td><span class="pill">fits FY27</span></td></tr><tr><td class='num'>6</td><td><a href='#G3'>Cross-sell 2.0: Engager cards on the MTU home page</a></td><td>Business Goal</td><td>MTU</td><td>Medium</td><td>Q1</td><td class='num'>S · 1</td><td class='num'>M · 2</td><td>21 Sep 2026</td><td>7 Mar 2027</td><td><span class="pill">fits FY27</span></td></tr><tr><td class='num'>7</td><td><a href='#B4'>Add mobile payments (Apple Pay and Google Pay)</a></td><td>Board Goal</td><td>All Products</td><td>High</td><td>Q2</td><td class='num'>L · 4</td><td class='num'>L · 4</td><td>5 Oct 2026</td><td>18 Apr 2027</td><td><span class="pill">fits FY27</span></td></tr><tr><td class='num'>8</td><td><a href='#B1'>Deploy AI-powered dynamic pricing (offer price and variable fees)</a></td><td>Board Goal</td><td>MTU</td><td>High</td><td>Q2</td><td class='num'>M · 2</td><td class='num'>S · 1</td><td>5 Oct 2026</td><td>25 Apr 2027</td><td><span class="pill">fits FY27</span></td></tr><tr><td class='num'>9</td><td><a href='#G9'>Integrate with the KVouchers platform (IDT vouchers and new flows)</a></td><td>Business Goal</td><td>eGIFT</td><td>High</td><td>Q2</td><td class='num'>L · 4</td><td class='num'>M · 2</td><td>19 Oct 2026</td><td>9 May 2027</td><td><span class="pill">fits FY27</span></td></tr><tr><td class='num'>10</td><td><a href='#G2'>Cross-selling MTU on Pinless (module)</a></td><td>Business Goal</td><td>MTU</td><td>High</td><td>Q2</td><td class='num'>S · 1</td><td class='num'>S · 1</td><td>26 Oct 2026</td><td>2 May 2027</td><td><span class="pill">fits FY27</span></td></tr><tr><td class='num'>11</td><td><a href='#G10'>Fraud: integrate the outsourced eGift security layer</a></td><td>Business Goal</td><td>eGIFT</td><td>Medium</td><td>Q2</td><td class='num'>M · 2</td><td class='num'>S · 1</td><td>2 Nov 2026</td><td>23 May 2027</td><td><span class="pill">fits FY27</span></td></tr><tr><td class='num'>12</td><td><a href='#B7'>Support sponsor calling plans and cross-sell them in the IMTU flow</a></td><td>Board Goal</td><td>MTU</td><td>High</td><td>Q2</td><td class='num'>M · 2</td><td class='num'>M · 2</td><td>9 Nov 2026</td><td>6 Jun 2027</td><td><span class="pill">fits FY27</span></td></tr><tr><td class='num'>13</td><td><a href='#B10'>Introduce bundling capabilities for DTC</a></td><td>Board Goal</td><td>All Products</td><td>High</td><td>Q3</td><td class='num'>XL · 9</td><td class='num'>L · 4</td><td>4 Jan 2027</td><td>15 Aug 2027</td><td><span class="pill">fits FY27</span></td></tr><tr><td class='num'>14</td><td><a href='#B8'>Expand the BR app in ROW markets (Pinless, IMTU and eSIM)</a></td><td>Board Goal</td><td>All Products</td><td>High</td><td>Q3</td><td class='num'>L · 4</td><td class='num'>L · 4</td><td>4 Jan 2027</td><td>12 Sep 2027</td><td><span class="pill risk">lands in FY28</span></td></tr><tr><td class='num'>15</td><td><a href='#B5'>Support the RAF program with a fully trackable journey</a></td><td>Board Goal</td><td>All Products</td><td>Medium</td><td>Q3</td><td class='num'>M · 2</td><td class='num'>M · 2</td><td>1 Feb 2027</td><td>3 Oct 2027</td><td><span class="pill risk">lands in FY28</span></td></tr><tr><td class='num'>16</td><td><a href='#G7'>Request Top-Up (SMS based)</a></td><td>Business Goal</td><td>MTU</td><td>Medium</td><td>Q3</td><td class='num'>M · 2</td><td class='num'>M · 2</td><td>1 Feb 2027</td><td>3 Oct 2027</td><td><span class="pill risk">lands in FY28</span></td></tr><tr><td class='num'>17</td><td><a href='#G11'>eSIM location-based improvements</a></td><td>Business Goal</td><td>eSIM</td><td>Medium</td><td>Q3</td><td class='num'>S · 1</td><td class='num'>M · 2</td><td>15 Feb 2027</td><td>31 Oct 2027</td><td><span class="pill risk">lands in FY28</span></td></tr><tr><td class='num'>18</td><td><a href='#B6'>Personalised experiences via Engager (ML-driven)</a></td><td>Board Goal</td><td>All Products</td><td>Medium</td><td>Q4</td><td class='num'>M · 2</td><td class='num'>M · 2</td><td>5 Apr 2027</td><td>31 Oct 2027</td><td><span class="pill risk">lands in FY28</span></td></tr><tr><td class='num'>19</td><td><a href='#B9'>Promo balances support for the BR Wallet</a></td><td>Board Goal</td><td>All Products</td><td>Medium</td><td>Q4</td><td class='num'>L · 4</td><td class='num'>M · 2</td><td>5 Apr 2027</td><td>28 Nov 2027</td><td><span class="pill risk">lands in FY28</span></td></tr><tr><td class='num'>20</td><td><a href='#B3'>Support the IVA migration for MTU</a></td><td>Board Goal</td><td>MTU</td><td>Medium</td><td>Q4</td><td class='num'>M · 2</td><td class='num'>- · 0</td><td>19 Apr 2027</td><td>28 Nov 2027</td><td><span class="pill risk">lands in FY28</span></td></tr><tr><td class='num'>21</td><td><a href='#G8'>MTU gamification</a></td><td>Business Goal</td><td>All Products</td><td>Medium</td><td>Q4</td><td class='num'>M · 2</td><td class='num'>L · 4</td><td>26 Apr 2027</td><td>26 Dec 2027</td><td><span class="pill risk">lands in FY28</span></td></tr><tr><td class='num'>22</td><td><a href='#G5'>Introduce crypto payment checkout</a></td><td>Business Goal</td><td>MTU</td><td>Low</td><td>Q4</td><td class='num'>M · 2</td><td class='num'>S · 1</td><td>3 May 2027</td><td>9 Jan 2028</td><td><span class="pill risk">lands in FY28</span></td></tr></tbody></table></div>
+
+
+<h2 id="timeline">Timeline</h2>
+<p>One row per initiative, one column per week from 31 Aug 2026. Thin lines mark sprint boundaries. Hover a bar for its dates. The shaded zone after 29 Aug 2027 is FY28: work drawn there does not fit at the 35% reserve.</p>
+<div class="legend"><span><i style="background:var(--pm)"></i>Discovery, PRD and strategy (PM)</span><span><i style="background:var(--design)"></i>Design (Figma)</span><span><i style="background:var(--tpm)"></i>Dev spike, specs and tickets (TPM)</span><span><i style="background:var(--be)"></i>Backend development</span><span><i style="background:var(--app)"></i>App development</span><span><i style="background:var(--qa)"></i>QA and release</span><span><i style="background:var(--carry-bg);border:1px solid var(--line)"></i>FY26 carry-over</span></div>
+<div class="scroll"><div class="gantt"><div class="grow head"><div class="glabel">Quarter</div><div class="q" style="grid-column:2/15">Q1 FY27 (Sep-Nov 2026)</div><div class="q" style="grid-column:15/28">Q2 FY27 (Dec 2026-Feb 2027)</div><div class="q" style="grid-column:28/41">Q3 FY27 (Mar-May 2027)</div><div class="q" style="grid-column:41/54">Q4 FY27 (Jun-Aug 2027)</div><div class="q fy28" style="grid-column:54/73">FY28 (unfunded at 35% reserve)</div></div><div class="grow head"><div class="glabel">Month · sprint</div><div class="m" style="grid-column:2/6">Sep 26</div><div class="m" style="grid-column:6/11">Oct 26</div><div class="m" style="grid-column:11/15">Nov 26</div><div class="m" style="grid-column:15/20">Dec 26</div><div class="m" style="grid-column:20/24">Jan 27</div><div class="m" style="grid-column:24/28">Feb 27</div><div class="m" style="grid-column:28/32">Mar 27</div><div class="m" style="grid-column:32/37">Apr 27</div><div class="m" style="grid-column:37/41">May 27</div><div class="m" style="grid-column:41/45">Jun 27</div><div class="m" style="grid-column:45/50">Jul 27</div><div class="m" style="grid-column:50/54">Aug 27</div><div class="m" style="grid-column:54/59">Sep 27</div><div class="m" style="grid-column:59/63">Oct 27</div><div class="m" style="grid-column:63/67">Nov 27</div><div class="m" style="grid-column:67/72">Dec 27</div><div class="m" style="grid-column:72/73">Jan 28</div></div><div class="grow head"><div class="glabel">Sprint</div><div class="m" style="grid-column:2/4">S76</div><div class="m" style="grid-column:4/6">S77</div><div class="m" style="grid-column:6/8">S78</div><div class="m" style="grid-column:8/10">S79</div><div class="m" style="grid-column:10/12">S80</div><div class="m" style="grid-column:12/14">S81</div><div class="m" style="grid-column:14/16">S82</div><div class="m" style="grid-column:16/18">S83</div><div class="m" style="grid-column:18/20">S84</div><div class="m" style="grid-column:20/22">S85</div><div class="m" style="grid-column:22/24">S86</div><div class="m" style="grid-column:24/26">S87</div><div class="m" style="grid-column:26/28">S88</div><div class="m" style="grid-column:28/30">S89</div><div class="m" style="grid-column:30/32">S90</div><div class="m" style="grid-column:32/34">S91</div><div class="m" style="grid-column:34/36">S92</div><div class="m" style="grid-column:36/38">S93</div><div class="m" style="grid-column:38/40">S94</div><div class="m" style="grid-column:40/42">S95</div><div class="m" style="grid-column:42/44">S96</div><div class="m" style="grid-column:44/46">S97</div><div class="m" style="grid-column:46/48">S98</div><div class="m" style="grid-column:48/50">S99</div><div class="m" style="grid-column:50/52">S100</div><div class="m" style="grid-column:52/54">S101</div><div class="m" style="grid-column:54/56">S102</div><div class="m" style="grid-column:56/58">S103</div><div class="m" style="grid-column:58/60">S104</div><div class="m" style="grid-column:60/62">S105</div><div class="m" style="grid-column:62/64">S106</div><div class="m" style="grid-column:64/66">S107</div><div class="m" style="grid-column:66/68">S108</div><div class="m" style="grid-column:68/70">S109</div><div class="m" style="grid-column:70/72">S110</div><div class="m" style="grid-column:72/73">S111</div></div><div class="grow carry"><div class="glabel"><small>FY26</small>Subscription: BLS promos specific for subscriptions</div><div class="bar BE" style="grid-column:2/4" title="BE: 31 Aug 2026 to 13 Sep 2026">BE</div><div class="bar App" style="grid-column:4/6" title="App: 14 Sep 2026 to 27 Sep 2026">App</div><div class="bar QA" style="grid-column:6/8" title="QA: 28 Sep 2026 to 11 Oct 2026">QA</div></div><div class="grow carry"><div class="glabel"><small>FY26</small>Redesign MTU Home Page (cross-sell) rollout</div><div class="bar App" style="grid-column:2/4" title="App: 31 Aug 2026 to 13 Sep 2026">App</div><div class="bar QA" style="grid-column:4/6" title="QA: 14 Sep 2026 to 27 Sep 2026">QA</div></div><div class="grow carry"><div class="glabel"><small>FY26</small>Cross Sell: success page expiring x-sell deal</div><div class="bar App" style="grid-column:4/5" title="App: 14 Sep 2026 to 20 Sep 2026">App</div><div class="bar QA" style="grid-column:6/7" title="QA: 28 Sep 2026 to 4 Oct 2026">QA</div></div><div class="grow carry"><div class="glabel"><small>FY26</small>Improve BE and APP errors presented to users</div><div class="bar BE" style="grid-column:2/4" title="BE: 31 Aug 2026 to 13 Sep 2026">BE</div><div class="bar App" style="grid-column:5/7" title="App: 21 Sep 2026 to 4 Oct 2026">App</div><div class="bar QA" style="grid-column:7/8" title="QA: 5 Oct 2026 to 11 Oct 2026">QA</div></div><div class="grow sep"><div class="glabel"><small>#1</small><a href="#G6">Terminus fraud integration</a></div><div class="bar BE" style="grid-column:4/6" title="Backend development: 14 Sep 2026 to 27 Sep 2026">BE</div><div class="bar QA" style="grid-column:8/9" title="QA and release: 12 Oct 2026 to 18 Oct 2026">QA</div></div><div class="grow"><div class="glabel"><small>#2</small><a href="#G4">WhatsApp MTU chatbot</a></div><div class="bar PM" style="grid-column:2/3" title="Discovery, PRD and strategy (PM): 31 Aug 2026 to 6 Sep 2026">PM</div><div class="bar TPM" style="grid-column:3/4" title="Dev spike, specs and tickets (TPM): 7 Sep 2026 to 13 Sep 2026">TPM</div><div class="bar BE" style="grid-column:4/8" title="Backend development: 14 Sep 2026 to 11 Oct 2026">BE</div><div class="bar QA" style="grid-column:8/10" title="QA and release: 12 Oct 2026 to 25 Oct 2026">QA</div></div><div class="grow"><div class="glabel"><small>#3</small><a href="#B11">Postpaid top-ups</a></div><div class="bar PM" style="grid-column:2/4" title="Discovery, PRD and strategy (PM): 31 Aug 2026 to 13 Sep 2026">PM</div><div class="bar Design" style="grid-column:4/6" title="Design (Figma): 14 Sep 2026 to 27 Sep 2026">Design</div><div class="bar TPM" style="grid-column:6/8" title="Dev spike, specs and tickets (TPM): 28 Sep 2026 to 11 Oct 2026">TPM</div><div class="bar BE" style="grid-column:8/12" title="Backend development: 12 Oct 2026 to 8 Nov 2026">BE</div><div class="bar App" style="grid-column:12/14" title="App development: 9 Nov 2026 to 22 Nov 2026">App</div><div class="bar QA" style="grid-column:14/16" title="QA and release: 23 Nov 2026 to 6 Dec 2026">QA</div></div><div class="grow"><div class="glabel"><small>#4</small><a href="#G1">MTU module + cross-sell on MT</a></div><div class="bar PM" style="grid-column:3/5" title="Discovery, PRD and strategy (PM): 7 Sep 2026 to 20 Sep 2026">PM</div><div class="bar Design" style="grid-column:5/8" title="Design (Figma): 21 Sep 2026 to 11 Oct 2026">Design</div><div class="bar TPM" style="grid-column:8/10" title="Dev spike, specs and tickets (TPM): 12 Oct 2026 to 25 Oct 2026">TPM</div><div class="bar BE" style="grid-column:12/16" title="Backend development: 9 Nov 2026 to 6 Dec 2026">BE</div><div class="bar App" style="grid-column:16/20" title="App development: 7 Dec 2026 to 3 Jan 2027">App</div><div class="bar QA" style="grid-column:20/22" title="QA and release: 4 Jan 2027 to 17 Jan 2027">QA</div></div><div class="grow"><div class="glabel"><small>#5</small><a href="#B2">Subscription cancellation reduction</a></div><div class="bar PM" style="grid-column:4/7" title="Discovery, PRD and strategy (PM): 14 Sep 2026 to 4 Oct 2026">PM</div><div class="bar Design" style="grid-column:7/10" title="Design (Figma): 5 Oct 2026 to 25 Oct 2026">Design</div><div class="bar TPM" style="grid-column:10/12" title="Dev spike, specs and tickets (TPM): 26 Oct 2026 to 8 Nov 2026">TPM</div><div class="bar BE" style="grid-column:12/16" title="Backend development: 9 Nov 2026 to 6 Dec 2026">BE</div><div class="bar App" style="grid-column:20/24" title="App development: 4 Jan 2027 to 31 Jan 2027">App</div><div class="bar QA" style="grid-column:24/26" title="QA and release: 1 Feb 2027 to 14 Feb 2027">QA</div></div><div class="grow"><div class="glabel"><small>#6</small><a href="#G3">Engager cards on MTU home</a></div><div class="bar PM" style="grid-column:5/7" title="Discovery, PRD and strategy (PM): 21 Sep 2026 to 4 Oct 2026">PM</div><div class="bar Design" style="grid-column:8/10" title="Design (Figma): 12 Oct 2026 to 25 Oct 2026">Design</div><div class="bar TPM" style="grid-column:10/11" title="Dev spike, specs and tickets (TPM): 26 Oct 2026 to 1 Nov 2026">TPM</div><div class="bar BE" style="grid-column:16/18" title="Backend development: 7 Dec 2026 to 20 Dec 2026">BE</div><div class="bar App" style="grid-column:24/28" title="App development: 1 Feb 2027 to 28 Feb 2027">App</div><div class="bar QA" style="grid-column:28/29" title="QA and release: 1 Mar 2027 to 7 Mar 2027">QA</div></div><div class="grow"><div class="glabel"><small>#7</small><a href="#B4">Apple Pay / Google Pay</a></div><div class="bar PM" style="grid-column:7/9" title="Discovery, PRD and strategy (PM): 5 Oct 2026 to 18 Oct 2026">PM</div><div class="bar Design" style="grid-column:10/12" title="Design (Figma): 26 Oct 2026 to 8 Nov 2026">Design</div><div class="bar TPM" style="grid-column:12/14" title="Dev spike, specs and tickets (TPM): 9 Nov 2026 to 22 Nov 2026">TPM</div><div class="bar BE" style="grid-column:18/22" title="Backend development: 21 Dec 2026 to 17 Jan 2027">BE</div><div class="bar App" style="grid-column:28/32" title="App development: 1 Mar 2027 to 28 Mar 2027">App</div><div class="bar QA" style="grid-column:32/35" title="QA and release: 29 Mar 2027 to 18 Apr 2027">QA</div></div><div class="grow"><div class="glabel"><small>#8</small><a href="#B1">AI-powered pricing</a></div><div class="bar PM" style="grid-column:7/10" title="Discovery, PRD and strategy (PM): 5 Oct 2026 to 25 Oct 2026">PM</div><div class="bar Design" style="grid-column:10/12" title="Design (Figma): 26 Oct 2026 to 8 Nov 2026">Design</div><div class="bar TPM" style="grid-column:12/14" title="Dev spike, specs and tickets (TPM): 9 Nov 2026 to 22 Nov 2026">TPM</div><div class="bar BE" style="grid-column:22/26" title="Backend development: 18 Jan 2027 to 14 Feb 2027">BE</div><div class="bar App" style="grid-column:32/34" title="App development: 29 Mar 2027 to 11 Apr 2027">App</div><div class="bar QA" style="grid-column:34/36" title="QA and release: 12 Apr 2027 to 25 Apr 2027">QA</div></div><div class="grow"><div class="glabel"><small>#9</small><a href="#G9">KVouchers integration</a></div><div class="bar PM" style="grid-column:9/12" title="Discovery, PRD and strategy (PM): 19 Oct 2026 to 8 Nov 2026">PM</div><div class="bar Design" style="grid-column:12/15" title="Design (Figma): 9 Nov 2026 to 29 Nov 2026">Design</div><div class="bar TPM" style="grid-column:15/17" title="Dev spike, specs and tickets (TPM): 30 Nov 2026 to 13 Dec 2026">TPM</div><div class="bar BE" style="grid-column:26/30" title="Backend development: 15 Feb 2027 to 14 Mar 2027">BE</div><div class="bar App" style="grid-column:32/36" title="App development: 29 Mar 2027 to 25 Apr 2027">App</div><div class="bar QA" style="grid-column:36/38" title="QA and release: 26 Apr 2027 to 9 May 2027">QA</div></div><div class="grow"><div class="glabel"><small>#10</small><a href="#G2">MTU module on Pinless</a></div><div class="bar PM" style="grid-column:10/11" title="Discovery, PRD and strategy (PM): 26 Oct 2026 to 1 Nov 2026">PM</div><div class="bar Design" style="grid-column:12/14" title="Design (Figma): 9 Nov 2026 to 22 Nov 2026">Design</div><div class="bar TPM" style="grid-column:14/15" title="Dev spike, specs and tickets (TPM): 23 Nov 2026 to 29 Nov 2026">TPM</div><div class="bar BE" style="grid-column:30/32" title="Backend development: 15 Mar 2027 to 28 Mar 2027">BE</div><div class="bar App" style="grid-column:34/36" title="App development: 12 Apr 2027 to 25 Apr 2027">App</div><div class="bar QA" style="grid-column:36/37" title="QA and release: 26 Apr 2027 to 2 May 2027">QA</div></div><div class="grow"><div class="glabel"><small>#11</small><a href="#G10">eGift fraud vendor</a></div><div class="bar PM" style="grid-column:11/13" title="Discovery, PRD and strategy (PM): 2 Nov 2026 to 15 Nov 2026">PM</div><div class="bar TPM" style="grid-column:15/16" title="Dev spike, specs and tickets (TPM): 30 Nov 2026 to 6 Dec 2026">TPM</div><div class="bar BE" style="grid-column:30/34" title="Backend development: 15 Mar 2027 to 11 Apr 2027">BE</div><div class="bar App" style="grid-column:36/38" title="App development: 26 Apr 2027 to 9 May 2027">App</div><div class="bar QA" style="grid-column:38/40" title="QA and release: 10 May 2027 to 23 May 2027">QA</div></div><div class="grow"><div class="glabel"><small>#12</small><a href="#B7">Sponsor calling plans</a></div><div class="bar PM" style="grid-column:12/14" title="Discovery, PRD and strategy (PM): 9 Nov 2026 to 22 Nov 2026">PM</div><div class="bar Design" style="grid-column:14/16" title="Design (Figma): 23 Nov 2026 to 6 Dec 2026">Design</div><div class="bar TPM" style="grid-column:16/17" title="Dev spike, specs and tickets (TPM): 7 Dec 2026 to 13 Dec 2026">TPM</div><div class="bar BE" style="grid-column:32/36" title="Backend development: 29 Mar 2027 to 25 Apr 2027">BE</div><div class="bar App" style="grid-column:36/40" title="App development: 26 Apr 2027 to 23 May 2027">App</div><div class="bar QA" style="grid-column:40/42" title="QA and release: 24 May 2027 to 6 Jun 2027">QA</div></div><div class="grow"><div class="glabel"><small>#13</small><a href="#B10">Bundling service</a></div><div class="bar PM" style="grid-column:20/24" title="Discovery, PRD and strategy (PM): 4 Jan 2027 to 31 Jan 2027">PM</div><div class="bar Design" style="grid-column:24/28" title="Design (Figma): 1 Feb 2027 to 28 Feb 2027">Design</div><div class="bar TPM" style="grid-column:28/31" title="Dev spike, specs and tickets (TPM): 1 Mar 2027 to 21 Mar 2027">TPM</div><div class="bar BE" style="grid-column:36/45" title="Backend development: 26 Apr 2027 to 27 Jun 2027">BE</div><div class="bar App" style="grid-column:45/49" title="App development: 28 Jun 2027 to 25 Jul 2027">App</div><div class="bar QA" style="grid-column:49/52" title="QA and release: 26 Jul 2027 to 15 Aug 2027">QA</div></div><div class="grow"><div class="glabel"><small>#14</small><a href="#B8">ROW market expansion</a></div><div class="bar PM" style="grid-column:20/24" title="Discovery, PRD and strategy (PM): 4 Jan 2027 to 31 Jan 2027">PM</div><div class="bar Design" style="grid-column:24/27" title="Design (Figma): 1 Feb 2027 to 21 Feb 2027">Design</div><div class="bar TPM" style="grid-column:27/29" title="Dev spike, specs and tickets (TPM): 22 Feb 2027 to 7 Mar 2027">TPM</div><div class="bar BE" style="grid-column:45/49" title="Backend development: 28 Jun 2027 to 25 Jul 2027">BE</div><div class="bar App" style="grid-column:49/53" title="App development: 26 Jul 2027 to 22 Aug 2027">App</div><div class="bar QA" style="grid-column:53/56" title="QA and release: 23 Aug 2027 to 12 Sep 2027">QA</div></div><div class="grow"><div class="glabel"><small>#15</small><a href="#B5">Refer-a-Friend journey</a></div><div class="bar PM" style="grid-column:24/26" title="Discovery, PRD and strategy (PM): 1 Feb 2027 to 14 Feb 2027">PM</div><div class="bar Design" style="grid-column:27/29" title="Design (Figma): 22 Feb 2027 to 7 Mar 2027">Design</div><div class="bar TPM" style="grid-column:29/31" title="Dev spike, specs and tickets (TPM): 8 Mar 2027 to 21 Mar 2027">TPM</div><div class="bar BE" style="grid-column:49/53" title="Backend development: 26 Jul 2027 to 22 Aug 2027">BE</div><div class="bar App" style="grid-column:53/57" title="App development: 23 Aug 2027 to 19 Sep 2027">App</div><div class="bar QA" style="grid-column:57/59" title="QA and release: 20 Sep 2027 to 3 Oct 2027">QA</div></div><div class="grow"><div class="glabel"><small>#16</small><a href="#G7">Request Top-Up</a></div><div class="bar PM" style="grid-column:24/26" title="Discovery, PRD and strategy (PM): 1 Feb 2027 to 14 Feb 2027">PM</div><div class="bar Design" style="grid-column:28/31" title="Design (Figma): 1 Mar 2027 to 21 Mar 2027">Design</div><div class="bar TPM" style="grid-column:31/33" title="Dev spike, specs and tickets (TPM): 22 Mar 2027 to 4 Apr 2027">TPM</div><div class="bar BE" style="grid-column:49/53" title="Backend development: 26 Jul 2027 to 22 Aug 2027">BE</div><div class="bar App" style="grid-column:53/57" title="App development: 23 Aug 2027 to 19 Sep 2027">App</div><div class="bar QA" style="grid-column:57/59" title="QA and release: 20 Sep 2027 to 3 Oct 2027">QA</div></div><div class="grow"><div class="glabel"><small>#17</small><a href="#G11">eSIM location features</a></div><div class="bar PM" style="grid-column:26/28" title="Discovery, PRD and strategy (PM): 15 Feb 2027 to 28 Feb 2027">PM</div><div class="bar Design" style="grid-column:29/31" title="Design (Figma): 8 Mar 2027 to 21 Mar 2027">Design</div><div class="bar TPM" style="grid-column:31/32" title="Dev spike, specs and tickets (TPM): 22 Mar 2027 to 28 Mar 2027">TPM</div><div class="bar BE" style="grid-column:53/55" title="Backend development: 23 Aug 2027 to 5 Sep 2027">BE</div><div class="bar App" style="grid-column:57/61" title="App development: 20 Sep 2027 to 17 Oct 2027">App</div><div class="bar QA" style="grid-column:61/63" title="QA and release: 18 Oct 2027 to 31 Oct 2027">QA</div></div><div class="grow"><div class="glabel"><small>#18</small><a href="#B6">Engager personalisation</a></div><div class="bar PM" style="grid-column:33/36" title="Discovery, PRD and strategy (PM): 5 Apr 2027 to 25 Apr 2027">PM</div><div class="bar Design" style="grid-column:36/39" title="Design (Figma): 26 Apr 2027 to 16 May 2027">Design</div><div class="bar TPM" style="grid-column:39/41" title="Dev spike, specs and tickets (TPM): 17 May 2027 to 30 May 2027">TPM</div><div class="bar BE" style="grid-column:53/57" title="Backend development: 23 Aug 2027 to 19 Sep 2027">BE</div><div class="bar App" style="grid-column:57/61" title="App development: 20 Sep 2027 to 17 Oct 2027">App</div><div class="bar QA" style="grid-column:61/63" title="QA and release: 18 Oct 2027 to 31 Oct 2027">QA</div></div><div class="grow"><div class="glabel"><small>#19</small><a href="#B9">Promo balances in Wallet</a></div><div class="bar PM" style="grid-column:33/35" title="Discovery, PRD and strategy (PM): 5 Apr 2027 to 18 Apr 2027">PM</div><div class="bar Design" style="grid-column:35/37" title="Design (Figma): 19 Apr 2027 to 2 May 2027">Design</div><div class="bar TPM" style="grid-column:37/39" title="Dev spike, specs and tickets (TPM): 3 May 2027 to 16 May 2027">TPM</div><div class="bar BE" style="grid-column:57/61" title="Backend development: 20 Sep 2027 to 17 Oct 2027">BE</div><div class="bar App" style="grid-column:61/65" title="App development: 18 Oct 2027 to 14 Nov 2027">App</div><div class="bar QA" style="grid-column:65/67" title="QA and release: 15 Nov 2027 to 28 Nov 2027">QA</div></div><div class="grow"><div class="glabel"><small>#20</small><a href="#B3">IVA migration</a></div><div class="bar PM" style="grid-column:35/37" title="Discovery, PRD and strategy (PM): 19 Apr 2027 to 2 May 2027">PM</div><div class="bar TPM" style="grid-column:39/41" title="Dev spike, specs and tickets (TPM): 17 May 2027 to 30 May 2027">TPM</div><div class="bar BE" style="grid-column:61/65" title="Backend development: 18 Oct 2027 to 14 Nov 2027">BE</div><div class="bar QA" style="grid-column:65/67" title="QA and release: 15 Nov 2027 to 28 Nov 2027">QA</div></div><div class="grow"><div class="glabel"><small>#21</small><a href="#G8">Gamification</a></div><div class="bar PM" style="grid-column:36/39" title="Discovery, PRD and strategy (PM): 26 Apr 2027 to 16 May 2027">PM</div><div class="bar Design" style="grid-column:39/43" title="Design (Figma): 17 May 2027 to 13 Jun 2027">Design</div><div class="bar TPM" style="grid-column:43/45" title="Dev spike, specs and tickets (TPM): 14 Jun 2027 to 27 Jun 2027">TPM</div><div class="bar BE" style="grid-column:61/65" title="Backend development: 18 Oct 2027 to 14 Nov 2027">BE</div><div class="bar App" style="grid-column:65/69" title="App development: 15 Nov 2027 to 12 Dec 2027">App</div><div class="bar QA" style="grid-column:69/71" title="QA and release: 13 Dec 2027 to 26 Dec 2027">QA</div></div><div class="grow"><div class="glabel"><small>#22</small><a href="#G5">Crypto checkout</a></div><div class="bar PM" style="grid-column:37/39" title="Discovery, PRD and strategy (PM): 3 May 2027 to 16 May 2027">PM</div><div class="bar Design" style="grid-column:39/41" title="Design (Figma): 17 May 2027 to 30 May 2027">Design</div><div class="bar TPM" style="grid-column:41/42" title="Dev spike, specs and tickets (TPM): 31 May 2027 to 6 Jun 2027">TPM</div><div class="bar BE" style="grid-column:65/69" title="Backend development: 15 Nov 2027 to 12 Dec 2027">BE</div><div class="bar App" style="grid-column:69/71" title="App development: 13 Dec 2027 to 26 Dec 2027">App</div><div class="bar QA" style="grid-column:71/73" title="QA and release: 27 Dec 2027 to 9 Jan 2028">QA</div></div></div></div>
+
+<h2 id="initiatives">Initiatives</h2><p>Grouped by the quarter in which the build is meant to land, in execution order.</p>
+<h3 style="margin-top:36px">Q1 FY27 (Sep-Nov 2026)</h3>
+
+<section class="init" id="G6">
+<header><span class="eyebrow">#1 · G6</span><span class="pill">Business Goal</span><span class="pill">MTU</span><span class="pill high">Priority High</span><span class="pill">Q1</span><span class="pill carry">FY26 carry-over</span></header>
+<h3>Integrate MTU transaction flow to Terminus</h3>
+<p class="lead">Send every IMTU purchase to Terminus for a fraud decision before the top-up is fulfilled.</p>
+<h4>Description</h4>
+<p>Terminus is IDT&#x27;s internal fraud decisioning system. Today IMTU relies on a patchwork of controls (IDT Pay checks, card BIN rules, the br-web block list) and none of them fired during the Egypt and Pakistan burner-account cash-out in August 2026. This initiative wires the IMTU purchase flow into Terminus: the backend maps the transaction, sender and recipient attributes Terminus needs, calls it synchronously inside the order flow, and honours approve, reject and review outcomes before the carrier is charged. The work is backend only and was started in FY26, so FY27 closes it rather than opening it.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Finish the remaining backend work in Sprint 76-77 and keep the integration behind a per-country flag so it can be enabled corridor by corridor.</li><li>Start in shadow mode: log the Terminus decision without acting on it for two sprints, compare against IDT Pay and manual fraud outcomes, then switch to enforce.</li><li>Add recipient-velocity attributes (top-ups per recipient number per day, distinct payer accounts per recipient) to the payload, since that is the signal the August fraud would have tripped.</li><li>Define the review outcome UX with CS: an order held for review shows a pending state and a clear message instead of a generic failure.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE M (1 FTE sprints, 1 dev) · App - (0 FTE sprints) · Design -</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>0</td><td colspan='3' style='color:var(--muted)'>not needed</td></tr><tr><td>Design (Figma)</td><td class='num'>0</td><td colspan='3' style='color:var(--muted)'>not needed</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>0</td><td colspan='3' style='color:var(--muted)'>not needed</td></tr><tr><td>Backend development</td><td class='num'>2</td><td>1 dev</td><td>14 Sep 2026</td><td>27 Sep 2026</td></tr><tr><td>App development</td><td class='num'>0</td><td colspan='3' style='color:var(--muted)'>not needed</td></tr><tr><td>QA and release</td><td class='num'>1</td><td>QAs</td><td>12 Oct 2026</td><td>18 Oct 2026</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">Terminus team (fraud platform). Carry-over from FY26, backend In Progress.</p>
+<h4>Success measures</h4>
+<ul><li>100% of IMTU orders scored by Terminus in the enforced corridors</li><li>Chargeback and refund rate on IMTU below the FY26 baseline</li><li>No increase in false declines for repeat senders (monitor decline rate of users with 3+ prior successful top-ups)</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1215923982536887" target="_blank" rel="noopener">Asana task</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="G4">
+<header><span class="eyebrow">#2 · G4</span><span class="pill">Business Goal</span><span class="pill">MTU</span><span class="pill high">Priority High</span><span class="pill">Q1</span><span class="pill carry">FY26 carry-over</span></header>
+<h3>New Channel: roll out the WhatsApp MTU chatbot</h3>
+<p class="lead">Let a customer buy a top-up, pay, and check order status inside WhatsApp, on top of the DTC Universal API built in FY26.</p>
+<h4>Description</h4>
+<p>The DTC Universal API shipped in FY26 exposes customer, product and order data to external channels, and the WhatsApp team is building the conversational layer. DCS owns the product side: offer lookup by recipient number, promo eligibility, checkout hand-off, order confirmation and status queries. The Felix Pago teardown done in August showed the winning pattern: a prefilled deep link into the chat, the carrier and offer resolved from the recipient number, and checkout in the WhatsApp in-app browser. eGift follows in a later phase once the MTU flow proves the channel.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Ship MTU only in FY27 Q1; eGift and status of past eGift orders are out of scope until conversion is measured.</li><li>Reuse the web checkout for payment inside the WhatsApp in-app browser rather than building a chat-native payment, which keeps PCI scope and fraud controls where they already are.</li><li>Expose a recipient-number lookup endpoint that returns carrier, eligible offers and promos in one call so the bot never has to chain requests.</li><li>Instrument the funnel end to end (link open, number confirmed, offer picked, checkout opened, paid) with the same Amplitude taxonomy as the app so the channel can be compared with app and web.</li><li>Launch to one corridor (Mexico or Guatemala) with a BLS first-purchase promo, then widen by country.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE M (2 FTE sprints, 1 dev) · App - (0 FTE sprints) · Design -</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>1</td><td>PM</td><td>31 Aug 2026</td><td>6 Sep 2026</td></tr><tr><td>Design (Figma)</td><td class='num'>0</td><td colspan='3' style='color:var(--muted)'>not needed</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>1</td><td>TPM</td><td>7 Sep 2026</td><td>13 Sep 2026</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>1 dev</td><td>14 Sep 2026</td><td>11 Oct 2026</td></tr><tr><td>App development</td><td class='num'>0</td><td colspan='3' style='color:var(--muted)'>not needed</td></tr><tr><td>QA and release</td><td class='num'>2</td><td>QAs</td><td>12 Oct 2026</td><td>25 Oct 2026</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">WhatsApp Business team (chatbot and conversation design), DTC Universal API (shipped FY26), MARCOM for the entry deep link.</p>
+<h4>Success measures</h4>
+<ul><li>Chatbot funnel conversion from offer picked to paid above 25%</li><li>At least 5% of WhatsApp buyers are new to IMTU (no prior order)</li><li>Order-status queries resolved in chat without a CS contact</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1215922468293591" target="_blank" rel="noopener">Asana task</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="B11">
+<header><span class="eyebrow">#3 · B11</span><span class="pill">Board Goal</span><span class="pill">MTU</span><span class="pill high">Priority High</span><span class="pill">Q1</span></header>
+<h3>Introduce postpaid top-ups (direct billers)</h3>
+<p class="lead">Let a sender pay a relative&#x27;s postpaid mobile bill through the IMTU flow, starting with Tigo.</p>
+<h4>Description</h4>
+<p>IMTU today only recharges prepaid numbers. Postpaid customers in Latin America are a growing share of the base, carry higher bills, and pay monthly, which makes them a natural fit for subscriptions. The FY26 Tigo postpaid work sized the connector side as Large; FY27 completes it and exposes it in the app. The flow changes: the number lookup must recognise a postpaid line, the amount is the open bill (or an open range) instead of a fixed denomination, and confirmation may not be instant.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Start with Tigo (Guatemala, Honduras, El Salvador) where the carrier relationship and the FY26 spike already exist; add carriers only after the first is stable.</li><li>Backend owns the postpaid detection in the number lookup, bill inquiry, payment posting and asynchronous confirmation; the app changes are limited to an amount screen that shows the bill and a pending state on the success screen.</li><li>Treat settlement and reconciliation as part of the scope: Finance needs a daily file per biller, and refunds for a posted bill payment follow a different path than a failed prepaid recharge.</li><li>Enable subscriptions for postpaid lines in a second step once the monthly bill amount can be fetched reliably.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE L (4 FTE sprints, 2 devs) · App S (1 FTE sprints) · Design S</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>2</td><td>PM</td><td>31 Aug 2026</td><td>13 Sep 2026</td></tr><tr><td>Design (Figma)</td><td class='num'>2</td><td>Designer</td><td>14 Sep 2026</td><td>27 Sep 2026</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>2</td><td>TPM</td><td>28 Sep 2026</td><td>11 Oct 2026</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>2 devs</td><td>12 Oct 2026</td><td>8 Nov 2026</td></tr><tr><td>App development</td><td class='num'>2</td><td>1 dev</td><td>9 Nov 2026</td><td>22 Nov 2026</td></tr><tr><td>QA and release</td><td class='num'>2</td><td>QAs</td><td>23 Nov 2026</td><td>6 Dec 2026</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">K2 connectors team (biller integration), Tigo and other carriers for postpaid APIs, Finance for non-instant settlement.</p>
+<h4>Success measures</h4>
+<ul><li>Postpaid payments live for Tigo in three countries by end of Q1</li><li>Postpaid success rate above 97% with confirmation within 15 minutes</li><li>Postpaid share of IMTU revenue in those corridors above 5% by Q3</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1218156429240249" target="_blank" rel="noopener">Asana task 1</a> · <a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1215922468293626" target="_blank" rel="noopener">Asana task 2</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="G1">
+<header><span class="eyebrow">#4 · G1</span><span class="pill">Business Goal</span><span class="pill">MTU</span><span class="pill high">Priority High</span><span class="pill">Q1</span></header>
+<h3>MTU modular component and cross-selling MTU on Money Transfer</h3>
+<p class="lead">Build the reusable IMTU cross-sell module once and embed it first in the Money Transfer flow.</p>
+<h4>Description</h4>
+<p>A reusable component that presents one personalised IMTU offer inside another product&#x27;s purchase flow, starting with Money Transfer in the Boss Money app. The first version keeps the IMTU purchase as a separate transaction, so no unified cart is needed. The module takes a recipient (phone number or contact), resolves the carrier and the single best offer through backend rules and remote config, and hands off to the existing IMTU checkout. Pinless, insurance, calling plans, eGift and eSIM reuse the same module later, which is why it is the first build of the year.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Design the module contract first (input: recipient and host context; output: one offer card plus a checkout hand-off) and freeze it before UI work so every later host integrates the same way.</li><li>Present exactly one offer, chosen by a backend ranking service seeded with simple rules (last offer sent to this recipient, most popular offer for the carrier), with a hook for Engager and ML ranking in FY27 Q4.</li><li>Ship the Money Transfer embed on the MT success screen first, where the sender has just confirmed a recipient and payment method, then move to the MT review screen once conversion is known.</li><li>Track impression, tap, checkout open and purchase per host surface so the module&#x27;s attach rate can be compared across MT, Pinless and later hosts.</li><li>Keep the transaction separate in V1; a combined cart is the Bundling initiative&#x27;s job.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE M (2 FTE sprints, 1 dev) · App L (4 FTE sprints) · Design M</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>2</td><td>PM</td><td>7 Sep 2026</td><td>20 Sep 2026</td></tr><tr><td>Design (Figma)</td><td class='num'>3</td><td>Designer</td><td>21 Sep 2026</td><td>11 Oct 2026</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>2</td><td>TPM</td><td>12 Oct 2026</td><td>25 Oct 2026</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>1 dev</td><td>9 Nov 2026</td><td>6 Dec 2026</td></tr><tr><td>App development</td><td class='num'>4</td><td>2 devs</td><td>7 Dec 2026</td><td>3 Jan 2027</td></tr><tr><td>QA and release</td><td class='num'>2</td><td>QAs</td><td>4 Jan 2027</td><td>17 Jan 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">Boss Money app team (host surface), Engager for offer selection. Spec started in Confluence (Modular IMTU Component).</p>
+<h4>Success measures</h4>
+<ul><li>Attach rate (IMTU purchase within 24h of an MT with the module shown) above 3%</li><li>Second host (Pinless) integrated in under one sprint of App work</li><li>No regression in MT completion rate on the screens that host the module</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1216072967479615" target="_blank" rel="noopener">Asana task 1</a> · <a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1216262799162703" target="_blank" rel="noopener">Asana task 2</a> · <a href="https://idtjira.atlassian.net/wiki/x/DIDHXAE" target="_blank" rel="noopener">Confluence: Modular IMTU Component</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="B2">
+<header><span class="eyebrow">#5 · B2</span><span class="pill">Board Goal</span><span class="pill">MTU</span><span class="pill high">Priority High</span><span class="pill">Q1</span></header>
+<h3>Reduce subscription cancellations</h3>
+<p class="lead">Cut voluntary and accidental cancellations across the in, during and out moments of a subscription.</p>
+<h4>Description</h4>
+<p>Subscriptions are the highest-quality IMTU revenue and the default-on toggle grew them fast, but the September exec review showed the cancel rate is the open problem: the home subscriptions widget is used mostly as a cancel surface and a share of cancels are buyer&#x27;s remorse within days of an unintended opt-in. The Asana subtasks frame the work as in, during and out. In: a short remorse window with a one-tap undo. During: pause instead of cancel, and a savings message that shows what the subscription has earned. Out: an exit survey that captures the reason and offers a targeted save. Underneath, the cancel funnel needs clean events so each change can be measured.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Fix the measurement first: define the cancel funnel events (entry surface, reason, pause vs cancel, resubscribe) and fill the untagged properties before any UX ships, so the baseline is trustworthy.</li><li>Ship &#x27;pause for one or two cycles&#x27; as the primary action on the cancel screen, with cancel as the secondary path; pausing keeps the payment method and recipient attached.</li><li>Add a 7-day remorse window after a toggle-on subscription: one tap cancels with an immediate confirmation and no future charge, which removes the support contacts and chargebacks.</li><li>Exit survey with five fixed reasons plus free text; route &#x27;too expensive&#x27; to a subscription promo (BLS) and &#x27;recipient no longer needs it&#x27; to an edit-recipient flow.</li><li>Give CRM a Braze attribute with savings to date per subscriber so lifecycle messages can quote it.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE M (2 FTE sprints, 1 dev) · App L (4 FTE sprints) · Design M</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>3</td><td>PM</td><td>14 Sep 2026</td><td>4 Oct 2026</td></tr><tr><td>Design (Figma)</td><td class='num'>3</td><td>Designer</td><td>5 Oct 2026</td><td>25 Oct 2026</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>2</td><td>TPM</td><td>26 Oct 2026</td><td>8 Nov 2026</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>1 dev</td><td>9 Nov 2026</td><td>6 Dec 2026</td></tr><tr><td>App development</td><td class='num'>4</td><td>2 devs</td><td>4 Jan 2027</td><td>31 Jan 2027</td></tr><tr><td>QA and release</td><td class='num'>2</td><td>QAs</td><td>1 Feb 2027</td><td>14 Feb 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">Subly (subscription engine), CRM for the Braze savings attribute, Amplitude taxonomy fixes (DCS-5331 style) for the cancel funnel.</p>
+<h4>Success measures</h4>
+<ul><li>Monthly voluntary cancellation rate down 20% against the Q1 baseline</li><li>At least 30% of users who open the cancel flow choose pause or keep</li><li>Cancel funnel events documented and 100% tagged with reason and surface</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1218156225083577" target="_blank" rel="noopener">Asana task 1</a> · <a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1215564565348037" target="_blank" rel="noopener">Asana task 2</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="G3">
+<header><span class="eyebrow">#6 · G3</span><span class="pill">Business Goal</span><span class="pill">MTU</span><span class="pill">Priority Medium</span><span class="pill">Q1</span></header>
+<h3>Cross-sell 2.0: Engager cards on the MTU home page</h3>
+<p class="lead">Replace the static Boss Recommends rail on the MTU home with cards served and targeted by Engager.</p>
+<h4>Description</h4>
+<p>The redesigned MTU home ships a cross-sell rail whose content is static BMK configuration. Engager already decides which offer or message a user should see in other parts of the BR app. This initiative makes the MTU home rail an Engager placement: the backend requests cards for the user and the app renders whatever comes back (eGift, eSIM, calling plan, RAF, a subscription nudge), with impressions and taps reported back so Engager can learn. It is the cheapest path to personalised cross-sell and the prerequisite for the Personalised experiences via Engager board goal in Q4.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Define a small card schema (title, body, image, deep link, campaign id) that Engager fills and the app renders; anything not in the schema is rejected so the rail never breaks on unexpected content.</li><li>Fall back to the current static rail when Engager returns nothing or times out, so the home page never shows an empty slot.</li><li>Report impression and tap events with the Engager campaign id so marketing can measure each card and the featured_card_variant gap seen in the FY26 featured-offers test does not repeat.</li><li>Start with the same four card types that exist today, then let CRM add campaigns without an app release.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE S (1 FTE sprints, 1 dev) · App M (2 FTE sprints) · Design S</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>2</td><td>PM</td><td>21 Sep 2026</td><td>4 Oct 2026</td></tr><tr><td>Design (Figma)</td><td class='num'>2</td><td>Designer</td><td>12 Oct 2026</td><td>25 Oct 2026</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>1</td><td>TPM</td><td>26 Oct 2026</td><td>1 Nov 2026</td></tr><tr><td>Backend development</td><td class='num'>2</td><td>1 dev</td><td>7 Dec 2026</td><td>20 Dec 2026</td></tr><tr><td>App development</td><td class='num'>4</td><td>1 dev</td><td>1 Feb 2027</td><td>28 Feb 2027</td></tr><tr><td>QA and release</td><td class='num'>1</td><td>QAs</td><td>1 Mar 2027</td><td>7 Mar 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">Engager team (card content and targeting), BR7 MTU home redesign (shipped FY26).</p>
+<h4>Success measures</h4>
+<ul><li>Rail tap-through rate at least equal to the static rail, with per-campaign reporting</li><li>New cross-sell campaign live without an app release</li><li>Zero empty-rail sessions after fallback</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1215922468293595" target="_blank" rel="noopener">Asana task</a></p>
+</div>
+</div>
+</section>
+<h3 style="margin-top:36px">Q2 FY27 (Dec 2026-Feb 2027)</h3>
+
+<section class="init" id="B4">
+<header><span class="eyebrow">#7 · B4</span><span class="pill">Board Goal</span><span class="pill">All Products</span><span class="pill high">Priority High</span><span class="pill">Q2</span></header>
+<h3>Add mobile payments (Apple Pay and Google Pay)</h3>
+<p class="lead">Offer Apple Pay and Google Pay as payment methods for IMTU, eGift and eSIM in the BR calling app.</p>
+<h4>Description</h4>
+<p>Card entry is the biggest friction in first purchase, and mobile wallets carry a fraud rate near zero (Apple Pay dropped to 0.01% in the fraud team&#x27;s data). The DCS epic exists but has a single unstarted ticket, and the calling-app wallet spec deferred DCS products. This initiative adds both wallets as payment methods across the three DCS products through IDT Pay: the app collects the wallet token, the backend passes it to the processor, and the payment method is stored for subscriptions where the wallet allows it.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Do the IDT Pay work once for all three products: a wallet token is just another payment instrument in the order API, so IMTU, eGift and eSIM get it in the same release.</li><li>Sequence Apple Pay first (single processor path, merchant validation) and Google Pay two weeks later on the same backend.</li><li>Make wallets the default payment method for new users with no saved card, and keep saved cards default for existing users, then test the reverse.</li><li>Support recurring charges through the wallet token where IDT Pay allows it, so a subscription created with Apple Pay does not force a card later.</li><li>Extend the Terminus payload with payment method so fraud rules can treat wallet payments differently from cards.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE L (4 FTE sprints, 2 devs) · App L (4 FTE sprints) · Design S</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>2</td><td>PM</td><td>5 Oct 2026</td><td>18 Oct 2026</td></tr><tr><td>Design (Figma)</td><td class='num'>2</td><td>Designer</td><td>26 Oct 2026</td><td>8 Nov 2026</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>2</td><td>TPM</td><td>9 Nov 2026</td><td>22 Nov 2026</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>2 devs</td><td>21 Dec 2026</td><td>17 Jan 2027</td></tr><tr><td>App development</td><td class='num'>4</td><td>2 devs</td><td>1 Mar 2027</td><td>28 Mar 2027</td></tr><tr><td>QA and release</td><td class='num'>3</td><td>QAs</td><td>29 Mar 2027</td><td>18 Apr 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">IDT Pay (tokenisation and processor support), Fraud team (Apple Pay fraud at 0.01%), Apple and Google merchant onboarding.</p>
+<h4>Success measures</h4>
+<ul><li>First-purchase conversion for new users up 10% where a wallet is available</li><li>Wallet share of new payment methods added above 30% within two months</li><li>Wallet fraud rate below 0.05%</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1218156429240276" target="_blank" rel="noopener">Asana task 1</a> · <a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1215922468194943" target="_blank" rel="noopener">Asana task 2</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="B1">
+<header><span class="eyebrow">#8 · B1</span><span class="pill">Board Goal</span><span class="pill">MTU</span><span class="pill high">Priority High</span><span class="pill">Q2</span></header>
+<h3>Deploy AI-powered dynamic pricing (offer price and variable fees)</h3>
+<p class="lead">Let the price and the fee of an IMTU offer be set per user and per moment by a pricing model, in both the BR and Boss Money apps.</p>
+<h4>Description</h4>
+<p>Pricing today is one price and one fee per offer for everyone. The pricing team is building a model that sets the offer price and a variable fee from corridor, carrier, user history and time, and the FY26 spike estimated the DCS side as Small to Medium: the apps already render whatever price the backend returns. DCS&#x27;s job is the integration and the guardrails: call the pricing service when offers are listed, lock the quoted price for the session, show fee and total transparently at confirmation, and make sure promos and subscriptions renew at the rules the customer agreed to.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Integrate through one pricing call at offer-list time that returns price, fee and a quote id; checkout validates the quote id so the customer never pays a different amount than shown.</li><li>Show the exact fee and exact amount delivered on the confirmation screen (the Xoom pattern) so dynamic pricing does not read as hidden pricing.</li><li>Fix the subscription rule up front: renewals charge the price at subscription time or the current price, and the choice is shown in the subscription details.</li><li>Roll out by corridor behind a flag with a holdout group so revenue lift is measured, not assumed.</li><li>Keep the pricing model outside DCS; DCS owns the contract, the caching and the fallback to list price when the service is unavailable.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE M (2 FTE sprints, 1 dev) · App S (1 FTE sprints) · Design S</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>3</td><td>PM</td><td>5 Oct 2026</td><td>25 Oct 2026</td></tr><tr><td>Design (Figma)</td><td class='num'>2</td><td>Designer</td><td>26 Oct 2026</td><td>8 Nov 2026</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>2</td><td>TPM</td><td>9 Nov 2026</td><td>22 Nov 2026</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>1 dev</td><td>18 Jan 2027</td><td>14 Feb 2027</td></tr><tr><td>App development</td><td class='num'>2</td><td>1 dev</td><td>29 Mar 2027</td><td>11 Apr 2027</td></tr><tr><td>QA and release</td><td class='num'>2</td><td>QAs</td><td>12 Apr 2027</td><td>25 Apr 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">Pricing team and OMTU (pricing model and service), K2 (price and fee fields), Legal for price display rules.</p>
+<h4>Success measures</h4>
+<ul><li>Gross margin per IMTU transaction up in the dynamically priced corridors versus holdout</li><li>No increase in checkout abandonment at the confirmation step</li><li>Pricing service fallback rate below 1%</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1218156225083580" target="_blank" rel="noopener">Asana task 1</a> · <a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1215684148744082" target="_blank" rel="noopener">Asana task 2</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="G9">
+<header><span class="eyebrow">#9 · G9</span><span class="pill">Business Goal</span><span class="pill">eGIFT</span><span class="pill high">Priority High</span><span class="pill">Q2</span></header>
+<h3>Integrate with the KVouchers platform (IDT vouchers and new flows)</h3>
+<p class="lead">Move eGift onto an IDT voucher that the recipient redeems for a branded card, capturing breakage and improving cash flow and fraud control.</p>
+<h4>Description</h4>
+<p>Today an eGift purchase issues the branded gift card immediately, so IDT pays the supplier at once and any fraud loss is realised at once. KVouchers issues an IDT voucher first; the recipient redeems it for a specific brand or any brand in the catalogue, and only then is the branded card bought. This delays supplier spend, creates breakage on unredeemed vouchers, gives a consistent branded experience, and adds a fraud checkpoint between purchase and redemption. The platform becomes the foundation of eGift, so the existing purchase flow migrates onto it and the redemption experience is new.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Phase the migration: first issue vouchers behind the existing purchase flow with automatic redemption to the chosen brand (no customer-visible change), then open the &#x27;choose at redemption&#x27; flow.</li><li>Design the redemption landing page with MARCOM as the piece the recipient sees; it is the brand surface of the product and the place where a BR app download can be offered.</li><li>Backend owns the full voucher lifecycle: create, redeem, cancel, expire, monitor, and the daily breakage and liability report Finance needs.</li><li>Put the fraud hold between purchase and redemption: high-risk purchases issue a voucher that redeems only after review, so the loss is never realised on a bad card.</li><li>Keep the B2B and retail channels in mind in the API so Zendit and NRS can issue the same vouchers later.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE L (4 FTE sprints, 2 devs) · App M (2 FTE sprints) · Design M</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>3</td><td>PM</td><td>19 Oct 2026</td><td>8 Nov 2026</td></tr><tr><td>Design (Figma)</td><td class='num'>3</td><td>Designer</td><td>9 Nov 2026</td><td>29 Nov 2026</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>2</td><td>TPM</td><td>30 Nov 2026</td><td>13 Dec 2026</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>2 devs</td><td>15 Feb 2027</td><td>14 Mar 2027</td></tr><tr><td>App development</td><td class='num'>4</td><td>1 dev</td><td>29 Mar 2027</td><td>25 Apr 2027</td></tr><tr><td>QA and release</td><td class='num'>2</td><td>QAs</td><td>26 Apr 2027</td><td>9 May 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">KVouchers platform team, Finance (breakage accounting), eGift supplier contracts.</p>
+<h4>Success measures</h4>
+<ul><li>100% of DTC eGift purchases issued as KVouchers by end of Q3</li><li>Fraud loss per eGift transaction down 50% against FY26 with the redemption hold</li><li>Redemption rate and breakage reported daily; breakage revenue recognised per Finance policy</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1215840097748060" target="_blank" rel="noopener">Asana task</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="G2">
+<header><span class="eyebrow">#10 · G2</span><span class="pill">Business Goal</span><span class="pill">MTU</span><span class="pill high">Priority High</span><span class="pill">Q2</span></header>
+<h3>Cross-selling MTU on Pinless (module)</h3>
+<p class="lead">Embed the IMTU module in the Pinless calling flow so callers to a number are offered a top-up for that number.</p>
+<h4>Description</h4>
+<p>Pinless calling knows the number the customer just called. That number is the best possible IMTU lead: the caller cares about the person and the carrier is known from the lookup. This initiative places the module built in Q1 on the post-call screen and the recent-calls list of the BR calling app, offering a single relevant top-up for the called number. Because the module already exists, the work is the host integration, the trigger rules and the analytics.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Trigger on call end for international calls to IMTU-supported carriers only, at most once per recipient per week, so the offer is relevant and not a nag.</li><li>Reuse the module contract from G1 unchanged; any host-specific need becomes a module feature, not a fork.</li><li>Measure attach separately from MT so the two hosts can be compared and the trigger frequency tuned.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE S (1 FTE sprints, 1 dev) · App S (1 FTE sprints) · Design S</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>1</td><td>PM</td><td>26 Oct 2026</td><td>1 Nov 2026</td></tr><tr><td>Design (Figma)</td><td class='num'>2</td><td>Designer</td><td>9 Nov 2026</td><td>22 Nov 2026</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>1</td><td>TPM</td><td>23 Nov 2026</td><td>29 Nov 2026</td></tr><tr><td>Backend development</td><td class='num'>2</td><td>1 dev</td><td>15 Mar 2027</td><td>28 Mar 2027</td></tr><tr><td>App development</td><td class='num'>2</td><td>1 dev</td><td>12 Apr 2027</td><td>25 Apr 2027</td></tr><tr><td>QA and release</td><td class='num'>1</td><td>QAs</td><td>26 Apr 2027</td><td>2 May 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">MTU modular component (G1). Calling (Pinless) product team for the host screens.</p>
+<h4>Success measures</h4>
+<ul><li>Attach rate (IMTU purchase within 24h of a call with the module shown) above 2%</li><li>Integration delivered in one App sprint, proving the module is reusable</li><li>No measurable drop in Pinless redial or call volume</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1216072967479611" target="_blank" rel="noopener">Asana task</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="G10">
+<header><span class="eyebrow">#11 · G10</span><span class="pill">Business Goal</span><span class="pill">eGIFT</span><span class="pill">Priority Medium</span><span class="pill">Q2</span></header>
+<h3>Fraud: integrate the outsourced eGift security layer</h3>
+<p class="lead">Put a specialised fraud vendor in front of every eGift purchase so more good orders are approved and fewer bad ones are paid for.</p>
+<h4>Description</h4>
+<p>eGift is the most fraud-exposed DCS product because the goods are instant and resellable, and FY26 controls decline a very high share of attempts, much of it issuer declines that no vendor can convert. The vendor handover done in September set the real go-live for March 2027. DCS&#x27;s work is the integration: device and behavioural signals collected in the app, the vendor decision consumed in the order flow, review outcomes handled, and the results fed back so the model learns. Together with KVouchers, this moves eGift from &#x27;decline everything risky&#x27; to &#x27;approve more, hold the risky ones&#x27;.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Collect the device fingerprint and behavioural signals in the app SDK first (small App change), since the vendor&#x27;s accuracy depends on them being present from day one.</li><li>Run the vendor in shadow for one month against IDT Pay decisions to measure lift on approvals before enforcing.</li><li>Use the KVouchers redemption hold as the &#x27;review&#x27; action so a risky order is neither declined nor fulfilled until reviewed.</li><li>Send chargeback and confirmed-fraud outcomes back to the vendor weekly; without feedback the model stays static.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE M (2 FTE sprints, 1 dev) · App S (1 FTE sprints) · Design -</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>2</td><td>PM</td><td>2 Nov 2026</td><td>15 Nov 2026</td></tr><tr><td>Design (Figma)</td><td class='num'>0</td><td colspan='3' style='color:var(--muted)'>not needed</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>1</td><td>TPM</td><td>30 Nov 2026</td><td>6 Dec 2026</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>1 dev</td><td>15 Mar 2027</td><td>11 Apr 2027</td></tr><tr><td>App development</td><td class='num'>2</td><td>1 dev</td><td>26 Apr 2027</td><td>9 May 2027</td></tr><tr><td>QA and release</td><td class='num'>2</td><td>QAs</td><td>10 May 2027</td><td>23 May 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">Fraud vendor (Accertify, decisioning through IDT Pay), Fraud and Finance teams; vendor go-live planned for March 2027.</p>
+<h4>Success measures</h4>
+<ul><li>eGift approval rate up 15 points with fraud loss flat or lower</li><li>Manual review queue under 2% of orders with 24h resolution</li><li>Vendor live for 100% of eGift orders by end of Q3</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1215781833204001" target="_blank" rel="noopener">Asana task</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="B7">
+<header><span class="eyebrow">#12 · B7</span><span class="pill">Board Goal</span><span class="pill">MTU</span><span class="pill high">Priority High</span><span class="pill">Q2</span></header>
+<h3>Support sponsor calling plans and cross-sell them in the IMTU flow</h3>
+<p class="lead">Let a US sender buy a calling plan for the recipient abroad, offered at the moment they top up that recipient.</p>
+<h4>Description</h4>
+<p>A sponsor calling plan is paid by the US customer and used by the person abroad to call back. The IMTU flow already holds the recipient and the moment of generosity, so the cross-sell is natural: after a top-up, offer a sponsored plan for the same number. DCS provides the catalogue call, the offer placement in the IMTU success screen and recipient page, and the purchase hand-off; the calling product owns provisioning.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Place the sponsor plan offer on the IMTU success screen and the recipient details page through the Engager card schema from G3, so it is one more campaign rather than a new surface.</li><li>Backend adds a sponsor-plan eligibility call keyed by recipient number and country; the app renders the plan card and hands off to the calling plan checkout.</li><li>Bundle it with a top-up in a later phase through the Bundling service, once both purchases exist separately.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE M (2 FTE sprints, 1 dev) · App M (2 FTE sprints) · Design S</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>2</td><td>PM</td><td>9 Nov 2026</td><td>22 Nov 2026</td></tr><tr><td>Design (Figma)</td><td class='num'>2</td><td>Designer</td><td>23 Nov 2026</td><td>6 Dec 2026</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>1</td><td>TPM</td><td>7 Dec 2026</td><td>13 Dec 2026</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>1 dev</td><td>29 Mar 2027</td><td>25 Apr 2027</td></tr><tr><td>App development</td><td class='num'>4</td><td>1 dev</td><td>26 Apr 2027</td><td>23 May 2027</td></tr><tr><td>QA and release</td><td class='num'>2</td><td>QAs</td><td>24 May 2027</td><td>6 Jun 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">Calling plans product team (sponsor plan catalogue and provisioning), Engager for offer placement.</p>
+<h4>Success measures</h4>
+<ul><li>Sponsor plan attach rate on IMTU success above 1.5% in eligible corridors</li><li>Sponsor plan purchases from the IMTU flow above 20% of all sponsor plan sales by Q4</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1218156429240267" target="_blank" rel="noopener">Asana task 1</a> · <a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1216112201710177" target="_blank" rel="noopener">Asana task 2</a></p>
+</div>
+</div>
+</section>
+<h3 style="margin-top:36px">Q3 FY27 (Mar-May 2027)</h3>
+
+<section class="init" id="B10">
+<header><span class="eyebrow">#13 · B10</span><span class="pill">Board Goal</span><span class="pill">All Products</span><span class="pill high">Priority High</span><span class="pill">Q3</span></header>
+<h3>Introduce bundling capabilities for DTC</h3>
+<p class="lead">A bundling service that lets a customer buy and receive several products in one transaction, with bundle pricing.</p>
+<h4>Description</h4>
+<p>Every cross-sell initiative so far ends in two transactions: the module offers, the customer pays twice. Bundling is the platform piece that removes that: one cart, one charge, multiple fulfilments (top-up plus eGift, top-up plus eSIM, top-up plus sponsor plan), with the option of a bundle price or discount. It is the largest build of the year, mostly backend: bundle definition, price composition, one payment, orchestration of fulfilments with partial-failure handling, and the refund and reporting rules that follow. The app side is a cart and a combined review screen.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Run PM and Design through Q2 so the backend can start on day one of Q3; this is the only initiative that needs a full quarter of two backend developers.</li><li>Scope V1 to two-item bundles defined by IDT (not user-built carts), IMTU as the anchor item, and one payment; open-ended carts and user-built bundles come after V1 proves attach.</li><li>Design fulfilment as an orchestration with compensating actions: if the second item fails after the first succeeded, refund the second automatically and tell the customer exactly what was delivered.</li><li>Reuse the module (G1) as the surface that proposes a bundle, so the customer path is &#x27;add to my top-up&#x27; rather than a new shop.</li><li>Agree the revenue split and discount accounting with Finance before build, since bundle pricing changes how each product line reports revenue.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE XL (9 FTE sprints, 2 devs) · App L (4 FTE sprints) · Design L</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>4</td><td>PM</td><td>4 Jan 2027</td><td>31 Jan 2027</td></tr><tr><td>Design (Figma)</td><td class='num'>4</td><td>Designer</td><td>1 Feb 2027</td><td>28 Feb 2027</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>3</td><td>TPM</td><td>1 Mar 2027</td><td>21 Mar 2027</td></tr><tr><td>Backend development</td><td class='num'>9</td><td>2 devs</td><td>26 Apr 2027</td><td>27 Jun 2027</td></tr><tr><td>App development</td><td class='num'>4</td><td>2 devs</td><td>28 Jun 2027</td><td>25 Jul 2027</td></tr><tr><td>QA and release</td><td class='num'>3</td><td>QAs</td><td>26 Jul 2027</td><td>15 Aug 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">K2 catalogue and order services, IDT Pay (single charge, partial refunds), Finance for revenue split, product teams for bundle definitions.</p>
+<h4>Success measures</h4>
+<ul><li>First IDT-defined bundle (top-up + eGift) live by end of Q3</li><li>Average order value of bundled orders at least 40% above a single top-up</li><li>Partial fulfilment incidents resolved automatically with no manual refunds</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1218156429240253" target="_blank" rel="noopener">Asana task</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="B8">
+<header><span class="eyebrow">#14 · B8</span><span class="pill">Board Goal</span><span class="pill">All Products</span><span class="pill high">Priority High</span><span class="pill">Q3</span><span class="pill risk">lands in FY28 at 35% reserve</span></header>
+<h3>Expand the BR app in ROW markets (Pinless, IMTU and eSIM)</h3>
+<p class="lead">Take the BR calling app international with IMTU and eSIM enabled per market, not just US-origin sales.</p>
+<h4>Description</h4>
+<p>The BR app sells IMTU and eSIM to US customers. The FY27 board goal is to launch and operate the app in rest-of-world markets (Europe and Canada first) with Pinless, IMTU and eSIM. For DCS this means market-aware catalogues, currencies and taxes, local payment methods through IDT Pay, sender-country rules for fraud and promos, localisation, and store listings. The FY26 Portuguese translation and the market flags in the offer catalogue are the starting point.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Pick two launch markets with the country programme (proposal: Spain and Canada) and build every capability as market configuration rather than code paths, so market three costs configuration and content.</li><li>Backend: sender-market dimension across catalogue, pricing, promos, fraud rules and reporting; App: currency and tax display, market selector at onboarding, localisation for the launch languages.</li><li>Land eSIM as a first-class product in the new markets from day one, since travel eSIM is the product with the clearest ROW demand.</li><li>Launch soft (no marketing) for one sprint per market to shake out payments and support before MARCOM spends.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE L (4 FTE sprints, 2 devs) · App L (4 FTE sprints) · Design M</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>4</td><td>PM</td><td>4 Jan 2027</td><td>31 Jan 2027</td></tr><tr><td>Design (Figma)</td><td class='num'>3</td><td>Designer</td><td>1 Feb 2027</td><td>21 Feb 2027</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>2</td><td>TPM</td><td>22 Feb 2027</td><td>7 Mar 2027</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>2 devs</td><td>28 Jun 2027</td><td>25 Jul 2027</td></tr><tr><td>App development</td><td class='num'>4</td><td>2 devs</td><td>26 Jul 2027</td><td>22 Aug 2027</td></tr><tr><td>QA and release</td><td class='num'>3</td><td>QAs</td><td>23 Aug 2027</td><td>12 Sep 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">Country launch programme (legal, tax, payments per market), IDT Pay local payment methods, Calling (Pinless) team, K2 offer catalogue per market.</p>
+<h4>Success measures</h4>
+<ul><li>BR app live in two ROW markets with IMTU and eSIM by end of Q4</li><li>Payment success rate in new markets above 90% within two months</li><li>Third market enabled with configuration only, no app release</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1218156429240264" target="_blank" rel="noopener">Asana task 1</a> · <a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1215922468194936" target="_blank" rel="noopener">Asana task 2</a> · <a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1215922468194932" target="_blank" rel="noopener">Asana task 3</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="B5">
+<header><span class="eyebrow">#15 · B5</span><span class="pill">Board Goal</span><span class="pill">All Products</span><span class="pill">Priority Medium</span><span class="pill">Q3</span><span class="pill risk">lands in FY28 at 35% reserve</span></header>
+<h3>Support the RAF program with a fully trackable journey</h3>
+<p class="lead">Instrument and complete the Refer-a-Friend journey from invite to first transaction to reward payout so every step is measurable.</p>
+<h4>Description</h4>
+<p>The new RAF platform launched in FY26 with a $5 IMTU reward, but attribution is still partial: invites, installs, first purchase and payout live in different systems and the RAF event documentation was a recurring chore. This initiative closes the loop in the DCS products: a referral code or link carried through install and first IMTU, eGift or eSIM purchase, reward issuance visible to both parties, and a single funnel in Amplitude and the data warehouse. The IMTU Request Top-Up and Gifting ideas both need this loop to work.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Define the RAF event contract once (invite sent, link opened, installed, registered, first purchase, reward issued, reward redeemed) with referrer and referee ids on every event, and make it the acceptance criteria for every surface.</li><li>Backend attaches the referral to the account at registration and evaluates the reward on first qualifying purchase across all DCS products, not only IMTU.</li><li>App shows the referrer a live status of each invite (installed, purchased, reward paid) so the feature explains itself and support contacts fall.</li><li>Report weekly: invites, conversion per step, reward cost per acquired customer, and share of referees who transact again within 30 days.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE M (2 FTE sprints, 1 dev) · App M (2 FTE sprints) · Design S</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>2</td><td>PM</td><td>1 Feb 2027</td><td>14 Feb 2027</td></tr><tr><td>Design (Figma)</td><td class='num'>2</td><td>Designer</td><td>22 Feb 2027</td><td>7 Mar 2027</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>2</td><td>TPM</td><td>8 Mar 2027</td><td>21 Mar 2027</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>1 dev</td><td>26 Jul 2027</td><td>22 Aug 2027</td></tr><tr><td>App development</td><td class='num'>4</td><td>1 dev</td><td>23 Aug 2027</td><td>19 Sep 2027</td></tr><tr><td>QA and release</td><td class='num'>2</td><td>QAs</td><td>20 Sep 2027</td><td>3 Oct 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">DTC Core (RAF platform, shipped FY26), CRM for reward messaging, Data team for attribution reporting.</p>
+<h4>Success measures</h4>
+<ul><li>100% of RAF rewards attributable to an invite event</li><li>Referee 30-day repeat rate reported and above 40%</li><li>RAF cost per acquired transacting customer known and below paid CAC</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1218156429240273" target="_blank" rel="noopener">Asana task</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="G7">
+<header><span class="eyebrow">#16 · G7</span><span class="pill">Business Goal</span><span class="pill">MTU</span><span class="pill">Priority Medium</span><span class="pill">Q3</span><span class="pill carry">FY26 carry-over</span><span class="pill risk">lands in FY28 at 35% reserve</span></header>
+<h3>Request Top-Up (SMS based)</h3>
+<p class="lead">Let a recipient abroad ask a sender for a top-up by SMS, landing the sender in a prefilled purchase flow.</p>
+<h4>Description</h4>
+<p>Request Top-Up turns the recipient into an acquisition channel. The recipient sends a request from a lightweight web page or by replying to an SMS; the sender receives an SMS with a link that opens the app (or web) with the number, carrier and suggested amount prefilled. Senders who are not BR customers land in onboarding with a RAF credit. The FY26 board carried it as a business spike; FY27 builds it once the RAF loop and the WhatsApp channel exist to amplify it.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Build the request as a deep link with a signed payload (recipient, carrier, amount, requester id) so the same link works for app, web and, later, WhatsApp.</li><li>Backend: request creation, SMS dispatch, request status, and expiry; App: a &#x27;request received&#x27; entry that opens a prefilled checkout, and a request history for the sender.</li><li>Route non-customer senders through onboarding with the RAF reward so every request that converts also acquires a sender.</li><li>Cap requests per recipient per week and require sender opt-out handling so the channel does not become spam.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE M (2 FTE sprints, 1 dev) · App M (2 FTE sprints) · Design M</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>2</td><td>PM</td><td>1 Feb 2027</td><td>14 Feb 2027</td></tr><tr><td>Design (Figma)</td><td class='num'>3</td><td>Designer</td><td>1 Mar 2027</td><td>21 Mar 2027</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>2</td><td>TPM</td><td>22 Mar 2027</td><td>4 Apr 2027</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>1 dev</td><td>26 Jul 2027</td><td>22 Aug 2027</td></tr><tr><td>App development</td><td class='num'>4</td><td>1 dev</td><td>23 Aug 2027</td><td>19 Sep 2027</td></tr><tr><td>QA and release</td><td class='num'>2</td><td>QAs</td><td>20 Sep 2027</td><td>3 Oct 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">MARCOM (landing page and SMS templates), SMS gateway, RAF platform for the referral hook.</p>
+<h4>Success measures</h4>
+<ul><li>Request to paid top-up conversion above 15%</li><li>At least 10% of converted requests come from senders new to BR</li><li>SMS complaint rate below 0.1%</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1215836632250426" target="_blank" rel="noopener">Asana task</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="G11">
+<header><span class="eyebrow">#17 · G11</span><span class="pill">Business Goal</span><span class="pill">eSIM</span><span class="pill">Priority Medium</span><span class="pill">Q3</span><span class="pill risk">lands in FY28 at 35% reserve</span></header>
+<h3>eSIM location-based improvements</h3>
+<p class="lead">Use the traveller&#x27;s location and trip context to recommend, activate and top up the right eSIM plan at the right moment.</p>
+<h4>Description</h4>
+<p>The eSIM funnel converts 2.3% end to end and loses most users at order review, partly because the customer has to know which region plan they need. Location awareness fixes the recommendation: detect the destination from the device locale, trip dates or arrival, propose the matching regional plan, remind the traveller to install before departure, and offer a data top-up when usage is high in-country. It also positions the eSIM product for the ROW expansion, where the customer is the traveller rather than the sender.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Ask for location permission only at the moment it helps (plan search and arrival), never at app start, and degrade gracefully to a country picker.</li><li>Recommend one plan per detected destination on the eSIM home and the order review, and prefill it, which is where the funnel loses 63% today.</li><li>Trigger &#x27;you have arrived, activate now&#x27; and &#x27;running low, add data&#x27; notifications through the validity-reminder service shipped in FY26.</li><li>Put a usage widget with location context on the calling app home in a later step, once the recommendation converts.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE S (1 FTE sprints, 1 dev) · App M (2 FTE sprints) · Design S</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>2</td><td>PM</td><td>15 Feb 2027</td><td>28 Feb 2027</td></tr><tr><td>Design (Figma)</td><td class='num'>2</td><td>Designer</td><td>8 Mar 2027</td><td>21 Mar 2027</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>1</td><td>TPM</td><td>22 Mar 2027</td><td>28 Mar 2027</td></tr><tr><td>Backend development</td><td class='num'>2</td><td>1 dev</td><td>23 Aug 2027</td><td>5 Sep 2027</td></tr><tr><td>App development</td><td class='num'>4</td><td>1 dev</td><td>20 Sep 2027</td><td>17 Oct 2027</td></tr><tr><td>QA and release</td><td class='num'>2</td><td>QAs</td><td>18 Oct 2027</td><td>31 Oct 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">eSIM supplier (coverage and usage data), OS location permissions.</p>
+<h4>Success measures</h4>
+<ul><li>eSIM order review to purchase conversion up 10 points</li><li>Activation within 24h of arrival above 80% for plans bought before travel</li><li>In-trip data top-up rate above 15%</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1215728501648860" target="_blank" rel="noopener">Asana task</a></p>
+</div>
+</div>
+</section>
+<h3 style="margin-top:36px">Q4 FY27 (Jun-Aug 2027)</h3>
+
+<section class="init" id="B6">
+<header><span class="eyebrow">#18 · B6</span><span class="pill">Board Goal</span><span class="pill">All Products</span><span class="pill">Priority Medium</span><span class="pill">Q4</span><span class="pill risk">lands in FY28 at 35% reserve</span></header>
+<h3>Personalised experiences via Engager (ML-driven)</h3>
+<p class="lead">Expand Engager from cards on one rail to personalised home layouts, offers and lifecycle campaigns driven by ML models.</p>
+<h4>Description</h4>
+<p>With Engager cards live on the MTU home (G3) and the module ranking hook in place (G1), FY27 Q4 turns them into a personalisation layer: the home order of sections, the featured offer, the module&#x27;s single offer and the Braze lifecycle messages are all chosen per user by models trained on transaction history. DCS provides the placements, the feature events the models need, and the experimentation hooks; Data Science owns the models.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Ship the data first: a clean event and feature contract (recipient history, cadence, offer taken, promo response) exported to the model team by end of Q3 so models train while DCS builds placements.</li><li>Make three surfaces Engager-controlled: MTU home section order, the featured offer, and the module&#x27;s offer choice; each with a control group.</li><li>Every personalised decision carries a model version and decision id in analytics so lift can be attributed and rolled back.</li><li>Start with next-best-offer for IMTU repeat senders, the largest and best-understood population, before widening to eGift and eSIM.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE M (2 FTE sprints, 1 dev) · App M (2 FTE sprints) · Design M</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>3</td><td>PM</td><td>5 Apr 2027</td><td>25 Apr 2027</td></tr><tr><td>Design (Figma)</td><td class='num'>3</td><td>Designer</td><td>26 Apr 2027</td><td>16 May 2027</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>2</td><td>TPM</td><td>17 May 2027</td><td>30 May 2027</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>1 dev</td><td>23 Aug 2027</td><td>19 Sep 2027</td></tr><tr><td>App development</td><td class='num'>4</td><td>1 dev</td><td>20 Sep 2027</td><td>17 Oct 2027</td></tr><tr><td>QA and release</td><td class='num'>2</td><td>QAs</td><td>18 Oct 2027</td><td>31 Oct 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">Engager and Data Science teams (ML models and next-best-offer), CRM (Braze), G3 Engager cards as the delivery surface.</p>
+<h4>Success measures</h4>
+<ul><li>IMTU repeat-purchase rate up 5% in the personalised group versus control</li><li>Three Engager-controlled surfaces live with holdouts</li><li>Model-to-app latency under 200 ms at the 95th percentile</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1218156429240270" target="_blank" rel="noopener">Asana task</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="B9">
+<header><span class="eyebrow">#19 · B9</span><span class="pill">Board Goal</span><span class="pill">All Products</span><span class="pill">Priority Medium</span><span class="pill">Q4</span><span class="pill risk">lands in FY28 at 35% reserve</span></header>
+<h3>Promo balances support for the BR Wallet</h3>
+<p class="lead">Make promotional balances earned through Boss products spendable from the Wallet in both apps, across all products including Pinless.</p>
+<h4>Description</h4>
+<p>Promotions today pay out as product-specific credits: an IMTU discount, an eGift bonus, a RAF airtime reward. The Wallet integration shipped in FY26 made the stored balance a payment method for DCS products. This initiative adds a promo balance type to the Wallet so any campaign can pay a reward once and the customer spends it on any product in either app. Pinless is excluded as a source of promos but included as a place to spend them. It turns scattered incentives into one loyalty currency, which the gamification work then draws on.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Agree the balance model with the Wallet team first: promo balance as a separate bucket with expiry, spend order (promo before cash), and per-product spend rules.</li><li>Backend maps BLS promo payouts to Wallet promo credits and applies them at checkout for IMTU, eGift, eSIM and Pinless; App shows the promo balance, its expiry and what it can be spent on.</li><li>Migrate one existing campaign (RAF $5 reward) to the Wallet promo balance as the pilot before opening it to all campaigns.</li><li>Report promo liability and breakage to Finance from the Wallet ledger rather than from each product.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE L (4 FTE sprints, 2 devs) · App M (2 FTE sprints) · Design S</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>2</td><td>PM</td><td>5 Apr 2027</td><td>18 Apr 2027</td></tr><tr><td>Design (Figma)</td><td class='num'>2</td><td>Designer</td><td>19 Apr 2027</td><td>2 May 2027</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>2</td><td>TPM</td><td>3 May 2027</td><td>16 May 2027</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>2 devs</td><td>20 Sep 2027</td><td>17 Oct 2027</td></tr><tr><td>App development</td><td class='num'>4</td><td>1 dev</td><td>18 Oct 2027</td><td>14 Nov 2027</td></tr><tr><td>QA and release</td><td class='num'>2</td><td>QAs</td><td>15 Nov 2027</td><td>28 Nov 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">BR Wallet team (balance types and ledger), BLS promo engine, Boss Money app team, Finance for promo liability.</p>
+<h4>Success measures</h4>
+<ul><li>Promo balance redeemable in both apps across all four products</li><li>Share of promo credits spent within 30 days above 60%</li><li>RAF reward migrated with no increase in support contacts</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1218156429240261" target="_blank" rel="noopener">Asana task</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="B3">
+<header><span class="eyebrow">#20 · B3</span><span class="pill">Board Goal</span><span class="pill">MTU</span><span class="pill">Priority Medium</span><span class="pill">Q4</span><span class="pill risk">lands in FY28 at 35% reserve</span></header>
+<h3>Support the IVA migration for MTU</h3>
+<p class="lead">Move the MTU credit card purchase and self-service flows from the legacy IVR to the AI virtual agent without losing context.</p>
+<h4>Description</h4>
+<p>The legacy IVR still sells top-ups by phone and handles balance and order questions. The company-wide IVA programme replaces the IVR with a conversational agent, and MTU is one of the flows to migrate. DCS provides the APIs the agent calls: recipient lookup, offer list, promo eligibility, payment with a stored card, order status, and the ability to carry context (caller identity, recipient, partially completed order) between the agent and the app or an agent hand-off. The DTC Universal API CSA connector is the base.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Expose the MTU flow as a small set of stateless API calls plus a context token, so the IVA can resume a purchase after a hand-off or a dropped call.</li><li>Support only stored-card and Wallet payment in the agent; new card capture stays in the app or with a human agent, keeping PCI scope unchanged.</li><li>Mirror the app&#x27;s promo and pricing rules exactly so a phone customer sees the same offer and price as an app customer.</li><li>Migrate self-service (order status, cancel a subscription) first, purchase second, so the agent handles volume before it handles money.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE M (2 FTE sprints, 1 dev) · App - (0 FTE sprints) · Design -</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>2</td><td>PM</td><td>19 Apr 2027</td><td>2 May 2027</td></tr><tr><td>Design (Figma)</td><td class='num'>0</td><td colspan='3' style='color:var(--muted)'>not needed</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>2</td><td>TPM</td><td>17 May 2027</td><td>30 May 2027</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>1 dev</td><td>18 Oct 2027</td><td>14 Nov 2027</td></tr><tr><td>App development</td><td class='num'>0</td><td colspan='3' style='color:var(--muted)'>not needed</td></tr><tr><td>QA and release</td><td class='num'>2</td><td>QAs</td><td>15 Nov 2027</td><td>28 Nov 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">IVA (Intelligent Virtual Agent) programme team, CSA and IVR teams, DTC Universal API (CSA connector shipped FY26).</p>
+<h4>Success measures</h4>
+<ul><li>MTU IVR call volume down 80% after migration</li><li>Phone purchase completion rate at least equal to the IVR baseline</li><li>Context preserved on 100% of hand-offs (no re-asking the recipient number)</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1218156225083574" target="_blank" rel="noopener">Asana task</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="G8">
+<header><span class="eyebrow">#21 · G8</span><span class="pill">Business Goal</span><span class="pill">All Products</span><span class="pill">Priority Medium</span><span class="pill">Q4</span><span class="pill carry">FY26 carry-over</span><span class="pill risk">lands in FY28 at 35% reserve</span></header>
+<h3>MTU gamification</h3>
+<p class="lead">A cross-product programme of missions, streaks and surprise rewards that drives repeat purchase and product exploration.</p>
+<h4>Description</h4>
+<p>FY26 shipped the first mechanics as Braze in-app messages: punch cards and first-purchase promos. FY27 turns them into a programme: missions with visible progress, time-limited offers, occasional surprise games, a monthly calendar and sharing of prizes, each targeted to a customer segment. Mechanics and rewards are decided per product. It sits late in the year deliberately so it can pay rewards into the Wallet promo balance and be targeted by Engager rather than by static segments.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Build a mission engine in the backend (definition, progress tracking from order events, reward issuance) and keep the presentation in Braze and the app so marketing can launch missions without releases.</li><li>Reuse the FY26 punch card as the first mission type; add streaks (top up three months in a row) and cross-product missions (top-up plus eGift) as the second and third.</li><li>Pay rewards as Wallet promo balance where B9 is live, BLS promos where it is not.</li><li>Measure incrementality with holdouts per mission; retire mechanics that do not lift repeat rate within two cycles.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE M (2 FTE sprints, 1 dev) · App L (4 FTE sprints) · Design L</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>3</td><td>PM</td><td>26 Apr 2027</td><td>16 May 2027</td></tr><tr><td>Design (Figma)</td><td class='num'>4</td><td>Designer</td><td>17 May 2027</td><td>13 Jun 2027</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>2</td><td>TPM</td><td>14 Jun 2027</td><td>27 Jun 2027</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>1 dev</td><td>18 Oct 2027</td><td>14 Nov 2027</td></tr><tr><td>App development</td><td class='num'>4</td><td>2 devs</td><td>15 Nov 2027</td><td>12 Dec 2027</td></tr><tr><td>QA and release</td><td class='num'>2</td><td>QAs</td><td>13 Dec 2027</td><td>26 Dec 2027</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">BLS promo engine, Braze in-app messages (FY26 punch cards), Wallet promo balance (B9) for rewards, Loyalty team.</p>
+<h4>Success measures</h4>
+<ul><li>Repeat purchase rate of mission participants 10% above matched holdout</li><li>At least 20% of active IMTU users enrolled in a mission in the first quarter after launch</li><li>New mission launched by marketing without an app release</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1215836632250433" target="_blank" rel="noopener">Asana task</a></p>
+</div>
+</div>
+</section>
+
+<section class="init" id="G5">
+<header><span class="eyebrow">#22 · G5</span><span class="pill">Business Goal</span><span class="pill">MTU</span><span class="pill">Priority Low</span><span class="pill">Q4</span><span class="pill risk">lands in FY28 at 35% reserve</span></header>
+<h3>Introduce crypto payment checkout</h3>
+<p class="lead">Accept crypto payments for IMTU through Triple-A, settled in fiat, with no crypto custody at IDT.</p>
+<h4>Description</h4>
+<p>The architecture was defined in July 2026: Triple-A acts as the processor, the customer pays from their own wallet, IDT receives fiat, and IDT Pay gains an adapter so crypto is one more payment method in the order flow. It is a Low priority business goal aimed at a specific segment (crypto-native diaspora in corridors like Nigeria and Venezuela), so it lands in Q4 after the payments work that has broader impact. The Asana subtask to run an education call with Triple-A is the PM entry point.</p>
+<h4>Implementation strategy</h4>
+<ol><li>Implement through the IDT Pay adapter model so the app change is a payment-method tile and a hosted payment page, with no wallet logic in the app.</li><li>Handle the lifecycle states defined in the architecture document (created, awaiting payment, underpaid, confirmed, expired, refunded) in the backend with a clear customer message for each.</li><li>Launch for IMTU only, in two corridors, behind a flag; extend to eGift only if fraud results are clean, since eGift is the higher-risk product for irreversible payments.</li></ol>
+<div class="two">
+<div>
+<h4>Phases and sizing</h4>
+<p style="margin-top:0;font-size:14px;color:var(--muted)">BE M (2 FTE sprints, 1 dev) · App S (1 FTE sprints) · Design S</p>
+<div class="scroll"><table class="phases"><thead><tr><th>Phase</th><th class="num">Weeks</th><th>Who</th><th>Start</th><th>End</th></tr></thead><tbody><tr><td>Discovery, PRD and strategy (PM)</td><td class='num'>2</td><td>PM</td><td>3 May 2027</td><td>16 May 2027</td></tr><tr><td>Design (Figma)</td><td class='num'>2</td><td>Designer</td><td>17 May 2027</td><td>30 May 2027</td></tr><tr><td>Dev spike, specs and tickets (TPM)</td><td class='num'>1</td><td>TPM</td><td>31 May 2027</td><td>6 Jun 2027</td></tr><tr><td>Backend development</td><td class='num'>4</td><td>1 dev</td><td>15 Nov 2027</td><td>12 Dec 2027</td></tr><tr><td>App development</td><td class='num'>2</td><td>1 dev</td><td>13 Dec 2027</td><td>26 Dec 2027</td></tr><tr><td>QA and release</td><td class='num'>2</td><td>QAs</td><td>27 Dec 2027</td><td>9 Jan 2028</td></tr></tbody></table></div>
+</div>
+<div>
+<h4>Dependencies</h4>
+<p style="margin-top:0">Triple-A (crypto payment processor), IDT Pay adapter, Legal and Compliance, Finance for fiat settlement.</p>
+<h4>Success measures</h4>
+<ul><li>Crypto payment success rate above 90% of initiated payments</li><li>Refund and underpayment cases resolved automatically in over 95% of cases</li><li>Share of IMTU volume in the pilot corridors paid in crypto measured and reported</li></ul>
+<h4>Source</h4>
+<p style="margin-top:0"><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/task/1215922468293585" target="_blank" rel="noopener">Asana task</a></p>
+</div>
+</div>
+</section>
+
+<h2 id="carry">Carry-over work</h2>
+<p>Four FY26 items were still In Progress when FY27 opened (see the <a href="https://app.asana.com/1/8556634603607/project/1210535324395006/list/1210535557338992" target="_blank" rel="noopener">DCS FY26 Asana board</a>). They occupy backend, app and QA lanes in the first sprints, which is why the first FY27 builds start in October rather than September. Terminus and the WhatsApp chatbot are FY26 items too, but they are FY27 Business goals, so they appear as initiatives 1 and 2.</p>
+<div class="scroll"><table><thead><tr><th>FY26 item</th><th>Product</th><th>Occupies from</th><th>Until</th></tr></thead><tbody><tr><td>Subscription: BLS promos specific for subscriptions</td><td>MTU</td><td>31 Aug 2026</td><td>11 Oct 2026</td></tr><tr><td>Redesign MTU Home Page (cross-sell) rollout</td><td>MTU</td><td>31 Aug 2026</td><td>27 Sep 2026</td></tr><tr><td>Cross Sell: success page expiring x-sell deal</td><td>All Products</td><td>14 Sep 2026</td><td>4 Oct 2026</td></tr><tr><td>Improve BE and APP errors presented to users</td><td>MTU</td><td>31 Aug 2026</td><td>11 Oct 2026</td></tr></tbody></table></div>
+
+
+<h2 id="fy28">What lands in FY28</h2>
+<p>At the 35% tech reserve the backend lanes are fully booked from October 2026 to the end of the year, and the initiatives below start their backend build too late to finish by 29 Aug 2027. Three levers close the gap, in order of preference: engineering validates the estimates down (the Bundling service alone is nine FTE sprints); the reserve drops to 20% for the second half, which adds about 12 backend sprints; or the lowest-priority items (Crypto checkout, Gamification) are formally moved to FY28.</p>
+<div class="scroll"><table><thead><tr><th class="num">#</th><th>Initiative</th><th>Priority</th><th>Backend starts</th><th>Ends</th></tr></thead><tbody><tr><td class='num'>14</td><td><a href='#B8'>Expand the BR app in ROW markets (Pinless, IMTU and eSIM)</a></td><td>High</td><td>28 Jun 2027</td><td>12 Sep 2027</td></tr><tr><td class='num'>15</td><td><a href='#B5'>Support the RAF program with a fully trackable journey</a></td><td>Medium</td><td>26 Jul 2027</td><td>3 Oct 2027</td></tr><tr><td class='num'>16</td><td><a href='#G7'>Request Top-Up (SMS based)</a></td><td>Medium</td><td>26 Jul 2027</td><td>3 Oct 2027</td></tr><tr><td class='num'>17</td><td><a href='#G11'>eSIM location-based improvements</a></td><td>Medium</td><td>23 Aug 2027</td><td>31 Oct 2027</td></tr><tr><td class='num'>18</td><td><a href='#B6'>Personalised experiences via Engager (ML-driven)</a></td><td>Medium</td><td>23 Aug 2027</td><td>31 Oct 2027</td></tr><tr><td class='num'>19</td><td><a href='#B9'>Promo balances support for the BR Wallet</a></td><td>Medium</td><td>20 Sep 2027</td><td>28 Nov 2027</td></tr><tr><td class='num'>20</td><td><a href='#B3'>Support the IVA migration for MTU</a></td><td>Medium</td><td>18 Oct 2027</td><td>28 Nov 2027</td></tr><tr><td class='num'>21</td><td><a href='#G8'>MTU gamification</a></td><td>Medium</td><td>18 Oct 2027</td><td>26 Dec 2027</td></tr><tr><td class='num'>22</td><td><a href='#G5'>Introduce crypto payment checkout</a></td><td>Low</td><td>15 Nov 2027</td><td>9 Jan 2028</td></tr></tbody></table></div>
+
+
+<h2 id="sources">Sources and conventions</h2>
+<ul>
+<li><a href="https://app.asana.com/1/8556634603607/project/1215564565348002/list/1215603355542208" target="_blank" rel="noopener">DCS FY27 Asana board</a>: the 44 items in Ideas; Board and Business goals scheduled here, Backlog items left out by decision, duplicate pairs merged (each merged initiative links both tasks).</li>
+<li><a href="https://app.asana.com/1/8556634603607/project/1210535324395006/list/1210535557338992" target="_blank" rel="noopener">DCS FY26 Asana board</a>: status of the carry-over work.</li>
+<li><a href="https://docs.google.com/spreadsheets/d/1hK1f50qNr4Sv69JirlDSqw68bV_CzV_kJt7HgJJszDE/edit" target="_blank" rel="noopener">DCS FY26 Initiatives spreadsheet</a>: the sizing scale, the 35% tech reserve, the phase colours and the tab layout this plan's spreadsheet copies.</li>
+<li><a href="https://idtjira.atlassian.net/wiki/x/DIDHXAE" target="_blank" rel="noopener">Modular IMTU Component</a> on Confluence: the starting spec for initiative 4.</li>
+<li><a href="https://docs.google.com/spreadsheets/d/1H0JjSvVv-sGPyhukZLj1mKUy6CJN62138pXUkBZuqR8/edit" target="_blank" rel="noopener">DCS FY27 Initiatives spreadsheet</a>: Tech and Business estimates, the weekly Timelines Gantt, the Sequence tab with every phase date, and the Capacity tab with the assumptions.</li>
+</ul>
+<p class="byline">Neither the Asana boards nor the FY26 spreadsheet were modified. Generated from fy27_plan_data.py and fy27_schedule.py in the IDT-Claude repository.</p>
+</div>
