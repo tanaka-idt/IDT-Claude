@@ -212,10 +212,28 @@ def build_requests(blocks):
     return reqs
 
 
+WRITE_GAP = 1.3          # seconds between write calls: the Docs API allows 60 writes per minute per user
+
+
+def write(docs, doc_id, requests):
+    """One batchUpdate, throttled, with a wait-and-retry when the per-minute quota is hit."""
+    from googleapiclient.errors import HttpError
+    for attempt in range(4):
+        try:
+            res = docs.documents().batchUpdate(documentId=doc_id, body={"requests": requests}).execute()
+            time.sleep(WRITE_GAP)
+            return res
+        except HttpError as e:
+            if e.resp.status == 429 and attempt < 3:
+                print("  quota hit, waiting 65 s")
+                time.sleep(65)
+                continue
+            raise
+
+
 def batched(docs, doc_id, reqs, size=40):
     for i in range(0, len(reqs), size):
-        docs.documents().batchUpdate(documentId=doc_id, body={"requests": reqs[i:i + size]}).execute()
-        time.sleep(0.2)
+        write(docs, doc_id, reqs[i:i + size])
 
 
 def para_text(el):
@@ -235,11 +253,10 @@ def insert_table(docs, doc_id, marker, data):
         print(f"  ! placeholder {marker} not found")
         return False
     rows, cols = len(data), len(data[0])
-    docs.documents().batchUpdate(documentId=doc_id, body={"requests": [
+    write(docs, doc_id, [
         {"deleteContentRange": {"range": {"startIndex": idx, "endIndex": idx + plen - 1}}},
         {"insertTable": {"location": {"index": idx}, "rows": rows, "columns": cols}},
-    ]}).execute()
-    time.sleep(0.6)
+    ])
     doc = docs.documents().get(documentId=doc_id).execute()
     table_el = next((el for el in doc["body"]["content"] if "table" in el and el["startIndex"] >= idx - 2), None)
     if table_el is None:
@@ -283,8 +300,7 @@ def main():
         doc = docs.documents().get(documentId=doc_id).execute()
         end = doc["body"]["content"][-1]["endIndex"]
         if end > 2:
-            docs.documents().batchUpdate(documentId=doc_id, body={"requests": [
-                {"deleteContentRange": {"range": {"startIndex": 1, "endIndex": end - 1}}}]}).execute()
+            write(docs, doc_id, [{"deleteContentRange": {"range": {"startIndex": 1, "endIndex": end - 1}}}])
         print(f"Cleared doc: {doc_id}")
     else:
         doc = docs.documents().create(body={"title": TITLE}).execute()
