@@ -151,7 +151,7 @@ td.num,th.num{{text-align:right;font-variant-numeric:tabular-nums;font-family:va
 <div class="eyebrow">DCS product management · fiscal year 2027 · {fmt(week_start(0))} to {fy_end}</div>
 <h1>DCS FY27 Initiative Plan</h1>
 <p class="byline">Description, implementation strategy and phased schedule for the {len(rows)} Board and Business goals on the
-{a(ASANA_PROJECT, "DCS FY27 Asana board")}. Prepared by João Tanaka, 16 September 2026. Companion spreadsheet:
+{a(ASANA_PROJECT, "DCS FY27 Asana board")}. Prepared by João Tanaka, 16 September 2026, descriptions revised 17 September 2026. Companion spreadsheet:
 {a(sheet_url, "DCS FY27 Initiatives") if sheet_url else "DCS FY27 Initiatives (Google Sheet)"}{(" · Google Doc version: " + a(doc_url, "DCS FY27 Initiative Plan")) if doc_url else ""}.</p>
 <div class="stats">
   <div class="stat"><b>{len(rows)}</b><span>initiatives scheduled ({len(board)} Board, {len(biz)} Business)</span></div>
@@ -272,11 +272,11 @@ td.num,th.num{{text-align:right;font-variant-numeric:tabular-nums;font-family:va
                      + (f'<span class="pill risk">lands in FY28 at 35% reserve</span>' if r["spill"] else ""))
             parts.append(f"""
 <section class="init" id="{i['id']}">
-<header><span class="eyebrow">#{i['order']} · {i['id']}</span>{pills}</header>
+<header><span class="eyebrow">Initiative {i['order']}</span>{pills}</header>
 <h3>{esc(i['name'])}</h3>
 <p class="lead">{esc(i['summary'])}</p>
 <h4>Description</h4>
-<p>{esc(i['description'])}</p>
+{''.join(f'<p>{esc(par)}</p>' for par in i['long'].split(chr(10) + chr(10)))}
 <h4>Implementation strategy</h4>
 <ol>{''.join(f'<li>{esc(s)}</li>' for s in i['strategy'])}</ol>
 <div class="two">

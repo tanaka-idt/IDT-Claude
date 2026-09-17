@@ -718,6 +718,10 @@ INITIATIVES = [
     ),
 ]
 
+from fy27_descriptions import LONG   # rewritten descriptions, 16 Sep 2026
+for _i in INITIATIVES:
+    _i["long"] = LONG[_i["id"]]
+
 # FY26 work that is still in flight when FY27 opens. These rows occupy App and
 # QA lanes in the first sprints so the FY27 start dates are realistic.
 CARRY_OVERS = [

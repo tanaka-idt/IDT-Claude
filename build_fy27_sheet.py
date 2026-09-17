@@ -64,7 +64,7 @@ def phase_label_size(i):
 def write_estimates(ws, business):
     """Tech and Business share a layout; Business adds the calendar-sprint
     columns (FTE sprints divided by the lanes available), as FY26 did."""
-    cols = ["Order", "Initiatives", "Description", "BE Estimation", "FTE sprints"]
+    cols = ["Order", "Initiatives", "Description", "New description (revised 17 Sep 2026)", "BE Estimation", "FTE sprints"]
     if business:
         cols += ["BE calendar sprints (2 lanes)"]
     cols += ["APP Estimation", "FTE sprints"]
@@ -78,22 +78,24 @@ def write_estimates(ws, business):
         cell.fill, cell.font, cell.alignment = HEADER_FILL, HEADER_FONT, CENTER
     ws.row_dimensions[1].height = 34
 
-    col = {name: idx + 1 for idx, name in enumerate(cols)}
-    # duplicate header names: resolve by position
-    be_fte_c = 5
-    app_size_c = 7 if business else 6
+    # duplicate header names ("FTE sprints"), so indices come from the anchors
+    newdesc_c = cols.index("New description (revised 17 Sep 2026)") + 1
+    be_size_c = cols.index("BE Estimation") + 1
+    be_fte_c = be_size_c + 1
+    app_size_c = cols.index("APP Estimation") + 1
     app_fte_c = app_size_c + 1
-    tot_size_c = app_fte_c + (2 if business else 1)
+    tot_size_c = cols.index("BE + APP") + 1
     tot_fte_c = tot_size_c + 1
-    design_c = tot_fte_c + 1
-    prio_c, q_c, dep_c, com_c, asana_c = (design_c + 1, design_c + 2, design_c + 3,
-                                          design_c + 4, design_c + 5)
+    design_c = cols.index("Design") + 1
+    prio_c, q_c, dep_c, com_c, asana_c = (cols.index("Priority") + 1, cols.index("Quarter") + 1,
+                                          cols.index("Cross Dependency") + 1, cols.index("Comments") + 1,
+                                          cols.index("Asana") + 1)
 
     def section(title, row):
         ws.cell(row, 1, title).font = Font(bold=True)
         for c in range(1, len(cols) + 1):
             ws.cell(row, c).fill = SECTION_FILL
-        ws.cell(row, 4, SCALE_NOTE).alignment = WRAP
+        ws.cell(row, be_size_c, SCALE_NOTE).alignment = WRAP
         ws.cell(row, app_size_c, SCALE_NOTE).alignment = WRAP
         ws.cell(row, tot_size_c, "Total estimation\n(BE + APP)").alignment = WRAP
         ws.row_dimensions[row].height = 80
@@ -102,10 +104,11 @@ def write_estimates(ws, business):
         ws.cell(row, 1, f"{i['quarter']} · #{i['order']}")
         ws.cell(row, 2, i["name"]).font = Font(bold=True)
         ws.cell(row, 3, i["summary"] + "\n\n" + i["description"])
-        ws.cell(row, 4, i["be"] if not i.get("be_left") else f"{i['be']} ({i['be_left']} left)")
+        ws.cell(row, newdesc_c, i["long"])
+        ws.cell(row, be_size_c, i["be"] if not i.get("be_left") else f"{i['be']} ({i['be_left']} left)")
         ws.cell(row, be_fte_c, be_fte(i))
         if business:
-            ws.cell(row, 6, f"={get_column_letter(be_fte_c)}{row}/{LANES}")
+            ws.cell(row, be_fte_c + 1, f"={get_column_letter(be_fte_c)}{row}/{LANES}")
         ws.cell(row, app_size_c, i["app"] if i["app"] != "-" else "NA")
         ws.cell(row, app_fte_c, app_fte(i))
         if business:
@@ -121,7 +124,7 @@ def write_estimates(ws, business):
         c.font = Font(color="1155CC", underline="single")
         for cc in range(1, len(cols) + 1):
             ws.cell(row, cc).alignment = WRAP
-        ws.row_dimensions[row].height = 150
+        ws.row_dimensions[row].height = 400
 
     row = 2
     first_item = None
@@ -137,7 +140,7 @@ def write_estimates(ws, business):
     for name, desc, be, app in TECH_DEBT_ROWS:
         ws.cell(row, 2, name).font = Font(bold=True)
         ws.cell(row, 3, desc)
-        ws.cell(row, 4, be)
+        ws.cell(row, be_size_c, be)
         ws.cell(row, be_fte_c, f"={LANES + 1}*{SPRINTS}*{TECH_RESERVE}")
         ws.cell(row, app_size_c, app)
         ws.cell(row, app_fte_c, f"={LANES + 1}*{SPRINTS}*{TECH_RESERVE}")
@@ -184,11 +187,11 @@ def write_estimates(ws, business):
     c = ws.cell(row, 3, f'=HYPERLINK("{ASANA_PROJECT}","DCS FY27 Asana board")')
     c.font = Font(color="1155CC", underline="single")
 
-    widths = {1: 12, 2: 34, 3: 78, 4: 14, be_fte_c: 9, app_size_c: 14, app_fte_c: 9,
+    widths = {1: 12, 2: 34, 3: 60, newdesc_c: 90, be_size_c: 14, be_fte_c: 9, app_size_c: 14, app_fte_c: 9,
               tot_size_c: 14, tot_fte_c: 9, design_c: 9, prio_c: 9, q_c: 8,
               dep_c: 34, com_c: 30, asana_c: 12}
     if business:
-        widths[6] = 12
+        widths[be_fte_c + 1] = 12
         widths[app_fte_c + 1] = 12
     for c, w in widths.items():
         ws.column_dimensions[get_column_letter(c)].width = w
@@ -414,13 +417,18 @@ def build():
     return OUT
 
 
-def upload(path):
+def upload(path, existing_id=""):
+    """Create the Google Sheet, or replace the content of an existing one so its URL survives."""
     from googleapiclient.discovery import build as gbuild
     from googleapiclient.http import MediaFileUpload
     from linkify_refs import get_credentials
     drive = gbuild("drive", "v3", credentials=get_credentials())
     media = MediaFileUpload(str(path),
                             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    if existing_id:
+        f = drive.files().update(fileId=existing_id, media_body=media, fields="id,webViewLink").execute()
+        print(f"Google Sheet updated in place: {f['webViewLink']}")
+        return f
     meta = {"name": TITLE, "mimeType": "application/vnd.google-apps.spreadsheet",
             "parents": [FOLDER_ID]}
     f = drive.files().create(body=meta, media_body=media, fields="id,webViewLink").execute()
@@ -431,7 +439,8 @@ def upload(path):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--upload", action="store_true")
+    ap.add_argument("--update", default="", help="spreadsheet id to replace in place (keeps the URL)")
     args = ap.parse_args()
     p = build()
-    if args.upload:
-        upload(p)
+    if args.upload or args.update:
+        upload(p, args.update)

@@ -57,7 +57,7 @@ def content(sheet_url, html_url):
 
     B, T = [], []
     B.append(("h1", TITLE))
-    B.append(("cap", f"Prepared by João Tanaka, 16 September 2026. Fiscal year {fmt(week_start(0))} to {fy_end}. "
+    B.append(("cap", f"Prepared by João Tanaka, 16 September 2026, descriptions revised 17 September 2026. Fiscal year {fmt(week_start(0))} to {fy_end}. "
                      f"Source: DCS FY27 Asana board."))
     B.append(("p", f"Description, implementation strategy and phased schedule for the {len(rows)} Board and Business goals on the "
                    f"DCS FY27 Asana board ({ASANA_PROJECT})."))
@@ -120,7 +120,8 @@ def content(sheet_url, html_url):
                 tags += " · Lands in FY28 at the 35% reserve"
             B.append(("cap", tags))
             B.append(("p", i["summary"]))
-            B.append(("p", i["description"]))
+            for par in i["long"].split("\n\n"):
+                B.append(("p", par))
             B.append(("p", "Implementation strategy"))
             for s in i["strategy"]:
                 B.append(("n", s))
@@ -269,6 +270,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sheet-url", default="")
     ap.add_argument("--html-url", default="")
+    ap.add_argument("--doc-id", default="", help="rebuild this existing document in place instead of creating a new one")
     args = ap.parse_args()
 
     creds = get_credentials()
@@ -276,9 +278,18 @@ def main():
     drive = build("drive", "v3", credentials=creds)
 
     blocks, tables = content(args.sheet_url, args.html_url)
-    doc = docs.documents().create(body={"title": TITLE}).execute()
-    doc_id = doc["documentId"]
-    print(f"Created doc: {doc_id}")
+    if args.doc_id:
+        doc_id = args.doc_id
+        doc = docs.documents().get(documentId=doc_id).execute()
+        end = doc["body"]["content"][-1]["endIndex"]
+        if end > 2:
+            docs.documents().batchUpdate(documentId=doc_id, body={"requests": [
+                {"deleteContentRange": {"range": {"startIndex": 1, "endIndex": end - 1}}}]}).execute()
+        print(f"Cleared doc: {doc_id}")
+    else:
+        doc = docs.documents().create(body={"title": TITLE}).execute()
+        doc_id = doc["documentId"]
+        print(f"Created doc: {doc_id}")
     reqs = build_requests(blocks)
     batched(docs, doc_id, reqs)
     print(f"Inserted {len(reqs)} text requests")
@@ -298,8 +309,9 @@ def main():
     linkify(docs, doc_id, link_map)
 
     f = drive.files().get(fileId=doc_id, fields="parents").execute()
-    drive.files().update(fileId=doc_id, addParents=FOLDER_ID,
-                         removeParents=",".join(f.get("parents", [])), fields="id,parents").execute()
+    if FOLDER_ID not in f.get("parents", []):
+        drive.files().update(fileId=doc_id, addParents=FOLDER_ID,
+                             removeParents=",".join(f.get("parents", [])), fields="id,parents").execute()
     url = f"https://docs.google.com/document/d/{doc_id}/edit"
     print(f"Google Doc: {url}")
     return url
