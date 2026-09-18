@@ -116,7 +116,7 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 <ol>
 <li><b>The auto-cancel rule works, and it works fast.</b> At three consecutive failures it clears 86.6% of the failing backlog the moment it runs, 90% within three months and effectively all of it within nine months. N=4 and N=5 buy very little extra safety and add three and six months respectively.</li>
 <li><b>The card-removal story is confirmed, and it is the single largest cause.</b> 13,090 failing subscriptions carry a missing-card failure. 995 of the 1,285 customers involved have no working card left anywhere in the file. They did exactly what you described: they pulled the payment method to stop the charges.</li>
-<li><b>Most duplicates are not accidental double taps.</b> Only 12.8% of the gaps between one subscription and the next in the same group are under ten minutes. The median gap is 12.2 days. This is Case 2, a customer re-adding the subscription on every top-up, not Case 1.</li>
+<li><b>There is no accidental double subscription, so every duplicate is a deliberate repeat purchase.</b> The purchase flow cannot subscribe twice within one top-up, so each subscription in a group is a separate top-up with the subscription option turned on. 12.8% of them were bought within ten minutes of the previous one and the median gap is 12.2 days, but the mechanism is identical at both ends of that range.</li>
 <li><b>Case 3 is real and it is 1,094 customers.</b> They hold 3,469 surplus active subscriptions that have taken 20,459 charges, 1,835 of them in the last 30 days alone. No failure rule will ever touch these, by design.</li>
 <li><b>The K2 double-fulfilment bug is a separate, urgent, and much cheaper fix.</b> One checkout creates two subscriptions roughly 202 seconds apart. It is not user behaviour and no cancellation rule prevents it. An idempotency key on the transaction id stops it outright.</li>
 </ol>
@@ -143,22 +143,36 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 
 <section>
 <div class="sh"><h2>The three cases, measured</h2><span class="num">group-level classification</span></div>
-<p>Your three hypotheses map onto the data cleanly, but not in the proportions you might expect. I classified every one of the 5,807 groups: a group is Case 3 if it currently has two or more subscriptions actively purchasing; otherwise if the majority of its failing subscriptions show a missing card, it is Case 1 or Case 2 depending on whether the subscriptions were created within a day of each other or spread out over time.</p>
+<p>One structural correction first: <b>Case 1 as described cannot happen.</b> The IMTU purchase flow has no way to subscribe twice inside a single top-up, so an accidental double subscription is not a mechanism that exists. Every subscription in one of these groups is a separate, deliberate top-up purchase where the customer turned the subscription option on. That leaves two behavioural stories, not three.</p>
+<p>I classified every one of the 5,807 groups on that basis: a group is Case 3 if it currently has two or more subscriptions actively purchasing; otherwise, if the majority of its failing subscriptions show a missing card it is Case 2, and if the card is still present it belongs in the fourth row, which is not one of your cases at all.</p>
 
 <div class="tw"><table>
 <thead><tr><th>Classification</th><th class="n">Groups</th><th class="n">Subscriptions</th><th class="n">Customers</th><th>Reading</th></tr></thead>
 <tbody>
-<tr><td><b>Case 2.</b> Re-subscribed on later top-ups, then removed the card</td><td class="n">2,159</td><td class="n">11,562</td><td class="n">1,064</td><td>The dominant story. Subscriptions added days or weeks apart, then the card pulled.</td></tr>
+<tr><td><b>Case 2.</b> Subscribed on every top-up, then removed the card</td><td class="n">2,388</td><td class="n">12,892</td><td class="n">1,184</td><td>The dominant story, and now the only duplicate-creation story. Each subscription is its own purchase, then the card was pulled.</td></tr>
 <tr><td><b>Card on file but failing</b> (no funds, declined, expired)</td><td class="n">1,957</td><td class="n">7,932</td><td class="n">1,435</td><td>Not in your three cases. The card is still there, it simply does not pay.</td></tr>
 <tr><td><b>Case 3.</b> Paying duplicates</td><td class="n">1,387</td><td class="n">6,175</td><td class="n">1,094</td><td>Charging successfully today. Revenue, and the group we do not cancel.</td></tr>
-<tr><td><b>Case 1.</b> Same-session accidental, then removed the card</td><td class="n">229</td><td class="n">1,330</td><td class="n">202</td><td>Much smaller than expected. Genuine double taps are rare.</td></tr>
 <tr><td>New, not yet launched</td><td class="n">75</td><td class="n">257</td><td class="n">71</td><td>Created recently, first charge still pending.</td></tr>
 </tbody></table></div>
 
 <div class="callout">
-<p class="lab">The one correction to the brief</p>
-<p>Case 1 as described, the accidental double purchase, is only 229 groups. The mechanism behind almost all of the backlog is Case 2: the customer tops up again, the subscription toggle is on again, and a second subscription is created. The median gap between one subscription and the next in a group is <b>12.2 days</b>, and only 12.8% of gaps are under ten minutes. That matters for the fix, because a double-tap guard would catch almost nothing, while a "you already have a subscription to this number" check at checkout would catch most of it.</p>
+<p class="lab">What the fast duplicates actually are</p>
+<p>2,736 subscriptions (12.8%) were created less than ten minutes after the previous one in their group, and 1,158 of those less than a minute after. Because the flow cannot subscribe twice in one purchase, each of these is <b>two separate top-up purchases minutes apart, both with the subscription option on</b>, and 2,580 of the 2,736 were paid with the same card as the subscription before them. It is the same behaviour as the 30-day gaps, simply compressed: a customer buying two top-ups in one sitting, perhaps two different amounts or a retry after they thought the first had failed.</p>
+<p>That changes what the checkout guard has to do. It is not enough to check across days; <b>R2 has to fire inside a single session</b>, seconds after the previous purchase, because that is where an eighth of the backlog is created.</p>
 </div>
+
+<div class="tw"><table>
+<thead><tr><th>Time between one subscription and the next in the same group</th><th class="n">Occurrences</th><th class="n">Share</th></tr></thead>
+<tbody>
+<tr><td>Under 1 minute</td><td class="n">1,158</td><td class="n">5.4%</td></tr>
+<tr><td>1 to 10 minutes</td><td class="n">1,578</td><td class="n">7.4%</td></tr>
+<tr><td>10 to 60 minutes</td><td class="n">561</td><td class="n">2.6%</td></tr>
+<tr><td>1 to 24 hours</td><td class="n">1,554</td><td class="n">7.2%</td></tr>
+<tr><td>1 to 7 days</td><td class="n">3,409</td><td class="n">15.9%</td></tr>
+<tr><td>7 to 30 days</td><td class="n">6,790</td><td class="n">31.7%</td></tr>
+<tr><td>More than 30 days</td><td class="n">6,399</td><td class="n">29.8%</td></tr>
+<tr class="tot"><td>Total, median gap 12.2 days</td><td class="n">21,449</td><td class="n">100%</td></tr>
+</tbody></table></div>
 
 <p>There is corroborating evidence for the Case 2 mechanism. 91.1% of later subscriptions with a recorded creation date had their first charge attempt 0.8 to 1.2 cycles after creation, which is the signature of a subscription created at a top-up checkout. And 51.2% of later subscriptions were created after an earlier sibling had already charged at least once, with 22.4% created while a sibling was still successfully purchasing.</p>
 </section>
@@ -444,8 +458,8 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 
 <div class="rule-card"><div class="id">R2</div><div>
 <h4>Duplicate guard at checkout: block a second subscription to the same number, offer and frequency</h4>
-<p>The highest-value rule in this list because it is the only one that stops the backlog being rebuilt. If an active subscription already exists for that recipient and offer, do not create a second one. Offer "you already have this subscription, change it instead". This is the direct fix for Case 2, which is 2,159 groups and 11,562 subscriptions.</p>
-<p class="imp"><b>Prevents</b> up to 2,400 of the permanent floor &nbsp;&middot;&nbsp; <b>Addresses</b> Case 1, Case 2 and Case 3 at source</p>
+<p>The highest-value rule in this list because it is the only one that stops the backlog being rebuilt. If an active subscription already exists for that recipient and offer, do not create a second one. Offer "you already have this subscription, change it instead". This is the direct fix for Case 2, which is 2,388 groups and 12,892 subscriptions. It must apply within a single session as well as across days: 2,736 duplicates were created less than ten minutes after the previous one, so a guard that only checks yesterday's subscriptions misses an eighth of the problem.</p>
+<p class="imp"><b>Prevents</b> up to 2,400 of the permanent floor &nbsp;&middot;&nbsp; <b>Addresses</b> Case 2 and Case 3 at source</p>
 </div></div>
 
 <div class="rule-card"><div class="id">R3</div><div>
@@ -559,7 +573,7 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 
 <section>
 <div class="sh"><h2>The K2 double-fulfilment bug</h2><span class="num">population B, live</span></div>
-<p>This is a different problem with a different fix, and it is the most urgent thing in the file. One checkout creates two subscriptions. The median gap between them is <b>202 seconds</b>, with 99.2% falling between two and five minutes, which is a server-side retry after a timeout, not a customer double tap.</p>
+<p>This is a different problem with a different fix, and it is the most urgent thing in the file. Here two subscriptions share <b>a single transaction id</b>, and since the flow cannot subscribe twice within one purchase, these can only be a system fault. The median gap between the two is <b>202 seconds</b>, with 99.2% falling between two and five minutes, which is a server-side retry after a timeout. This is the one place in the file where a duplicate was not created by the customer.</p>
 
 <div class="tiles">
   <div class="tile"><p class="k">Pairs in the file</p><div class="v">7,005</div><p class="s">14,011 subscriptions, 5,955 customers</p></div>
@@ -589,7 +603,7 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 <section>
 <div class="sh"><h2>Method and limits</h2></div>
 <ul>
-<li><b>What was computed.</b> Every number here came from the five tabs of the source sheet, read through the Sheets API and analysed in pandas. Seven independent analyses were run over the extract, and every headline number in this document was then re-derived a second time from the raw CSVs. Where the two passes disagreed, the re-derived number is the one shown: the day-one cancel count at N=3 is 18,486 and not 18,566, and the surplus charges in the last 30 days are 1,835 and not 1,746.</li>
+<li><b>What was computed.</b> Classification was revised on 18 September 2026 after product confirmed that the IMTU purchase flow cannot create two subscriptions from one purchase: the former Case 1 was merged into Case 2, which is why Case 2 is 2,388 groups here and not 2,159. Every number came from the five tabs of the source sheet, read through the Sheets API and analysed in pandas. Seven independent analyses were run over the extract, and every headline number in this document was then re-derived a second time from the raw CSVs. Where the two passes disagreed, the re-derived number is the one shown: the day-one cancel count at N=3 is 18,486 and not 18,566, and the surplus charges in the last 30 days are 1,835 and not 1,746.</li>
 <li><b>Consecutive failures are partly estimated.</b> For the 13,702 failing subscriptions that never charged, the count is the launch count, which is exact. For the 7,641 that charged and then went stale, it is the number of cycles between the last successful charge and the last attempt, which is an estimate. It can be wrong if a subscription was paused.</li>
 <li><b>Money is an estimate with stated coverage.</b> Population A has no price column. See the note in the Case 3 section.</li>
 <li><b>Creation dates before 2025 are approximate.</b> 8,722 of 27,256 creation timestamps (32%) are reconstructed as the first launch minus one cycle.</li>

@@ -46,16 +46,26 @@ POPS = [
      "Idempotency on the transaction id"],
 ]
 
+GAPS = [
+    ["Time between one subscription and the next in the same group", "Occurrences", "Share"],
+    ["Under 1 minute", "1,158", "5.4%"],
+    ["1 to 10 minutes", "1,578", "7.4%"],
+    ["10 to 60 minutes", "561", "2.6%"],
+    ["1 to 24 hours", "1,554", "7.2%"],
+    ["1 to 7 days", "3,409", "15.9%"],
+    ["7 to 30 days", "6,790", "31.7%"],
+    ["More than 30 days", "6,399", "29.8%"],
+    ["Total, median gap 12.2 days", "21,449", "100%"],
+]
+
 CASES = [
     ["Classification", "Groups", "Subscriptions", "Customers", "Reading"],
-    ["Case 2. Re-subscribed on later top-ups, then removed the card", "2,159", "11,562", "1,064",
-     "The dominant story. Subscriptions added days or weeks apart, then the card pulled."],
+    ["Case 2. Subscribed on every top-up, then removed the card", "2,388", "12,892", "1,184",
+     "The dominant story, and now the only duplicate-creation story. Each subscription is its own purchase, then the card was pulled."],
     ["Card on file but failing (no funds, declined, expired)", "1,957", "7,932", "1,435",
      "Not in the three cases. The card is still there, it simply does not pay."],
     ["Case 3. Paying duplicates", "1,387", "6,175", "1,094",
      "Charging successfully today. Revenue, and the group we do not cancel."],
-    ["Case 1. Same-session accidental, then removed the card", "229", "1,330", "202",
-     "Much smaller than expected. Genuine double taps are rare."],
     ["New, not yet launched", "75", "257", "71",
      "Created recently, first charge still pending."],
 ]
@@ -147,7 +157,7 @@ K2STATE = [
     ["Never launched", "10", ""],
 ]
 
-TABLES = [("POPS", POPS), ("CASES", CASES), ("FREQ", FREQ), ("CAUSE", CAUSE),
+TABLES = [("POPS", POPS), ("CASES", CASES), ("GAPS", GAPS), ("FREQ", FREQ), ("CAUSE", CAUSE),
           ("AGE", AGE), ("THRESH", THRESH), ("CLEAR", CLEAR), ("FLOOR", FLOOR),
           ("TOPOWN", TOPOWN), ("GEO", GEO), ("K2STATE", K2STATE)]
 
@@ -163,7 +173,7 @@ B = [
     ("p", "Five things drive every recommendation in this document."),
     ("n", "The auto-cancel rule works, and it works fast. At three consecutive failures it clears 86.6% of the failing backlog the moment it runs, 90% within three months and effectively all of it within nine months. N=4 and N=5 buy very little extra safety and add three and six months respectively."),
     ("n", "The card-removal story is confirmed, and it is the single largest cause. 13,090 failing subscriptions carry a missing-card failure. 995 of the 1,285 customers involved have no working card left anywhere in the file. They did exactly what you described: they pulled the payment method to stop the charges."),
-    ("n", "Most duplicates are not accidental double taps. Only 12.8% of the gaps between one subscription and the next in the same group are under ten minutes. The median gap is 12.2 days. This is Case 2, a customer re-adding the subscription on every top-up, not Case 1."),
+    ("n", "There is no accidental double subscription, so every duplicate is a deliberate repeat purchase. The purchase flow cannot subscribe twice within one top-up, so each subscription in a group is a separate top-up with the subscription option turned on. 12.8% of them were bought within ten minutes of the previous one and the median gap is 12.2 days, but the mechanism is identical at both ends of that range."),
     ("n", "Case 3 is real and it is 1,094 customers. They hold 3,469 surplus active subscriptions that have taken 20,459 charges, 1,835 of them in the last 30 days alone. No failure rule will ever touch these, by design."),
     ("n", "The K2 double-fulfilment bug is a separate, urgent, and much cheaper fix. One checkout creates two subscriptions roughly 202 seconds apart. It is not user behaviour and no cancellation rule prevents it. An idempotency key on the transaction id stops it outright."),
 
@@ -174,9 +184,12 @@ B = [
     ("p", "Exclude from behavioural analysis: a system event on 2025-12-19 created 1,122 subscriptions in two one-hour windows, up to 83 per minute, across 343 customers. That is a migration, not customer behaviour, and it is why December 2025 is the tallest month in the timeline. Removing it drops 349 groups below the three-subscription threshold entirely."),
 
     ("h2", "The three cases, measured"),
-    ("p", "Your three hypotheses map onto the data cleanly, but not in the proportions you might expect. I classified every one of the 5,807 groups: a group is Case 3 if it currently has two or more subscriptions actively purchasing; otherwise if the majority of its failing subscriptions show a missing card, it is Case 1 or Case 2 depending on whether the subscriptions were created within a day of each other or spread out over time."),
+    ("p", "One structural correction first: Case 1 as described cannot happen. The IMTU purchase flow has no way to subscribe twice inside a single top-up, so an accidental double subscription is not a mechanism that exists. Every subscription in one of these groups is a separate, deliberate top-up purchase where the customer turned the subscription option on. That leaves two behavioural stories, not three."),
+    ("p", "I classified every one of the 5,807 groups on that basis: a group is Case 3 if it currently has two or more subscriptions actively purchasing; otherwise, if the majority of its failing subscriptions show a missing card it is Case 2, and if the card is still present it belongs in the fourth row, which is not one of your cases at all."),
     ("table", "CASES"),
-    ("p", "The one correction to the brief. Case 1 as described, the accidental double purchase, is only 229 groups. The mechanism behind almost all of the backlog is Case 2: the customer tops up again, the subscription toggle is on again, and a second subscription is created. The median gap between one subscription and the next in a group is 12.2 days, and only 12.8% of gaps are under ten minutes. That matters for the fix, because a double-tap guard would catch almost nothing, while a check at checkout saying \"you already have a subscription to this number\" would catch most of it."),
+    ("p", "What the fast duplicates actually are. 2,736 subscriptions, 12.8%, were created less than ten minutes after the previous one in their group, and 1,158 of those less than a minute after. Because the flow cannot subscribe twice in one purchase, each of these is two separate top-up purchases minutes apart, both with the subscription option on, and 2,580 of the 2,736 were paid with the same card as the subscription before them. It is the same behaviour as the 30-day gaps, simply compressed: a customer buying two top-ups in one sitting, perhaps two different amounts or a retry after they thought the first had failed."),
+    ("p", "That changes what the checkout guard has to do. It is not enough to check across days; R2 has to fire inside a single session, seconds after the previous purchase, because that is where an eighth of the backlog is created."),
+    ("table", "GAPS"),
     ("p", "There is corroborating evidence for the Case 2 mechanism. 91.1% of later subscriptions with a recorded creation date had their first charge attempt 0.8 to 1.2 cycles after creation, which is the signature of a subscription created at a top-up checkout. And 51.2% of later subscriptions were created after an earlier sibling had already charged at least once, with 22.4% created while a sibling was still successfully purchasing."),
 
     ("h2", "Profile: frequency, age, and failure count"),
@@ -216,7 +229,7 @@ B = [
     ("p", "Ordered by value per unit of engineering effort. R1 is the rule you already proposed, tuned; R2 and R3 are the ones I would add first."),
     ("b", "R1. Soft cancel after 3 consecutive failures, or 90 days launching without a charge. The rule you proposed with a calendar arm added. Never delete: write canceled_at and canceled_reason, which already exist and are unused. Deleting destroys the audit trail and breaks the 18,758 purchase records that hang off these subscriptions. Clears 20,287 on day one and all of it in about three months."),
     ("b", "R1a. Grace exemption: never cancel a subscription that charged successfully in the last 30 days. A one-line guard that removes essentially all of the false-positive risk in R1, protecting the 452 intermittent payers whose card occasionally lacks funds."),
-    ("b", "R2. Duplicate guard at checkout: block a second subscription to the same number, offer and frequency. The highest-value rule in this list because it is the only one that stops the backlog being rebuilt. If an active subscription already exists for that recipient and offer, do not create a second one. Offer \"you already have this subscription, change it instead\". This is the direct fix for Case 2, which is 2,159 groups and 11,562 subscriptions, and it prevents up to 2,400 of the permanent floor."),
+    ("b", "R2. Duplicate guard at checkout: block a second subscription to the same number, offer and frequency. The highest-value rule in this list because it is the only one that stops the backlog being rebuilt. If an active subscription already exists for that recipient and offer, do not create a second one. Offer \"you already have this subscription, change it instead\". This is the direct fix for Case 2, which is 2,388 groups and 12,892 subscriptions, and it prevents up to 2,400 of the permanent floor. It must apply within a single session as well as across days: 2,736 duplicates were created less than ten minutes after the previous one, so a guard that only checks yesterday's subscriptions misses an eighth of the problem."),
     ("b", "R3. Idempotency key on the checkout transaction id. Stops the K2 double-fulfilment bug outright. Two subscriptions are being created from one transaction id a median 202 seconds apart, which is a retry after a timeout, not a user action. The SQL in the source tab already groups by txid, so the key is identified. This is a code fix, not a rule, and it is the most urgent item in this document. Stops about 570 new duplicate pairs per week and protects 2,511 pairs about to start double charging."),
     ("b", "R4. Card-removal cascade: when the last card is removed, pause every subscription immediately. Today a customer removes their card and their subscriptions keep firing for a median of 328 days. 995 customers are in exactly this state. Pause on card removal, tell the customer what will happen, and offer to cancel. This would have prevented 9,823 of today's failures and saves about 4,950 launch attempts per week."),
     ("b", "R5. Cancel any subscription whose offer has been retired. These can never succeed regardless of the card. A deterministic, zero-judgement cleanup that should run before the failure-count rule so those subscriptions are cancelled with an accurate reason rather than a generic payment failure."),
@@ -244,14 +257,14 @@ B = [
     ("p", "A decision you will need to make separately. I have followed the instruction not to cancel these. It is worth being explicit about what that means: 1,835 surplus charges went out in the last 30 days to customers who, on the evidence of the other 995 customers who pulled their cards, would stop them if they noticed. The 556 customers who were double-billed and then removed their card are the control group, and they tell you what happens when a customer does notice. This is a chargeback and trust exposure, not only a revenue line. A middle path worth considering: notify the 42 customers with ten or more surplus subscriptions, leave the 231 single-surplus customers alone, and stop the cohort growing with R7."),
 
     ("h2", "The K2 double-fulfilment bug"),
-    ("p", "This is a different problem with a different fix, and it is the most urgent thing in the file. One checkout creates two subscriptions. The median gap between them is 202 seconds, with 99.2% falling between two and five minutes, which is a server-side retry after a timeout, not a customer double tap."),
+    ("p", "This is a different problem with a different fix, and it is the most urgent thing in the file. Here two subscriptions share a single transaction id, and since the flow cannot subscribe twice within one purchase, these can only be a system fault. The median gap between the two is 202 seconds, with 99.2% falling between two and five minutes, which is a server-side retry after a timeout. This is the one place in the file where a duplicate was not created by the customer."),
     ("p", "Scale: 7,005 pairs, 14,011 subscriptions, 5,955 customers. About 570 new pairs per week in the four weeks to 2026-09-07, and still rising. 2,773 pairs have already double charged. 2,511 pairs are about to."),
     ("table", "K2STATE"),
     ("p", "Revenue already collected on the second subscription of a pair, where both collected: $25,230 USD plus 806 GBP, 838 CAD, 256 EUR and 23 AUD. Concentrated in Nigeria with 9,676 subscriptions and Venezuela with 3,622, and 97.9% on a monthly cycle."),
     ("p", "A problem with the \"remove least revenue\" plan in the tab. In 2,108 of the 2,773 paying pairs, 76%, the two subscriptions have collected exactly the same amount, so \"least revenue\" has no tie-break in three quarters of cases and the choice falls through to an arbitrary rule. More importantly, applying it as written cancels 2,655 subscriptions that are currently active and paying, and in 13 cases it would cancel the active subscription and keep the failing one. If you go ahead, the tie-break should be \"keep position 1, the original\", not \"keep the one with more revenue\", and the 13 inversions should be held out and handled manually."),
 
     ("h2", "Method and limits"),
-    ("b", "What was computed. Every number here came from the five tabs of the source sheet, read through the Sheets API and analysed in pandas. Seven independent analyses were run over the extract, and every headline number in this document was then re-derived a second time from the raw CSVs. Where the two passes disagreed, the re-derived number is the one shown: the day-one cancel count at N=3 is 18,486 and not 18,566, and the surplus charges in the last 30 days are 1,835 and not 1,746."),
+    ("b", "What was computed. Classification was revised on 18 September 2026 after product confirmed that the IMTU purchase flow cannot create two subscriptions from one purchase: the former Case 1 was merged into Case 2, which is why Case 2 is 2,388 groups here and not 2,159. Every number came from the five tabs of the source sheet, read through the Sheets API and analysed in pandas. Seven independent analyses were run over the extract, and every headline number in this document was then re-derived a second time from the raw CSVs. Where the two passes disagreed, the re-derived number is the one shown: the day-one cancel count at N=3 is 18,486 and not 18,566, and the surplus charges in the last 30 days are 1,835 and not 1,746."),
     ("b", "Consecutive failures are partly estimated. For the 13,702 failing subscriptions that never charged, the count is the launch count, which is exact. For the 7,641 that charged and then went stale, it is the number of cycles between the last successful charge and the last attempt, which is an estimate. It can be wrong if a subscription was paused."),
     ("b", "Money is an estimate with stated coverage. Population A has no price column. See the note in the Case 3 section."),
     ("b", "Creation dates before 2025 are approximate. 8,722 of 27,256 creation timestamps, 32%, are reconstructed as the first launch minus one cycle."),
