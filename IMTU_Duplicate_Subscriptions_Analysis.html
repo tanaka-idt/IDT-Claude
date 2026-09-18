@@ -126,11 +126,11 @@ tr.tot td{background:var(--surface-2);font-weight:600}
   <div class="tile"><p class="k">K2 double fulfilment</p><div class="v" style="color:var(--good)">Fixed</div><p class="s">backend fix shipped, 14,011 records deleted</p></div>
 </div>
 
-<p>Five things drive every recommendation in this document.</p>
+<p>The backlog divides into three customer cases, defined in full in the next section but worth naming here: <b>Case 1</b>, subscribed repeatedly then removed the card, 1,184 customers. <b>Case 2</b>, subscribed repeatedly and the card is still there but does not pay, 1,435 customers. <b>Case 3</b>, subscribed repeatedly and paying for all of them, 1,094 customers. Five things drive every recommendation in this document.</p>
 <ol>
 <li><b>The tiered rule works, and it is strictly better than a flat threshold.</b> Three failures for weekly, biweekly and monthly subscriptions, two for quarterly, clears <b>93.0% of the failing backlog on the first run</b> and finishes in six months instead of nine. Critically, it does this with <b>no additional false-positive risk at all</b>: the at-risk count is 452 either way.</li>
-<li><b>The card-removal story is confirmed, and it is the single largest cause.</b> 13,090 failing subscriptions carry a missing-card failure. 995 of the 1,285 customers involved have no working card left anywhere in the file. They did exactly what you described: they pulled the payment method to stop the charges.</li>
-<li><b>There is no accidental double subscription, so every duplicate is a deliberate repeat purchase.</b> The purchase flow cannot subscribe twice within one top-up, so each subscription in a group is a separate top-up with the subscription option turned on. 12.8% of them were bought within ten minutes of the previous one and the median gap is 12.2 days, but the mechanism is identical at both ends of that range.</li>
+<li><b>Case 1 is confirmed and is the single largest cause.</b> 13,090 failing subscriptions carry a missing-card failure. 995 of the 1,285 customers involved have no working card left anywhere in the file. They did exactly what you described: they pulled the payment method to stop the charges.</li>
+<li><b>There is no accidental double subscription, so every duplicate is a deliberate repeat purchase.</b> The purchase flow cannot subscribe twice within one top-up, so each subscription in a group is a separate top-up with the subscription option turned on. 12.8% of them were bought within ten minutes of the previous one and the median gap is 12.2 days, but the mechanism is identical at both ends of that range, which is why they sit in one case rather than two.</li>
 <li><b>Case 3 is real and it is 1,094 customers.</b> They hold 3,469 surplus active subscriptions that have taken 20,459 charges, 1,835 of them in the last 30 days alone. No failure rule will ever touch these, by design.</li>
 <li><b>The K2 double-fulfilment bug is resolved and out of scope.</b> Backend fixed it in the week of 15 September 2026 and the 14,011 affected records have been deleted. It was never a behavioural problem: those pairs shared a single transaction id, which the purchase flow cannot produce. The analysis below is now entirely about the behavioural backlog.</li>
 </ol>
@@ -181,33 +181,37 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 
 <div class="caselist">
 <div class="case"><div class="cid">CASE 1</div><div>
-<h4>Bought several subscriptions without realising, then removed the card</h4>
-<p>The customer ends up with multiple subscriptions to the same number without knowing it, and the way out they find is to delete the payment method so they stop being charged several times.</p>
-<p class="verdict"><b>Verdict: cannot occur as a distinct mechanism.</b> The IMTU purchase flow has no way to subscribe twice inside a single top-up, so there is no accidental double subscription. Every subscription in a group is a separate, deliberate purchase with the subscription option turned on. Case 1 is therefore not a third story, it is Case 2 observed at a shorter time scale, and its groups are counted there.</p>
+<h4>Subscribed on every top-up, then removed the card</h4>
+<p>The customer does not understand the subscription purchase flow and leaves the subscription option on for every transaction, so each top-up creates another subscription. They end up with several subscriptions to the same number, and the way out they find is to delete the payment method so they stop being charged several times.</p>
+<p class="verdict"><b>Confirmed, and it is the dominant story.</b> <b>2,388 groups, 12,892 subscriptions, 1,184 customers.</b> This is the only mechanism by which a duplicate gets created, and it covers both the slow version, where the subscriptions arrive weeks apart, and the fast version, where the customer buys two top-ups minutes apart in one sitting.</p>
 </div></div>
 
 <div class="case"><div class="cid">CASE 2</div><div>
-<h4>Subscribed on every top-up, then removed the card</h4>
-<p>The customer does not understand the subscription purchase flow and leaves the subscription option on for every transaction, so each top-up creates another subscription. As with Case 1, they then remove the payment method to stop being charged several times.</p>
-<p class="verdict"><b>Verdict: confirmed, and it is the dominant story.</b> 2,388 groups, 12,892 subscriptions, 1,184 customers. This is now the only mechanism by which a duplicate gets created.</p>
+<h4>Subscribed more than once, but the card is still on file and does not pay</h4>
+<p>The same purchase behaviour as Case 1, but the customer never removed anything. The payment method is still on the account and simply fails: no funds, declined, restricted, or expired. The duplicates go on failing and the customer has taken no action, and may not know there is anything to act on.</p>
+<p class="verdict"><b>Confirmed, and it is the largest case by customer count.</b> <b>1,957 groups, 7,932 subscriptions, 1,435 customers.</b> Worth separating from Case 1 because the remedy is different: a Case 1 customer has made a decision and acted on it, whereas a Case 2 customer may simply need a working card, which makes them the group most likely to be recovered by a notification rather than a cancellation.</p>
 </div></div>
 
 <div class="case"><div class="cid">CASE 3</div><div>
 <h4>Subscribed on every top-up, and is paying for all of them</h4>
-<p>The same misunderstanding as Case 2, adding a subscription to every transaction, but the customer does not check their card statements. IDT charges several subscriptions to the same recipient and the customer pays for all of them.</p>
-<p class="verdict"><b>Verdict: confirmed.</b> 1,387 groups, 6,175 subscriptions, 1,094 customers, with 3,469 surplus subscriptions that have taken 20,459 charges. Not cancelled, as instructed. Covered in its own section below.</p>
+<p>The same misunderstanding as Case 1, adding a subscription to every transaction, but the customer does not check their card statements. IDT charges several subscriptions to the same recipient and the customer pays for all of them.</p>
+<p class="verdict"><b>Confirmed.</b> <b>1,387 groups, 6,175 subscriptions, 1,094 customers</b>, with 3,469 surplus subscriptions that have taken 20,459 charges. Not cancelled, as instructed. Covered in its own section below.</p>
 </div></div>
 </div>
 
-<p>There is also a fourth population that is in none of your three cases and is larger than two of them: <b>1,957 groups, 7,932 subscriptions and 1,435 customers whose card is still on file but does not pay</b>, through lack of funds, a decline or an expiry. They did not remove anything. They are worth separating because the remedy is different: a Case 2 customer has made a decision, whereas this group may simply need a working card.</p>
+<div class="callout">
+<p class="lab">What happened to the original Case 1</p>
+<p>Your original brief had a separate first case: the customer who bought several subscriptions <em>without realising</em>, then removed the card. That is not a mechanism that can exist, because the IMTU purchase flow has no way to subscribe twice inside a single top-up. Every subscription in a group is a separate, deliberate purchase with the subscription option turned on. Those groups were therefore folded into Case 1 above, and the case that was previously unnumbered, the card that is present but does not pay, has taken the free slot as Case 2.</p>
+</div>
+
 <h3>How each group was classified</h3>
-<p>Every one of the 5,807 groups falls into exactly one row below. A group is <b>Case 3</b> if it currently holds two or more subscriptions that are actively purchasing. Otherwise, if the majority of its failing subscriptions show a missing card it is <b>Case 2</b>; if the card is still present it is the card-on-file row; and if nothing has launched yet it is counted as new.</p>
+<p>Every one of the 5,807 groups falls into exactly one row below. A group is <b>Case 3</b> if it currently holds two or more subscriptions that are actively purchasing. Otherwise, if the majority of its failing subscriptions show a missing card it is <b>Case 1</b>; if the card is still present it is <b>Case 2</b>; and if nothing has launched yet it is counted as new, which is a residual bucket rather than a case.</p>
 
 <div class="tw"><table>
 <thead><tr><th>Classification</th><th class="n">Groups</th><th class="n">Subscriptions</th><th class="n">Customers</th><th>Reading</th></tr></thead>
 <tbody>
-<tr><td><b>Case 2.</b> Subscribed on every top-up, then removed the card</td><td class="n">2,388</td><td class="n">12,892</td><td class="n">1,184</td><td>The dominant story, and now the only duplicate-creation story. Each subscription is its own purchase, then the card was pulled.</td></tr>
-<tr><td><b>Card on file but failing</b> (no funds, declined, expired)</td><td class="n">1,957</td><td class="n">7,932</td><td class="n">1,435</td><td>Not in your three cases. The card is still there, it simply does not pay.</td></tr>
+<tr><td><b>Case 1.</b> Subscribed on every top-up, then removed the card</td><td class="n">2,388</td><td class="n">12,892</td><td class="n">1,184</td><td>The dominant story, and the only duplicate-creation story. Each subscription is its own purchase, then the card was pulled.</td></tr>
+<tr><td><b>Case 2.</b> Card on file but failing (no funds, declined, expired)</td><td class="n">1,957</td><td class="n">7,932</td><td class="n">1,435</td><td>The card is still there, it simply does not pay. Largest case by customer count.</td></tr>
 <tr><td><b>Case 3.</b> Paying duplicates</td><td class="n">1,387</td><td class="n">6,175</td><td class="n">1,094</td><td>Charging successfully today. Revenue, and the group we do not cancel.</td></tr>
 <tr><td>New, not yet launched</td><td class="n">75</td><td class="n">257</td><td class="n">71</td><td>Created recently, first charge still pending.</td></tr>
 </tbody></table></div>
@@ -215,7 +219,7 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 <div class="callout">
 <p class="lab">What the fast duplicates actually are</p>
 <p>2,736 subscriptions (12.8%) were created less than ten minutes after the previous one in their group, and 1,158 of those less than a minute after. Because the flow cannot subscribe twice in one purchase, each of these is <b>two separate top-up purchases minutes apart, both with the subscription option on</b>, and 2,580 of the 2,736 were paid with the same card as the subscription before them. It is the same behaviour as the 30-day gaps, simply compressed: a customer buying two top-ups in one sitting, perhaps two different amounts or a retry after they thought the first had failed.</p>
-<p>That changes what the checkout guard has to do. It is not enough to check across days; <b>R2 has to fire inside a single session</b>, seconds after the previous purchase, because that is where an eighth of the backlog is created.</p>
+<p>That changes what the checkout guard has to do. It is not enough to check across days; <b>R2 has to fire inside a single session</b>, seconds after the previous purchase, because that is where an eighth of the backlog is created. It is also why the fast and slow versions sit together in Case 1: the behaviour is the same, only the spacing differs.</p>
 </div>
 
 <div class="tw"><table>
@@ -231,7 +235,7 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 <tr class="tot"><td>Total, median gap 12.2 days</td><td class="n">21,449</td><td class="n">100%</td></tr>
 </tbody></table></div>
 
-<p>There is corroborating evidence for the Case 2 mechanism. 91.1% of later subscriptions with a recorded creation date had their first charge attempt 0.8 to 1.2 cycles after creation, which is the signature of a subscription created at a top-up checkout. And 51.2% of later subscriptions were created after an earlier sibling had already charged at least once, with 22.4% created while a sibling was still successfully purchasing.</p>
+<p>There is corroborating evidence for the Case 1 mechanism. 91.1% of later subscriptions with a recorded creation date had their first charge attempt 0.8 to 1.2 cycles after creation, which is the signature of a subscription created at a top-up checkout. And 51.2% of later subscriptions were created after an earlier sibling had already charged at least once, with 22.4% created while a sibling was still successfully purchasing.</p>
 </section>
 
 <section>
@@ -519,8 +523,8 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 
 <div class="rule-card"><div class="id">R2</div><div>
 <h4>Duplicate guard at checkout: block a second subscription to the same number, offer and frequency</h4>
-<p>Now the highest-value item in this list, because with R3 shipped it is the only remaining rule that stops the backlog being rebuilt. If an active subscription already exists for that recipient and offer, do not create a second one. Offer "you already have this subscription, change it instead". This is the direct fix for Case 2, which is 2,388 groups and 12,892 subscriptions. It must apply within a single session as well as across days: 2,736 duplicates were created less than ten minutes after the previous one, so a guard that only checks yesterday's subscriptions misses an eighth of the problem.</p>
-<p class="imp"><b>Prevents</b> up to 2,400 of the permanent floor &nbsp;&middot;&nbsp; <b>Addresses</b> Case 2 and Case 3 at source</p>
+<p>Now the highest-value item in this list, because with R3 shipped it is the only remaining rule that stops the backlog being rebuilt. If an active subscription already exists for that recipient and offer, do not create a second one. Offer "you already have this subscription, change it instead". This is the direct fix for Case 1, which is 2,388 groups and 12,892 subscriptions. It must apply within a single session as well as across days: 2,736 duplicates were created less than ten minutes after the previous one, so a guard that only checks yesterday's subscriptions misses an eighth of the problem.</p>
+<p class="imp"><b>Prevents</b> up to 2,400 of the permanent floor &nbsp;&middot;&nbsp; <b>Addresses</b> Case 1 and Case 3 at source</p>
 </div></div>
 
 <div class="rule-card"><div class="id">R3</div><div>
@@ -543,8 +547,8 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 
 <div class="rule-card"><div class="id">R6</div><div>
 <h4>Warn the customer before cancelling, not after</h4>
-<p>Send a notification on the second consecutive failure: "we could not charge your card for your top-up to +509...; it will be cancelled after the next failed attempt". This recovers the customers who simply need to update a card, and it turns a silent cancellation into a service message. It also gives the 4,353 no-funds cases a chance to act.</p>
-<p class="imp"><b>Recovery opportunity</b> on ~4,350 no-funds subscriptions &nbsp;&middot;&nbsp; <b>Reduces</b> support surprise</p>
+<p>Send a notification on the second consecutive failure: "we could not charge your card for your top-up to +509...; it will be cancelled after the next failed attempt". This recovers the customers who simply need to update a card, and it turns a silent cancellation into a service message. This is the rule that matters most for <b>Case 2</b>, the 1,435 customers whose card is still on file: they have not decided to leave, they just have a card that does not work.</p>
+<p class="imp"><b>Recovery opportunity</b> on Case 2, 7,932 subscriptions across 1,435 customers &nbsp;&middot;&nbsp; <b>Reduces</b> support surprise</p>
 </div></div>
 
 <div class="rule-card"><div class="id">R7</div><div>
@@ -667,7 +671,7 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 <section>
 <div class="sh"><h2>Method and limits</h2></div>
 <ul>
-<li><b>What was computed.</b> Classification was revised on 18 September 2026 after product confirmed that the IMTU purchase flow cannot create two subscriptions from one purchase: the former Case 1 was merged into Case 2, which is why Case 2 is 2,388 groups here and not 2,159. Every number came from the five tabs of the source sheet, read through the Sheets API and analysed in pandas. Seven independent analyses were run over the extract, and every headline number in this document was then re-derived a second time from the raw CSVs. Where the two passes disagreed, the re-derived number is the one shown: the day-one cancel count at N=3 is 18,486 and not 18,566, and the surplus charges in the last 30 days are 1,835 and not 1,746.</li>
+<li><b>What was computed.</b> The cases were renumbered on 18 September 2026. Product confirmed that the IMTU purchase flow cannot create two subscriptions from one purchase, so the original Case 1 (accidental double subscription) was merged into the original Case 2 and the pair became <b>Case 1</b>; the card-present failures, previously unnumbered, became <b>Case 2</b>; and the paying duplicates remain <b>Case 3</b>. That merge is why Case 1 counts 2,388 groups rather than the 2,159 of the earlier split. Every number came from the five tabs of the source sheet, read through the Sheets API and analysed in pandas. Seven independent analyses were run over the extract, and every headline number in this document was then re-derived a second time from the raw CSVs. Where the two passes disagreed, the re-derived number is the one shown: the day-one cancel count at N=3 is 18,486 and not 18,566, and the surplus charges in the last 30 days are 1,835 and not 1,746.</li>
 <li><b>Consecutive failures are partly estimated.</b> For the 13,702 failing subscriptions that never charged, the count is the launch count, which is exact. For the 7,641 that charged and then went stale, it is the number of cycles between the last successful charge and the last attempt, which is an estimate. It can be wrong if a subscription was paused.</li>
 <li><b>Money is an estimate with stated coverage.</b> Population A has no price column. See the note in the Case 3 section.</li>
 <li><b>Creation dates before 2025 are approximate.</b> 8,722 of 27,256 creation timestamps (32%) are reconstructed as the first launch minus one cycle.</li>
