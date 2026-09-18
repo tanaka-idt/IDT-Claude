@@ -97,7 +97,7 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 
 <p class="eyebrow">IMTU &middot; Subscriptions &middot; Analysis</p>
 <h1>Duplicate IMTU subscriptions: what is in the file, and what the cleanup rules will actually do</h1>
-<p class="stand">The extract holds two unrelated problems that need opposite treatments. A behavioural backlog of 27,256 duplicate subscriptions, mostly dead and costing us launch attempts, and a live server bug that is still minting new double subscriptions at about 570 pairs a week. An auto-cancel rule fixes the first and does almost nothing for the second.</p>
+<p class="stand">One of the two problems in this extract is already solved: the K2 double-fulfilment bug was fixed by backend in the week of 15 September 2026 and its records have been deleted. What remains is the behavioural backlog of 27,256 duplicate subscriptions, mostly dead and burning launch attempts, plus 1,094 customers quietly paying for duplicates. A tiered auto-cancel rule clears 93% of the dead backlog on its first run.</p>
 <p class="meta"><span>Source: <b>Copy of Duplicates Sep 18</b></span><span>Extract date <b>2026-09-04</b></span><span>Prepared <b>2026-09-18</b></span><span>Tabs analysed <b>5</b></span><span>Rows <b>41,267</b></span></p>
 
 <section>
@@ -106,31 +106,31 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 <div class="tiles">
   <div class="tile"><p class="k">Behavioural duplicates</p><div class="v">27,256</div><p class="s">timers, 5,807 groups, 3,644 customers</p></div>
   <div class="tile"><p class="k">Already failing</p><div class="v s2">21,343</div><p class="s">78.3% of the file, 2,910 customers</p></div>
-  <div class="tile"><p class="k">Cancelled on day one at N=3</p><div class="v s1">18,486</div><p class="s">86.6% of the failing backlog</p></div>
+  <div class="tile"><p class="k">Cancelled on the first run</p><div class="v s1">19,846</div><p class="s">93.0% of the failing backlog, tiered rule</p></div>
   <div class="tile"><p class="k">Paying duplicates (Case 3)</p><div class="v crit">1,094</div><p class="s">customers, 3,469 surplus subscriptions</p></div>
-  <div class="tile"><p class="k">Permanent failing floor</p><div class="v">5,400&ndash;7,900</div><p class="s">after the rules reach steady state</p></div>
-  <div class="tile"><p class="k">K2 bug, still live</p><div class="v crit">570</div><p class="s">new duplicate pairs per week</p></div>
+  <div class="tile"><p class="k">Permanent failing floor</p><div class="v">5,200&ndash;7,200</div><p class="s">after the rules reach steady state</p></div>
+  <div class="tile"><p class="k">K2 double fulfilment</p><div class="v" style="color:var(--good)">Fixed</div><p class="s">backend fix shipped, 14,011 records deleted</p></div>
 </div>
 
 <p>Five things drive every recommendation in this document.</p>
 <ol>
-<li><b>The auto-cancel rule works, and it works fast.</b> At three consecutive failures it clears 86.6% of the failing backlog the moment it runs, 90% within three months and effectively all of it within nine months. N=4 and N=5 buy very little extra safety and add three and six months respectively.</li>
+<li><b>The tiered rule works, and it is strictly better than a flat threshold.</b> Three failures for weekly, biweekly and monthly subscriptions, two for quarterly, clears <b>93.0% of the failing backlog on the first run</b> and finishes in six months instead of nine. Critically, it does this with <b>no additional false-positive risk at all</b>: the at-risk count is 452 either way.</li>
 <li><b>The card-removal story is confirmed, and it is the single largest cause.</b> 13,090 failing subscriptions carry a missing-card failure. 995 of the 1,285 customers involved have no working card left anywhere in the file. They did exactly what you described: they pulled the payment method to stop the charges.</li>
 <li><b>There is no accidental double subscription, so every duplicate is a deliberate repeat purchase.</b> The purchase flow cannot subscribe twice within one top-up, so each subscription in a group is a separate top-up with the subscription option turned on. 12.8% of them were bought within ten minutes of the previous one and the median gap is 12.2 days, but the mechanism is identical at both ends of that range.</li>
 <li><b>Case 3 is real and it is 1,094 customers.</b> They hold 3,469 surplus active subscriptions that have taken 20,459 charges, 1,835 of them in the last 30 days alone. No failure rule will ever touch these, by design.</li>
-<li><b>The K2 double-fulfilment bug is a separate, urgent, and much cheaper fix.</b> One checkout creates two subscriptions roughly 202 seconds apart. It is not user behaviour and no cancellation rule prevents it. An idempotency key on the transaction id stops it outright.</li>
+<li><b>The K2 double-fulfilment bug is resolved and out of scope.</b> Backend fixed it in the week of 15 September 2026 and the 14,011 affected records have been deleted. It was never a behavioural problem: those pairs shared a single transaction id, which the purchase flow cannot produce. The analysis below is now entirely about the behavioural backlog.</li>
 </ol>
 </section>
 
 <section>
 <div class="sh"><h2>What is actually in the file</h2><span class="num">five tabs, two populations</span></div>
-<p>The spreadsheet contains two populations that barely overlap: they share only 221 subscriptions and 61 customers. Treating them as one problem is the main analytical trap here, because the fix for one is a cancellation rule and the fix for the other is a code change.</p>
+<p>The spreadsheet contains two populations that barely overlap: they share only 221 subscriptions and 61 customers. Population B has since been fixed at source and deleted, so everything after this section concerns Population A alone. It is recorded here because the two were mixed together in the source file, and because the 221 shared rows mean Population A totals still include a small number of now-deleted records.</p>
 
 <div class="tw"><table>
 <thead><tr><th>Population</th><th class="n">Subscriptions</th><th class="n">Groups</th><th class="n">Customers</th><th>What it is</th><th>What fixes it</th></tr></thead>
 <tbody>
 <tr><td><b>A. Behavioural duplicates</b><br><span class="pill w">backlog</span></td><td class="n">27,256</td><td class="n">5,807</td><td class="n">3,644</td><td>Three or more subscriptions from the same customer to the same number, same offer, same frequency. Built up since January 2024.</td><td>Auto-cancel rules plus a purchase-flow fix</td></tr>
-<tr><td><b>B. K2 double fulfilment</b><br><span class="pill c">live bug</span></td><td class="n">14,011</td><td class="n">7,005</td><td class="n">5,955</td><td>Two subscriptions created from a single checkout, a median 202 seconds apart. 98% created since April 2026, still running.</td><td>Idempotency on the transaction id</td></tr>
+<tr><td><b>B. K2 double fulfilment</b><br><span class="pill g">resolved</span></td><td class="n">14,011</td><td class="n">7,005</td><td class="n">5,955</td><td>Two subscriptions from a single checkout, a median 202 seconds apart. Fixed by backend in the week of 15 September 2026; these records have been deleted.</td><td>Done. No further action</td></tr>
 </tbody></table></div>
 
 <p>A few facts worth knowing before reading any number below. The <span class="pill g">canceled_at</span> and <span class="pill g">canceled_reason</span> columns exist and are blank on all 27,256 rows, which means a soft cancel is already supported by the schema and nothing has ever used it. Creation dates start on 2024-01-16, so nothing here predates 2024. And 8,722 creation timestamps (32%) are estimated rather than recorded, all of them older rows, so month-level history before 2025 is approximate.</p>
@@ -284,7 +284,7 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 <text x="669.7" y="228" text-anchor="middle" class="ax">21+</text>
 <line x1="270.0" y1="14" x2="270.0" y2="210.0" stroke="#eb6834" stroke-width="1.5" stroke-dasharray="0"/>
 <text x="278.0" y="26" class="dl" fill="#eb6834">N = 3 threshold: 18,486 timers to the right</text>
-<text x="379" y="252" text-anchor="middle" class="axl">Consecutive failed attempts since the last successful charge</text></svg><figcaption><b>Failing subscriptions by consecutive failed attempts.</b> Blue bars are already past a threshold of three. The median failing subscription has failed 11 times in a row and 7,483 have failed more than 21 times.</figcaption></figure>
+<text x="379" y="252" text-anchor="middle" class="axl">Consecutive failed attempts since the last successful charge</text></svg><figcaption><b>Failing subscriptions by consecutive failed attempts.</b> Blue bars are past a threshold of three, which applies to weekly, biweekly and monthly subscriptions; quarterly ones cancel at two. The median failing subscription has failed 11 times in a row and 7,483 have failed more than 21 times.</figcaption></figure>
 
 <p>The distribution is extreme at the top end. The median failing subscription has already failed <b>11 consecutive times</b>, the mean is 26.5, and 7,483 subscriptions have failed more than 21 times in a row. The worst has launched 188 times. Collectively the failing set has burned <b>710,225 failed attempts</b> and, left alone, will generate another <b>7,819 attempts every week</b>, about 408,000 a year, none of which can ever succeed for the 9,823 with no card on file.</p>
 
@@ -332,76 +332,79 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 
 <section>
 <div class="sh"><h2>The auto-cancel rule: what it clears and how fast</h2></div>
-<p>I simulated the rule you proposed, cancelling after N consecutive failed attempts, against every failing subscription. Consecutive failures are counted directly from the launch count for subscriptions that never charged, and estimated as the number of cycles between the last successful charge and the last attempt for the rest.</p>
+<p>I simulated the tiered rule you specified against every failing subscription: <b>cancel after three consecutive failures for weekly, biweekly and monthly subscriptions, and after two for quarterly ones</b>. Consecutive failures are counted directly from the launch count for subscriptions that never charged, and estimated as the number of cycles between the last successful charge and the last attempt for the rest.</p>
 
-<figure><svg viewBox="0 0 720 300" role="img" aria-label="Share of the failing backlog cancelled over time for N=3, 4 and 5">
-<line x1="44" y1="256.0" x2="624" y2="256.0" stroke="var(--grid)" stroke-width="1"/>
+<figure><svg viewBox="0 0 720 300" role="img" aria-label="Share of the failing backlog cancelled over time under the tiered rule, flat N=3 and flat N=5">
+<line x1="44" y1="256.0" x2="602" y2="256.0" stroke="var(--grid)" stroke-width="1"/>
 <text x="36" y="260.0" text-anchor="end" class="ax">70%</text>
-<line x1="44" y1="176.0" x2="624" y2="176.0" stroke="var(--grid)" stroke-width="1"/>
+<line x1="44" y1="176.0" x2="602" y2="176.0" stroke="var(--grid)" stroke-width="1"/>
 <text x="36" y="180.0" text-anchor="end" class="ax">80%</text>
-<line x1="44" y1="96.0" x2="624" y2="96.0" stroke="var(--grid)" stroke-width="1"/>
+<line x1="44" y1="96.0" x2="602" y2="96.0" stroke="var(--grid)" stroke-width="1"/>
 <text x="36" y="100.0" text-anchor="end" class="ax">90%</text>
-<line x1="44" y1="16.0" x2="624" y2="16.0" stroke="var(--grid)" stroke-width="1"/>
+<line x1="44" y1="16.0" x2="602" y2="16.0" stroke="var(--grid)" stroke-width="1"/>
 <text x="36" y="20.0" text-anchor="end" class="ax">100%</text>
 <text x="44.0" y="274" text-anchor="middle" class="ax">0</text>
-<text x="140.7" y="274" text-anchor="middle" class="ax">13</text>
-<text x="237.3" y="274" text-anchor="middle" class="ax">26</text>
-<text x="334.0" y="274" text-anchor="middle" class="ax">39</text>
-<text x="430.7" y="274" text-anchor="middle" class="ax">52</text>
-<text x="527.3" y="274" text-anchor="middle" class="ax">65</text>
-<text x="624.0" y="274" text-anchor="middle" class="ax">78</text>
-<text x="334" y="294" text-anchor="middle" class="axl">Weeks after the rule goes live</text>
-<path d="M44.0,123.2 L73.7,118.4 L103.5,107.2 L140.7,96.0 L237.3,45.6 L334.0,16.8 L430.7,16.0 L527.3,16.0 L624.0,16.0" fill="none" stroke="#2a78d6" stroke-width="2" stroke-linejoin="round"/>
-<circle cx="44.0" cy="123.2" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>N=3, week 0: 86.6%</title></circle>
-<circle cx="73.7" cy="118.4" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>N=3, week 4: 87.2%</title></circle>
-<circle cx="103.5" cy="107.2" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>N=3, week 8: 88.6%</title></circle>
-<circle cx="140.7" cy="96.0" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>N=3, week 13: 90.0%</title></circle>
-<circle cx="237.3" cy="45.6" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>N=3, week 26: 96.3%</title></circle>
-<circle cx="334.0" cy="16.8" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>N=3, week 39: 99.9%</title></circle>
-<circle cx="430.7" cy="16.0" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>N=3, week 52: 100%</title></circle>
-<circle cx="527.3" cy="16.0" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>N=3, week 65: 100%</title></circle>
-<circle cx="624.0" cy="16.0" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>N=3, week 78: 100%</title></circle>
-<line x1="634" y1="34" x2="650" y2="34" stroke="#2a78d6" stroke-width="2.5"/>
-<text x="656" y="38" class="dl" fill="#2a78d6">N = 3</text>
-<path d="M44.0,177.6 L73.7,171.2 L103.5,161.6 L140.7,148.0 L237.3,96.8 L334.0,45.6 L430.7,16.8 L527.3,16.0 L624.0,16.0" fill="none" stroke="#eb6834" stroke-width="2" stroke-linejoin="round"/>
-<circle cx="44.0" cy="177.6" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>N=4, week 0: 79.8%</title></circle>
-<circle cx="73.7" cy="171.2" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>N=4, week 4: 80.6%</title></circle>
-<circle cx="103.5" cy="161.6" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>N=4, week 8: 81.8%</title></circle>
-<circle cx="140.7" cy="148.0" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>N=4, week 13: 83.5%</title></circle>
-<circle cx="237.3" cy="96.8" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>N=4, week 26: 89.9%</title></circle>
-<circle cx="334.0" cy="45.6" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>N=4, week 39: 96.3%</title></circle>
-<circle cx="430.7" cy="16.8" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>N=4, week 52: 99.9%</title></circle>
-<circle cx="527.3" cy="16.0" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>N=4, week 65: 100%</title></circle>
-<circle cx="624.0" cy="16.0" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>N=4, week 78: 100%</title></circle>
-<line x1="634" y1="56" x2="650" y2="56" stroke="#eb6834" stroke-width="2.5"/>
-<text x="656" y="60" class="dl" fill="#eb6834">N = 4</text>
-<path d="M44.0,214.4 L73.7,208.0 L103.5,195.2 L140.7,184.0 L237.3,139.2 L334.0,96.8 L430.7,45.6 L527.3,16.8 L624.0,16.0" fill="none" stroke="#1baf7a" stroke-width="2" stroke-linejoin="round"/>
-<circle cx="44.0" cy="214.4" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>N=5, week 0: 75.2%</title></circle>
-<circle cx="73.7" cy="208.0" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>N=5, week 4: 76.0%</title></circle>
-<circle cx="103.5" cy="195.2" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>N=5, week 8: 77.6%</title></circle>
-<circle cx="140.7" cy="184.0" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>N=5, week 13: 79.0%</title></circle>
-<circle cx="237.3" cy="139.2" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>N=5, week 26: 84.6%</title></circle>
-<circle cx="334.0" cy="96.8" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>N=5, week 39: 89.9%</title></circle>
-<circle cx="430.7" cy="45.6" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>N=5, week 52: 96.3%</title></circle>
-<circle cx="527.3" cy="16.8" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>N=5, week 65: 99.9%</title></circle>
-<circle cx="624.0" cy="16.0" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>N=5, week 78: 100%</title></circle>
-<line x1="634" y1="78" x2="650" y2="78" stroke="#1baf7a" stroke-width="2.5"/>
-<text x="656" y="82" class="dl" fill="#1baf7a">N = 5</text>
-<line x1="44" y1="256.0" x2="624" y2="256.0" stroke="var(--axis)" stroke-width="1"/></svg><figcaption><b>Share of the failing backlog cancelled over time.</b> N=3 clears 86.6% immediately and is effectively finished in nine months. The gap between the three lines is almost entirely the 8,348 quarterly subscriptions, which need 3N months to accumulate N failures.</figcaption></figure>
+<text x="137.0" y="274" text-anchor="middle" class="ax">13</text>
+<text x="230.0" y="274" text-anchor="middle" class="ax">26</text>
+<text x="323.0" y="274" text-anchor="middle" class="ax">39</text>
+<text x="416.0" y="274" text-anchor="middle" class="ax">52</text>
+<text x="509.0" y="274" text-anchor="middle" class="ax">65</text>
+<text x="602.0" y="274" text-anchor="middle" class="ax">78</text>
+<text x="323" y="294" text-anchor="middle" class="axl">Weeks after the rule goes live</text>
+<path d="M44.0,72.0 L72.6,67.2 L137.0,45.6 L230.0,16.8 L323.0,16.0 L416.0,16.0 L509.0,16.0 L602.0,16.0" fill="none" stroke="#2a78d6" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="44.0" cy="72.0" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>Tiered 3 / 2, week 0: 93.0%</title></circle>
+<circle cx="72.6" cy="67.2" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>Tiered 3 / 2, week 4: 93.6%</title></circle>
+<circle cx="137.0" cy="45.6" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>Tiered 3 / 2, week 13: 96.3%</title></circle>
+<circle cx="230.0" cy="16.8" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>Tiered 3 / 2, week 26: 99.9%</title></circle>
+<circle cx="323.0" cy="16.0" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>Tiered 3 / 2, week 39: 100%</title></circle>
+<circle cx="416.0" cy="16.0" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>Tiered 3 / 2, week 52: 100%</title></circle>
+<circle cx="509.0" cy="16.0" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>Tiered 3 / 2, week 65: 100%</title></circle>
+<circle cx="602.0" cy="16.0" r="3.5" fill="#2a78d6" stroke="var(--surface)" stroke-width="2"><title>Tiered 3 / 2, week 78: 100%</title></circle>
+<line x1="612" y1="34" x2="628" y2="34" stroke="#2a78d6" stroke-width="2.5"/>
+<text x="634" y="38" class="dl" fill="#2a78d6">Tiered 3 / 2</text>
+<path d="M44.0,123.2 L72.6,118.4 L137.0,96.0 L230.0,45.6 L323.0,16.8 L416.0,16.0 L509.0,16.0 L602.0,16.0" fill="none" stroke="#eb6834" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="44.0" cy="123.2" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>Flat N = 3, week 0: 86.6%</title></circle>
+<circle cx="72.6" cy="118.4" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>Flat N = 3, week 4: 87.2%</title></circle>
+<circle cx="137.0" cy="96.0" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>Flat N = 3, week 13: 90.0%</title></circle>
+<circle cx="230.0" cy="45.6" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>Flat N = 3, week 26: 96.3%</title></circle>
+<circle cx="323.0" cy="16.8" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>Flat N = 3, week 39: 99.9%</title></circle>
+<circle cx="416.0" cy="16.0" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>Flat N = 3, week 52: 100%</title></circle>
+<circle cx="509.0" cy="16.0" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>Flat N = 3, week 65: 100%</title></circle>
+<circle cx="602.0" cy="16.0" r="3.5" fill="#eb6834" stroke="var(--surface)" stroke-width="2"><title>Flat N = 3, week 78: 100%</title></circle>
+<line x1="612" y1="56" x2="628" y2="56" stroke="#eb6834" stroke-width="2.5"/>
+<text x="634" y="60" class="dl" fill="#eb6834">Flat N = 3</text>
+<path d="M44.0,214.4 L72.6,208.0 L137.0,184.0 L230.0,139.2 L323.0,96.8 L416.0,45.6 L509.0,16.8 L602.0,16.0" fill="none" stroke="#1baf7a" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="44.0" cy="214.4" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>Flat N = 5, week 0: 75.2%</title></circle>
+<circle cx="72.6" cy="208.0" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>Flat N = 5, week 4: 76.0%</title></circle>
+<circle cx="137.0" cy="184.0" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>Flat N = 5, week 13: 79.0%</title></circle>
+<circle cx="230.0" cy="139.2" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>Flat N = 5, week 26: 84.6%</title></circle>
+<circle cx="323.0" cy="96.8" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>Flat N = 5, week 39: 89.9%</title></circle>
+<circle cx="416.0" cy="45.6" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>Flat N = 5, week 52: 96.3%</title></circle>
+<circle cx="509.0" cy="16.8" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>Flat N = 5, week 65: 99.9%</title></circle>
+<circle cx="602.0" cy="16.0" r="3.5" fill="#1baf7a" stroke="var(--surface)" stroke-width="2"><title>Flat N = 5, week 78: 100%</title></circle>
+<line x1="612" y1="78" x2="628" y2="78" stroke="#1baf7a" stroke-width="2.5"/>
+<text x="634" y="82" class="dl" fill="#1baf7a">Flat N = 5</text>
+<line x1="44" y1="256.0" x2="602" y2="256.0" stroke="var(--axis)" stroke-width="1"/></svg><figcaption><b>Share of the failing backlog cancelled over time.</b> The tiered rule clears 93.0% on its first run and is finished in six months. The gap between the lines is almost entirely the 8,348 quarterly subscriptions: at two failures they are eligible after six months, at three they need nine.</figcaption></figure>
 
 <div class="tw"><table>
-<thead><tr><th>Threshold</th><th class="n">Day one</th><th class="n">Share</th><th class="n">Customers</th><th class="n">90% cleared</th><th class="n">Effectively done</th><th class="n">At risk of a wrong cancel</th></tr></thead>
+<thead><tr><th>Threshold</th><th class="n">First run</th><th class="n">Share</th><th class="n">Customers</th><th class="n">90% cleared</th><th class="n">Effectively done</th><th class="n">At risk of a wrong cancel</th></tr></thead>
 <tbody>
-<tr><td><b>N = 3</b> <span class="pill g">recommended</span></td><td class="n">18,486</td><td class="n">86.6%</td><td class="n">2,588</td><td class="n">13 weeks</td><td class="n">39 weeks</td><td class="n">452</td></tr>
-<tr><td>N = 4</td><td class="n">17,028</td><td class="n">79.8%</td><td class="n">2,427</td><td class="n">26 weeks</td><td class="n">52 weeks</td><td class="n">384</td></tr>
-<tr><td>N = 5</td><td class="n">16,050</td><td class="n">75.2%</td><td class="n">2,303</td><td class="n">39 weeks</td><td class="n">65 weeks</td><td class="n">319</td></tr>
+<tr><td><b>Tiered: 3, or 2 for quarterly</b> <span class="pill g">chosen</span></td><td class="n">19,846</td><td class="n">93.0%</td><td class="n">2,695</td><td class="n">first run</td><td class="n">26 weeks</td><td class="n">452</td></tr>
+<tr><td>Flat N = 3</td><td class="n">18,486</td><td class="n">86.6%</td><td class="n">2,588</td><td class="n">13 weeks</td><td class="n">39 weeks</td><td class="n">452</td></tr>
+<tr><td>Flat N = 4</td><td class="n">17,028</td><td class="n">79.8%</td><td class="n">2,427</td><td class="n">26 weeks</td><td class="n">52 weeks</td><td class="n">384</td></tr>
+<tr><td>Flat N = 5</td><td class="n">16,050</td><td class="n">75.2%</td><td class="n">2,303</td><td class="n">39 weeks</td><td class="n">65 weeks</td><td class="n">319</td></tr>
 </tbody></table></div>
 
-<p><b>Recommendation: N = 3.</b> The extra caution in N=4 and N=5 protects only 68 and 133 additional subscriptions respectively from a wrong cancel, while costing three and six extra months of dead launch traffic. "At risk of a wrong cancel" counts subscriptions that would be cancelled despite having completed a charge in the last 90 days, that is, intermittent payers. At N=3 that is 452 subscriptions, 2.4% of the cancel set, and a 30-day grace check removes almost all of them.</p>
-
+<p>The tiering earns its keep on the quarterly subscriptions, which are 8,348 of the 21,343 failing backlog. At a flat three failures only 74.3% of them are eligible on the first run and the tail runs 276 days. At two, <b>90.6% are eligible immediately</b> and the tail is 185 days.</p>
 <div class="callout good">
-<p class="lab">The much better version of the same rule</p>
-<p>Adding a calendar arm cuts the clearance time from nine months to three. <b>Cancel after 3 consecutive failures OR after 90 days of launching without a single successful charge, whichever comes first.</b> That is eligible for <b>20,287 subscriptions on day one (95.1%)</b> instead of 18,486, and finishes the entire backlog within about three months rather than nine. The reason is the 8,348 three-month subscriptions, which need nine months to hit three failures under the count-only rule but trip the calendar arm immediately.</p>
+<p class="lab">The tiering is free</p>
+<p>Dropping quarterly subscriptions from three failures to two adds <b>1,360 cancellations on the first run and zero additional false-positive risk</b>. The at-risk count is 452 under both rules. The reason is arithmetic: two missed quarterly cycles is already about six months without a successful charge, so no subscription that reaches the lower threshold has charged anyone recently. The usual trade-off between speed and safety simply does not apply here.</p>
+</div>
+<p>"At risk of a wrong cancel" counts subscriptions that would be cancelled despite having completed a charge in the last 90 days, that is, intermittent payers. At 452 subscriptions that is 2.3% of the cancel set, and the 30-day grace check in R1a removes almost all of them.</p>
+
+<div class="callout">
+<p class="lab">Optional refinement, if you want the last 7%</p>
+<p>Adding a calendar arm on top of the tiered rule, <b>cancel at the tiered threshold OR after 90 days launching without a single successful charge, whichever comes first</b>, lifts the first run from 19,846 to <b>20,389 (95.5%)</b>. That is a smaller gain than it would have been against a flat rule, because the tiering has already captured most of what the calendar arm would catch. It is worth adding only if you want the residual quarterly tail gone in one pass rather than over six months.</p>
 </div>
 </section>
 
@@ -410,32 +413,33 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 
 <h3>How long to clear the backlog</h3>
 <div class="tw"><table>
-<thead><tr><th>Rule</th><th>Day one</th><th>3 months</th><th>6 months</th><th>9 months</th><th>12 months</th></tr></thead>
+<thead><tr><th>Rule</th><th>First run</th><th>3 months</th><th>6 months</th><th>9 months</th><th>12 months</th></tr></thead>
 <tbody>
-<tr><td>N = 3 consecutive failures</td><td class="n">86.6%</td><td class="n">90.0%</td><td class="n">96.3%</td><td class="n">99.9%</td><td class="n">100%</td></tr>
-<tr><td>N = 4 consecutive failures</td><td class="n">79.8%</td><td class="n">83.5%</td><td class="n">89.9%</td><td class="n">96.3%</td><td class="n">99.9%</td></tr>
-<tr><td>N = 5 consecutive failures</td><td class="n">75.2%</td><td class="n">79.0%</td><td class="n">84.6%</td><td class="n">89.9%</td><td class="n">96.3%</td></tr>
-<tr class="tot"><td>N = 3 or 90 days without a charge</td><td class="n">95.1%</td><td class="n">~100%</td><td class="n">100%</td><td class="n">100%</td><td class="n">100%</td></tr>
+<tr class="tot"><td>Tiered: 3, or 2 for quarterly</td><td class="n">93.0%</td><td class="n">96.3%</td><td class="n">99.9%</td><td class="n">100%</td><td class="n">100%</td></tr>
+<tr><td>Flat N = 3</td><td class="n">86.6%</td><td class="n">90.0%</td><td class="n">96.3%</td><td class="n">99.9%</td><td class="n">100%</td></tr>
+<tr><td>Flat N = 4</td><td class="n">79.8%</td><td class="n">83.5%</td><td class="n">89.9%</td><td class="n">96.3%</td><td class="n">99.9%</td></tr>
+<tr><td>Flat N = 5</td><td class="n">75.2%</td><td class="n">79.0%</td><td class="n">84.6%</td><td class="n">89.9%</td><td class="n">96.3%</td></tr>
+<tr><td>Tiered plus a 90-day calendar arm</td><td class="n">95.5%</td><td class="n">about 100%</td><td class="n">100%</td><td class="n">100%</td><td class="n">100%</td></tr>
 </tbody></table></div>
-<p>Read that as: with N=3 alone, the visible backlog is gone in a single batch run, and the long tail of quarterly subscriptions takes until roughly June 2027 to finish. With the hybrid rule, everything is done by December 2026.</p>
+<p>Read that as: the tiered rule removes 19,846 subscriptions in its first batch run, is at 99.9% by March 2027 and complete shortly after. The equivalent flat rule at three failures would still have been working through the quarterly tail in June 2027.</p>
 
 <h3>The minimum that will always be there</h3>
 <p>This is the question with the least clean answer, so here is the arithmetic rather than a single number. The permanent floor has two parts.</p>
 
 <div class="tw"><table>
-<thead><tr><th>Component</th><th class="n">N=3</th><th class="n">N=4</th><th class="n">N=5</th><th>Why it is permanent</th></tr></thead>
+<thead><tr><th>Component</th><th class="n">Tiered 3 / 2</th><th class="n">Flat N=3</th><th class="n">Flat N=5</th><th>Why it is permanent</th></tr></thead>
 <tbody>
 <tr><td><b>Structural residue.</b> Subscriptions the rule can never reach</td><td class="n">4,314</td><td class="n">4,314</td><td class="n">4,314</td><td>3,336 intermittent payers that fail then succeed inside two cycles, 580 too new to have launched, 398 failing but with no future launch scheduled</td></tr>
-<tr><td><b>In-flight stock.</b> Failing but not yet at the threshold</td><td class="n">1,149</td><td class="n">1,531</td><td class="n">1,914</td><td>New duplicates keep arriving; each waits out its N cycles before the rule fires</td></tr>
-<tr class="tot"><td>Permanent floor, 2026 inflow</td><td class="n">~5,460</td><td class="n">~5,850</td><td class="n">~6,230</td><td></td></tr>
-<tr><td>Permanent floor, if inflow returns to the 2025 rate</td><td class="n">~7,870</td><td class="n">~9,050</td><td class="n">~10,240</td><td>Upper bound, using the trailing twelve-month transition rate of 957 per month</td></tr>
+<tr><td><b>In-flight stock.</b> Failing but not yet at the threshold</td><td class="n">927</td><td class="n">1,149</td><td class="n">1,914</td><td>New duplicates keep arriving; each waits out its cycles before the rule fires</td></tr>
+<tr class="tot"><td>Permanent floor, 2026 inflow</td><td class="n">~5,240</td><td class="n">~5,460</td><td class="n">~6,230</td><td></td></tr>
+<tr><td>Permanent floor, if inflow returns to the 2025 rate</td><td class="n">~7,180</td><td class="n">~7,870</td><td class="n">~10,240</td><td>Upper bound, using the trailing twelve-month transition rate of 957 per month</td></tr>
 </tbody></table></div>
 
-<p>The honest answer is <b>a range of roughly 5,400 to 7,900 failing or failure-prone subscriptions permanently in the database at N=3</b>, and the position within that range is decided by product, not by the rule. The in-flight component is driven entirely by how many new duplicates get created: at the current 2026 rate of 309 new failing subscriptions per month it is about 1,149, and if creation returns to the 2025 rate it triples. The structural residue of ~4,300 does not move with N at all, and about 3,336 of it is arguably not a problem: those are subscriptions that fail sometimes and succeed sometimes, which is normal for a card that occasionally lacks funds.</p>
+<p>The honest answer is <b>a range of roughly 5,200 to 7,200 failing or failure-prone subscriptions permanently in the database under the tiered rule</b>, and the position within that range is decided by product, not by the rule. The in-flight component is driven entirely by how many new duplicates get created: at the current 2026 rate of 309 new failing subscriptions per month it is about 927, and if creation returns to the 2025 rate it triples. The structural residue of ~4,300 does not move with the threshold at all, and about 3,336 of it is arguably not a problem: those are subscriptions that fail sometimes and succeed sometimes, which is normal for a card that occasionally lacks funds.</p>
 
 <div class="callout">
 <p class="lab">The lever that actually moves the floor</p>
-<p>Changing N from 3 to 5 moves the floor by about 770. Stopping duplicate creation at checkout moves it by up to 2,400, and it is the only thing that does. The rules clean up history; the purchase-flow fix is what stops the floor from being rebuilt.</p>
+<p>The tiering moves the floor by about 220 against a flat three. Stopping duplicate creation at checkout moves it by up to 2,400, and it is the only thing that does. The rules clean up history; the purchase-flow fix is what stops the floor from being rebuilt.</p>
 </div>
 </section>
 
@@ -445,9 +449,9 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 
 <div class="rules">
 <div class="rule-card"><div class="id">R1</div><div>
-<h4>Soft cancel after 3 consecutive failures, or 90 days launching without a charge</h4>
-<p>The rule you proposed with a calendar arm added. Never delete: write <span class="pill g">canceled_at</span> and <span class="pill g">canceled_reason</span>, which already exist and are unused. Deleting destroys the audit trail and breaks the 18,758 purchase records that hang off these subscriptions.</p>
-<p class="imp"><b>Clears</b> 20,287 day one, all of it in ~3 months &nbsp;&middot;&nbsp; <b>Risk</b> 452 intermittent payers, mitigated by R1a</p>
+<h4>Soft cancel after 3 consecutive failures, or 2 for quarterly subscriptions</h4>
+<p>The tiered rule. Never delete: write <span class="pill g">canceled_at</span> and <span class="pill g">canceled_reason</span>, which already exist and are unused. Deleting destroys the audit trail and breaks the 18,758 purchase records that hang off these subscriptions.</p>
+<p class="imp"><b>Clears</b> 19,846 on the first run, all of it in ~6 months &nbsp;&middot;&nbsp; <b>Risk</b> 452 intermittent payers, mitigated by R1a</p>
 </div></div>
 
 <div class="rule-card"><div class="id">R1a</div><div>
@@ -458,14 +462,14 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 
 <div class="rule-card"><div class="id">R2</div><div>
 <h4>Duplicate guard at checkout: block a second subscription to the same number, offer and frequency</h4>
-<p>The highest-value rule in this list because it is the only one that stops the backlog being rebuilt. If an active subscription already exists for that recipient and offer, do not create a second one. Offer "you already have this subscription, change it instead". This is the direct fix for Case 2, which is 2,388 groups and 12,892 subscriptions. It must apply within a single session as well as across days: 2,736 duplicates were created less than ten minutes after the previous one, so a guard that only checks yesterday's subscriptions misses an eighth of the problem.</p>
+<p>Now the highest-value item in this list, because with R3 shipped it is the only remaining rule that stops the backlog being rebuilt. If an active subscription already exists for that recipient and offer, do not create a second one. Offer "you already have this subscription, change it instead". This is the direct fix for Case 2, which is 2,388 groups and 12,892 subscriptions. It must apply within a single session as well as across days: 2,736 duplicates were created less than ten minutes after the previous one, so a guard that only checks yesterday's subscriptions misses an eighth of the problem.</p>
 <p class="imp"><b>Prevents</b> up to 2,400 of the permanent floor &nbsp;&middot;&nbsp; <b>Addresses</b> Case 2 and Case 3 at source</p>
 </div></div>
 
 <div class="rule-card"><div class="id">R3</div><div>
-<h4>Idempotency key on the checkout transaction id</h4>
-<p>Stops the K2 double-fulfilment bug outright. Two subscriptions are being created from one transaction id a median 202 seconds apart, which is a retry after a timeout, not a user action. The SQL in the source tab already groups by txid, so the key is identified. This is a code fix, not a rule, and it is the most urgent item in this document.</p>
-<p class="imp"><b>Stops</b> ~570 new duplicate pairs per week &nbsp;&middot;&nbsp; <b>Protects</b> 2,511 pairs about to start double charging</p>
+<h4>Idempotency key on the checkout transaction id <span class="pill g">shipped</span></h4>
+<p>This was the fix for the K2 double-fulfilment bug and backend shipped it in the week of 15 September 2026. Listed here only so the rule set is complete and so the reasoning survives: two subscriptions were being created from a single transaction id a median 202 seconds apart, which is a retry after a timeout. Keep the idempotency check in place for any future change to the purchase path.</p>
+<p class="imp"><b>Status</b> done &nbsp;&middot;&nbsp; <b>Removed</b> 14,011 records from the database</p>
 </div></div>
 
 <div class="rule-card"><div class="id">R4</div><div>
@@ -501,9 +505,8 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 
 <h3>Suggested sequence</h3>
 <ol>
-<li><b>R3 now.</b> It is a live bug creating 570 new duplicate pairs a week. Every week of delay adds roughly 570 pairs to the backlog.</li>
-<li><b>R8 and R5 next.</b> Deterministic, no customer impact, immediate load relief.</li>
-<li><b>R2 and R7 with the next app release.</b> These stop the backlog being rebuilt and therefore set the permanent floor.</li>
+<li><b>R8 and R5 first.</b> Deterministic, no customer impact, immediate load relief. Neither needs a release.</li>
+<li><b>R2 and R7 with the next app release.</b> With R3 shipped, these are the only things that stop the backlog being rebuilt, and they set the permanent floor.</li>
 <li><b>R6, then R1 with R1a.</b> Warn first, then cancel. Run R1 as a batch over the backlog once, then as a daily job.</li>
 <li><b>R4 with the card management work.</b></li>
 </ol>
@@ -572,31 +575,35 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 </section>
 
 <section>
-<div class="sh"><h2>The K2 double-fulfilment bug</h2><span class="num">population B, live</span></div>
-<p>This is a different problem with a different fix, and it is the most urgent thing in the file. Here two subscriptions share <b>a single transaction id</b>, and since the flow cannot subscribe twice within one purchase, these can only be a system fault. The median gap between the two is <b>202 seconds</b>, with 99.2% falling between two and five minutes, which is a server-side retry after a timeout. This is the one place in the file where a duplicate was not created by the customer.</p>
+<div class="sh"><h2>The K2 double-fulfilment bug, for the record</h2><span class="num">population B, resolved</span></div>
+<div class="callout good">
+<p class="lab">Closed</p>
+<p>Backend fixed this in the week of 15 September 2026 and the affected records have been deleted from the database. <b>No action is required and no cancellation rule applies.</b> This section is kept only as a record of what the bug was and what it cost, because the source spreadsheet still contains these rows and anyone re-reading that file will find them.</p>
+</div>
+<p>Two subscriptions shared <b>a single transaction id</b>, and since the purchase flow cannot subscribe twice within one purchase, these could only ever have been a system fault. The median gap between the two was <b>202 seconds</b>, with 99.2% falling between two and five minutes, consistent with a server-side retry after a timeout. It was the one place in the file where a duplicate was not created by the customer.</p>
 
 <div class="tiles">
   <div class="tile"><p class="k">Pairs in the file</p><div class="v">7,005</div><p class="s">14,011 subscriptions, 5,955 customers</p></div>
-  <div class="tile"><p class="k">New pairs per week</p><div class="v crit">570</div><p class="s">four weeks to 2026-09-07, still rising</p></div>
-  <div class="tile"><p class="k">Already double charged</p><div class="v s2">2,773</div><p class="s">pairs where both sides collected</p></div>
-  <div class="tile"><p class="k">About to double charge</p><div class="v crit">2,511</div><p class="s">pairs, both sides awaiting first charge</p></div>
+  <div class="tile"><p class="k">Peak rate before the fix</p><div class="v">570</div><p class="s">new pairs per week, four weeks to 2026-09-07</p></div>
+  <div class="tile"><p class="k">Had double charged</p><div class="v s2">2,773</div><p class="s">pairs where both sides collected</p></div>
+  <div class="tile"><p class="k">Prevented by the fix</p><div class="v" style="color:var(--good)">2,511</div><p class="s">pairs that would have started double charging</p></div>
 </div>
 
 <div class="tw"><table>
 <thead><tr><th>State of the pair</th><th class="n">Pairs</th><th>What it means</th></tr></thead>
 <tbody>
-<tr><td>Both actively purchasing</td><td class="n">2,642</td><td>Double charging right now</td></tr>
-<tr><td>Both awaiting first charge</td><td class="n">2,511</td><td>Will start double charging on their first cycle. 2,295 customers, $21,934 of position-2 value per cycle.</td></tr>
+<tr><td>Both actively purchasing</td><td class="n">2,642</td><td>Were double charging at the extract date</td></tr>
+<tr><td>Both awaiting first charge</td><td class="n">2,511</td><td>Would have started double charging on their first cycle. 2,295 customers, $21,934 of position-2 value per cycle, now prevented.</td></tr>
 <tr><td>Both failing</td><td class="n">1,018</td><td>Neither collecting</td></tr>
 <tr><td>One active, one failing</td><td class="n">824</td><td>Self-resolved, effectively</td></tr>
 <tr><td>Never launched</td><td class="n">10</td><td></td></tr>
 </tbody></table></div>
 
-<p>Revenue already collected on the second subscription of a pair, where both collected: <b>$25,230 USD</b> plus £806, C$838, €256 and A$23. Concentrated in Nigeria (9,676 subscriptions) and Venezuela (3,622), and 97.9% on a monthly cycle.</p>
+<p>Revenue collected on the second subscription of a pair before the fix, where both collected: <b>$25,230 USD</b> plus £806, C$838, €256 and A$23. Concentrated in Nigeria (9,676 subscriptions) and Venezuela (3,622), and 97.9% on a monthly cycle. That is the scale of what was refundable or disputable, and it is worth a conversation with finance even though the subscriptions themselves are gone.</p>
 
-<div class="callout crit">
-<p class="lab">A problem with the "remove least revenue" plan in the tab</p>
-<p>In <b>2,108 of the 2,773 paying pairs (76%)</b>, the two subscriptions have collected exactly the same amount, so "least revenue" has no tie-break in three quarters of cases and the choice falls through to an arbitrary rule. More importantly, applying it as written cancels 2,655 subscriptions that are currently active and paying, and in 13 cases it would cancel the active subscription and keep the failing one. If you go ahead, the tie-break should be "keep position 1, the original", not "keep the one with more revenue", and the 13 inversions should be held out and handled manually.</p>
+<div class="callout">
+<p class="lab">One thing worth confirming with backend</p>
+<p>The "remove least revenue" tab in the source file would have had no tie-break in <b>2,108 of the 2,773 paying pairs (76%)</b>, where both subscriptions collected exactly the same amount, and in 13 cases it would have cancelled the active subscription and kept the failing one. If the deletion that has now run used that logic rather than "keep the original", it is worth checking that those 13 customers were not left with the failing side. That is a short query, not a project.</p>
 </div>
 </section>
 
@@ -609,6 +616,7 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 <li><b>Creation dates before 2025 are approximate.</b> 8,722 of 27,256 creation timestamps (32%) are reconstructed as the first launch minus one cycle.</li>
 <li><b>Clearance timing assumes every future attempt fails</b> and that the rule runs daily from go-live on the extract date. Real clearance will be slightly slower, because some subscriptions will charge successfully once more and reset their counter.</li>
 <li><b>The December 2025 bulk event is included in totals but should be excluded from behavioural conclusions.</b> 1,122 subscriptions created in two hours are a migration artefact.</li>
+<li><b>Population B is no longer in the database.</b> The K2 records were deleted after the backend fix in the week of 15 September 2026. Its figures here describe the state at the 4 September extract and are kept for the record only. Population A totals include 221 subscriptions that overlapped with Population B and are therefore also gone.</li>
 <li><b>Not answerable from this file:</b> whether the March 2026 release reduced duplicates through the UI change or through the recurrence default change, actual amounts charged, and whether any of these customers have raised a support ticket or a chargeback. The first needs Amplitude, the second the billing system, the third Zendesk.</li>
 </ul>
 </section>
