@@ -46,6 +46,32 @@ POPS = [
      "Done. No further action"],
 ]
 
+GLOSS = [
+    ["Term", "Also called", "What it means", "Example"],
+    ["Subscription", "timer, one row",
+     "A single recurring top-up instruction. It has its own schedule, its own card, its own state and its own charge history, and it is one row in the extract. The database calls these timers.",
+     "\"$7 to +504 8869 3565, every 3 months\""],
+    ["Group", "the unit of duplication",
+     "Every subscription from one customer to the same recipient number, for the same offer, at the same frequency. A group holding more than one subscription is by definition a duplicate, which makes the group the thing we are counting when we say \"duplicate\".",
+     "5 identical \"$7 to +504..., every 3 months\" subscriptions = one group of 5"],
+    ["Customer", "owner_id, the account",
+     "The BOSS account holder. One customer can hold several groups, to different numbers or different offers, and several subscriptions inside each group. The median customer here holds 1 group and 4 subscriptions; the largest holds 33 groups and 182 subscriptions.",
+     "983 of the 3,644 customers have more than one group"],
+]
+
+CASEDEF = [
+    ["Case", "As described", "Verdict"],
+    ["Case 1. Bought several subscriptions without realising, then removed the card",
+     "The customer ends up with multiple subscriptions to the same number without knowing it, and the way out they find is to delete the payment method so they stop being charged several times.",
+     "Cannot occur as a distinct mechanism. The IMTU purchase flow has no way to subscribe twice inside a single top-up, so there is no accidental double subscription. Every subscription in a group is a separate, deliberate purchase with the subscription option turned on. Case 1 is not a third story, it is Case 2 observed at a shorter time scale, and its groups are counted there."],
+    ["Case 2. Subscribed on every top-up, then removed the card",
+     "The customer does not understand the subscription purchase flow and leaves the subscription option on for every transaction, so each top-up creates another subscription. As with Case 1, they then remove the payment method to stop being charged several times.",
+     "Confirmed, and it is the dominant story. 2,388 groups, 12,892 subscriptions, 1,184 customers. This is now the only mechanism by which a duplicate gets created."],
+    ["Case 3. Subscribed on every top-up, and is paying for all of them",
+     "The same misunderstanding as Case 2, adding a subscription to every transaction, but the customer does not check their card statements. IDT charges several subscriptions to the same recipient and the customer pays for all of them.",
+     "Confirmed. 1,387 groups, 6,175 subscriptions, 1,094 customers, with 3,469 surplus subscriptions that have taken 20,459 charges. Not cancelled, as instructed."],
+]
+
 GAPS = [
     ["Time between one subscription and the next in the same group", "Occurrences", "Share"],
     ["Under 1 minute", "1,158", "5.4%"],
@@ -159,7 +185,7 @@ K2STATE = [
     ["Never launched", "10", ""],
 ]
 
-TABLES = [("POPS", POPS), ("CASES", CASES), ("GAPS", GAPS), ("FREQ", FREQ), ("CAUSE", CAUSE),
+TABLES = [("POPS", POPS), ("GLOSS", GLOSS), ("CASEDEF", CASEDEF), ("CASES", CASES), ("GAPS", GAPS), ("FREQ", FREQ), ("CAUSE", CAUSE),
           ("AGE", AGE), ("THRESH", THRESH), ("CLEAR", CLEAR), ("FLOOR", FLOOR),
           ("TOPOWN", TOPOWN), ("GEO", GEO), ("K2STATE", K2STATE)]
 
@@ -182,12 +208,20 @@ B = [
     ("h2", "What is actually in the file"),
     ("p", "The spreadsheet contains two populations that barely overlap: they share only 221 subscriptions and 61 customers. Population B has since been fixed at source and deleted, so everything after this section concerns Population A alone. It is recorded here because the two were mixed together in the source file, and because the 221 shared rows mean Population A totals still include a small number of now-deleted records."),
     ("table", "POPS"),
-    ("p", "A few facts worth knowing before reading any number below. The canceled_at and canceled_reason columns exist and are blank on all 27,256 rows, which means a soft cancel is already supported by the schema and nothing has ever used it. Creation dates start on 2024-01-16, so nothing here predates 2024. And 8,722 creation timestamps, 32% of the file, are estimated rather than recorded, all of them older rows, so month-level history before 2025 is approximate."),
+    ("h3", "How the counting works"),
+    ("p", "Three units appear in every table below and they are not interchangeable. One customer can hold many groups, and one group holds many subscriptions."),
+    ("table", "GLOSS"),
+    ("p", "So 27,256 subscriptions sit in 5,807 groups held by 3,644 customers, and those three numbers describe the same population at three levels of aggregation. When a table says 1,387 groups and 1,094 customers, it means some customers appear in more than one group."),
+    ("p", "These figures are a lower bound. The source extract only includes groups of three or more subscriptions. A customer with exactly two identical subscriptions to the same number is a duplicate too, and is not in this file. The real duplicate population is therefore larger than 27,256, and the Case 3 cohort is larger than 1,094 customers. Every number in this document should be read as \"at least\"."),
+    ("p", "A few more facts worth knowing before reading any number below. The canceled_at and canceled_reason columns exist and are blank on all 27,256 rows, which means a soft cancel is already supported by the schema and nothing has ever used it. Creation dates start on 2024-01-16, so nothing here predates 2024. And 8,722 creation timestamps, 32% of the file, are estimated rather than recorded, all of them older rows, so month-level history before 2025 is approximate."),
     ("p", "Exclude from behavioural analysis: a system event on 2025-12-19 created 1,122 subscriptions in two one-hour windows, up to 83 per minute, across 343 customers. That is a migration, not customer behaviour, and it is why December 2025 is the tallest month in the timeline. Removing it drops 349 groups below the three-subscription threshold entirely."),
 
     ("h2", "The three cases, measured"),
-    ("p", "One structural correction first: Case 1 as described cannot happen. The IMTU purchase flow has no way to subscribe twice inside a single top-up, so an accidental double subscription is not a mechanism that exists. Every subscription in one of these groups is a separate, deliberate top-up purchase where the customer turned the subscription option on. That leaves two behavioural stories, not three."),
-    ("p", "I classified every one of the 5,807 groups on that basis: a group is Case 3 if it currently has two or more subscriptions actively purchasing; otherwise, if the majority of its failing subscriptions show a missing card it is Case 2, and if the card is still present it belongs in the fourth row, which is not one of your cases at all."),
+    ("p", "These are the three customer stories as you described them, each stated in full, with what the data says about it."),
+    ("table", "CASEDEF"),
+    ("p", "There is also a fourth population that is in none of your three cases and is larger than two of them: 1,957 groups, 7,932 subscriptions and 1,435 customers whose card is still on file but does not pay, through lack of funds, a decline or an expiry. They did not remove anything. They are worth separating because the remedy is different: a Case 2 customer has made a decision, whereas this group may simply need a working card."),
+    ("h3", "How each group was classified"),
+    ("p", "Every one of the 5,807 groups falls into exactly one row below. A group is Case 3 if it currently holds two or more subscriptions that are actively purchasing. Otherwise, if the majority of its failing subscriptions show a missing card it is Case 2; if the card is still present it is the card-on-file row; and if nothing has launched yet it is counted as new."),
     ("table", "CASES"),
     ("p", "What the fast duplicates actually are. 2,736 subscriptions, 12.8%, were created less than ten minutes after the previous one in their group, and 1,158 of those less than a minute after. Because the flow cannot subscribe twice in one purchase, each of these is two separate top-up purchases minutes apart, both with the subscription option on, and 2,580 of the 2,736 were paid with the same card as the subscription before them. It is the same behaviour as the 30-day gaps, simply compressed: a customer buying two top-ups in one sitting, perhaps two different amounts or a retry after they thought the first had failed."),
     ("p", "That changes what the checkout guard has to do. It is not enough to check across days; R2 has to fire inside a single session, seconds after the previous purchase, because that is where an eighth of the backlog is created."),
