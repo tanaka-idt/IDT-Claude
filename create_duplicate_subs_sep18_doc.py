@@ -185,9 +185,18 @@ K2STATE = [
     ["Never launched", "10", ""],
 ]
 
+K2CHARGED = [
+    ["What happened to the pair", "Pairs"],
+    ["Both subscriptions had collected at least once (the customer paid twice)", "2,773"],
+    ["Both still charging successfully on 4 Sep", "2,642"],
+    ["Neither had charged yet (would have charged twice on their first renewal; the fix stopped this)", "2,511"],
+    ["Both failing, so no money taken", "1,018"],
+    ["One charging, one failing (effectively a single charge)", "824"],
+]
+
 TABLES = [("POPS", POPS), ("GLOSS", GLOSS), ("CASEDEF", CASEDEF), ("CASES", CASES), ("GAPS", GAPS), ("FREQ", FREQ), ("CAUSE", CAUSE),
           ("AGE", AGE), ("THRESH", THRESH), ("CLEAR", CLEAR), ("FLOOR", FLOOR),
-          ("TOPOWN", TOPOWN), ("GEO", GEO), ("K2STATE", K2STATE)]
+          ("TOPOWN", TOPOWN), ("GEO", GEO), ("K2STATE", K2STATE), ("K2CHARGED", K2CHARGED)]
 
 # ---------------------------------------------------------------- blocks ----
 
@@ -300,6 +309,12 @@ B = [
     ("p", "Scale before the fix: 7,005 pairs, 14,011 subscriptions, 5,955 customers, running at about 570 new pairs per week in the four weeks to 2026-09-07. 2,773 pairs had already double charged and 2,511 were about to, which the fix prevented."),
     ("table", "K2STATE"),
     ("p", "Revenue collected on the second subscription of a pair before the fix, where both collected: $25,230 USD plus 806 GBP, 838 CAD, 256 EUR and 23 AUD. Concentrated in Nigeria with 9,676 subscriptions and Venezuela with 3,622, and 97.9% on a monthly cycle. That is the scale of what was refundable or disputable, and it is worth a conversation with finance even though the subscriptions themselves are gone."),
+    ("h3", "Were these customers charged twice?"),
+    ("p", "Yes, some of them were. The customer's first purchase was only charged once. The double charges came at renewal, when both subscriptions in a pair tried to charge."),
+    ("p", "These numbers come from the data extract of 4 September, before the fix went in:"),
+    ("table", "K2CHARGED"),
+    ("p", "That's 7,005 pairs across 5,955 customers in total."),
+    ("p", "How much was overcharged: about $25,230, plus small amounts in other currencies (\u00a3806, C$838, \u20ac256, A$23). This is what the second subscription in each pair collected before the fix. Most of it was monthly subscriptions, mainly to Nigeria and Venezuela."),
     ("p", "One thing worth confirming with backend. The \"remove least revenue\" tab in the source file would have had no tie-break in 2,108 of the 2,773 paying pairs, 76%, where both subscriptions collected exactly the same amount, and in 13 cases it would have cancelled the active subscription and keep the failing one. If the deletion that has now run used that logic rather than \"keep the original\", it is worth checking that those 13 customers were not left with the failing side. That is a short query, not a project."),
 
     ("h2", "Method and limits"),

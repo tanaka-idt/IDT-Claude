@@ -662,6 +662,21 @@ tr.tot td{background:var(--surface-2);font-weight:600}
 
 <p>Revenue collected on the second subscription of a pair before the fix, where both collected: <b>$25,230 USD</b> plus £806, C$838, €256 and A$23. Concentrated in Nigeria (9,676 subscriptions) and Venezuela (3,622), and 97.9% on a monthly cycle. That is the scale of what was refundable or disputable, and it is worth a conversation with finance even though the subscriptions themselves are gone.</p>
 
+<h3>Were these customers charged twice?</h3>
+<p>Yes, some of them were. The customer's first purchase was only charged once. The double charges came at renewal, when both subscriptions in a pair tried to charge.</p>
+<p>These numbers come from the data extract of 4 September, before the fix went in:</p>
+<div class="tw"><table>
+<thead><tr><th>What happened to the pair</th><th class="n">Pairs</th></tr></thead>
+<tbody>
+<tr><td><b>Both subscriptions had collected at least once</b> (the customer paid twice)</td><td class="n"><b>2,773</b></td></tr>
+<tr><td>Both still charging successfully on 4 Sep</td><td class="n">2,642</td></tr>
+<tr><td>Neither had charged yet (would have charged twice on their first renewal; the fix stopped this)</td><td class="n">2,511</td></tr>
+<tr><td>Both failing, so no money taken</td><td class="n">1,018</td></tr>
+<tr><td>One charging, one failing (effectively a single charge)</td><td class="n">824</td></tr>
+</tbody></table></div>
+<p>That's 7,005 pairs across 5,955 customers in total.</p>
+<p><b>How much was overcharged:</b> about <b>$25,230</b>, plus small amounts in other currencies (&pound;806, C$838, &euro;256, A$23). This is what the second subscription in each pair collected before the fix. Most of it was monthly subscriptions, mainly to Nigeria and Venezuela.</p>
+
 <div class="callout">
 <p class="lab">One thing worth confirming with backend</p>
 <p>The "remove least revenue" tab in the source file would have had no tie-break in <b>2,108 of the 2,773 paying pairs (76%)</b>, where both subscriptions collected exactly the same amount, and in 13 cases it would have cancelled the active subscription and kept the failing one. If the deletion that has now run used that logic rather than "keep the original", it is worth checking that those 13 customers were not left with the failing side. That is a short query, not a project.</p>
