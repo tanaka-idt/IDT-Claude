@@ -19,6 +19,7 @@ DASH = f"{AMP}/dashboard/fcw7gsdb"
 EVENT_URL = "https://app.amplitude.com/data/BOSS/650506/events/main/latest/MTUOrderStatusSuccessScr"
 AUDIT_URL = "https://claude.ai/code/artifact/4658de01-5f22-408f-bfd7-f4cb63805cb5"
 DCS_4011 = "https://idtjira.atlassian.net/browse/DCS-4011"
+GDOC_URL = "https://docs.google.com/document/d/1_U55pgURYmrG7HVaKYy1junM31acFOlWkCjJ3q4OPjg/edit"
 
 
 def chart(cid):
@@ -478,7 +479,8 @@ html = f'''<title>IMTU Offer Loyalty</title>
     <span><b>Source</b> Amplitude BR app Prod (650506), {a(EVENT_URL, "MTUOrderStatusSuccessScr")}</span>
     <span><b>Cohort</b> {num(N["all"])} buyers, 1 Jul to 28 Aug 2026</span>
     <span><b>Window</b> next purchase within 30 days</span>
-    <span><b>Evidence</b> {a(DASH, "dashboard fcw7gsdb")} (34 charts)</span>
+    <span><b>Evidence</b> {a(DASH, "findings dashboard fcw7gsdb")} (34 charts)</span>
+    <span><b>Doc</b> {a(GDOC_URL, "Google Doc version")}</span>
   </div>
 </header>
 

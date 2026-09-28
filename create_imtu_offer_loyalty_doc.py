@@ -12,6 +12,9 @@ Two steps, because Docs embeds images by public URL:
     python create_imtu_offer_loyalty_doc.py [<doc_id>]  # build (or rebuild) the doc
 
 Text blocks accept two inline marks: **bold** and [label](url).
+
+Current doc (rebuild in place by passing this id):
+    1_U55pgURYmrG7HVaKYy1junM31acFOlWkCjJ3q4OPjg
 """
 
 import re
