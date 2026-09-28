@@ -1,0 +1,458 @@
+<title>IMTU Offer Loyalty</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#F5F7FA; --surface:#FFFFFF; --surface-2:#EDF1F6;
+  --ink:#0F141C; --ink-2:#39424F; --ink-3:#6B7484;
+  --rule:#D9E0EA; --rule-soft:#E8EDF3; --track:#EDF1F6;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --neutral:#cdd5df; --down:#e34948;
+  --on-s1:#FFFFFF; --on-s2:#0F141C; --on-s3:#0F141C; --on-neutral:#0F141C; --on-down:#0F141C;
+  --link:#1f63b8;
+  --sans:"Public Sans","Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --paper:#0C1016; --surface:#141A22; --surface-2:#1B222C;
+  --ink:#E8ECF2; --ink-2:#B4BDCA; --ink-3:#7F8A9A;
+  --rule:#26303C; --rule-soft:#1E2630; --track:#1B222C;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --neutral:#3a4654; --down:#e66767;
+  --on-s1:#0C1016; --on-s2:#0C1016; --on-s3:#0C1016; --on-neutral:#E8ECF2; --on-down:#0C1016;
+  --link:#6da7ec;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#0C1016; --surface:#141A22; --surface-2:#1B222C;
+  --ink:#E8ECF2; --ink-2:#B4BDCA; --ink-3:#7F8A9A;
+  --rule:#26303C; --rule-soft:#1E2630; --track:#1B222C;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --neutral:#3a4654; --down:#e66767;
+  --on-s1:#0C1016; --on-s2:#0C1016; --on-s3:#0C1016; --on-neutral:#E8ECF2; --on-down:#0C1016;
+  --link:#6da7ec;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-block:40px 90px;padding-left:20px;padding-right:20px}
+a{color:var(--link);text-underline-offset:2px}
+a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+code{font-family:var(--mono);font-size:.86em;background:var(--surface-2);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--s2);margin:0 0 10px;font-weight:600}
+h1{font-size:clamp(28px,4.6vw,42px);line-height:1.1;letter-spacing:-.022em;font-weight:700;margin:0;text-wrap:balance;max-width:24ch}
+.stand{margin:16px 0 0;max-width:66ch;color:var(--ink-2);font-size:18px}
+.meta{display:flex;flex-wrap:wrap;gap:4px 24px;margin:22px 0 0;font-family:var(--mono);font-size:11.5px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px}
+.meta b{color:var(--ink-2);font-weight:500}
+h2{font-size:23px;font-weight:700;letter-spacing:-.015em;margin:0;text-wrap:balance}
+section{margin-top:56px}
+.sh{border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:18px}
+p{margin:0 0 14px;max-width:70ch}
+ul,ol{margin:0 0 14px;padding-left:22px;max-width:70ch}
+li{margin:0 0 8px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:28px 0 0}
+.tile{background:var(--surface);padding:16px 18px}
+.tile .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);margin:0 0 8px;font-weight:500}
+.tile .v{font-size:34px;font-weight:700;letter-spacing:-.025em;line-height:1;color:var(--ink)}
+.tile .s{font-size:13.5px;color:var(--ink-2);margin:8px 0 0;line-height:1.45}
+figure{margin:24px 0;background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:18px 18px 14px;min-width:0}
+.fig-t{font-weight:600;font-size:15px;line-height:1.35;margin:0 0 12px;text-wrap:balance}
+figcaption{font-size:13.5px;color:var(--ink-2);margin-top:14px;line-height:1.5;border-top:1px solid var(--rule-soft);padding-top:10px}
+figcaption b{color:var(--ink);font-weight:600}
+.sub-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);margin:18px 0 8px;font-weight:500}
+.lg{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink-2);margin:0 0 14px}
+.lg-i{display:inline-flex;align-items:center;gap:7px}
+.sw{width:12px;height:12px;border-radius:3px;flex:none}
+.sb{margin:0 0 16px}
+.sb-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 12px;margin:0 0 6px}
+.sb-l{font-weight:600;font-size:14px}
+.sb-s{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.sb-bar{display:flex;gap:2px;height:30px;background:var(--surface)}
+.seg{display:flex;align-items:center;justify-content:center;min-width:2px;cursor:default}
+.seg:first-child{border-radius:4px 0 0 4px}.seg:last-child{border-radius:0 4px 4px 0}
+.seg .in{font-family:var(--mono);font-size:12px;font-weight:600;white-space:nowrap}
+.hbs{display:grid;gap:8px}
+.hb{display:grid;grid-template-columns:minmax(0,15rem) minmax(0,1fr) 7.5rem;align-items:center;gap:12px;font-size:13.5px}
+.hb.strong .hb-l,.hb.strong .hb-v{font-weight:700;color:var(--ink)}
+.hb-l{color:var(--ink-2);line-height:1.3}
+.hb-t{display:flex;align-items:center;gap:8px;min-width:0}
+.hb-b{display:block;height:16px;border-radius:0 4px 4px 0;min-width:2px}
+.hb-v{font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap}
+.hb-n{font-family:var(--mono);font-size:11px;color:var(--ink-3);text-align:right;white-space:nowrap}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:0 20px}
+.two .hb{grid-template-columns:minmax(0,9.5rem) minmax(0,1fr) 6.8rem}
+.dbs{display:grid;gap:10px}
+.db{display:grid;grid-template-columns:6.5rem minmax(0,1fr) 7rem;align-items:center;gap:12px;font-size:13.5px}
+.db-l{font-family:var(--mono);font-weight:600;color:var(--ink)}
+.db-l span{font-family:var(--sans);font-weight:400;color:var(--ink-3);font-size:12px}
+.db-t{position:relative;height:18px;background:linear-gradient(var(--rule-soft),var(--rule-soft)) center/100% 1px no-repeat}
+.db-r{position:absolute;top:7px;height:4px;background:var(--rule);border-radius:2px}
+.dot{position:absolute;top:1px;width:16px;height:16px;margin-left:-8px;border-radius:50%;border:2px solid var(--surface);cursor:default}
+.db-n{font-family:var(--mono);font-size:11px;color:var(--ink-3);text-align:right;white-space:nowrap}
+.db.axis .db-t{background:none;height:16px}
+.ticks span{position:absolute;transform:translateX(-50%);font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
+.tw{overflow-x:auto;margin:16px 0;border:1px solid var(--rule);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+th,td{padding:9px 13px;text-align:left;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+th{background:var(--surface-2);font-weight:600;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2)}
+td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tr.tot td{background:var(--surface-2);font-weight:600}
+details{margin:10px 0 0}
+summary{cursor:pointer;font-size:13.5px;color:var(--link);font-weight:500}
+.callout{border-left:3px solid var(--s1);background:var(--surface);padding:15px 18px;margin:22px 0;border-radius:0 8px 8px 0}
+.callout p:last-child{margin-bottom:0}
+.callout .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--s1);margin:0 0 6px}
+.recs{display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:20px 0}
+.rec{background:var(--surface);padding:16px 18px;display:grid;grid-template-columns:minmax(0,15rem) minmax(0,1fr);gap:6px 22px}
+.rec h3{font-size:15.5px;margin:0;line-height:1.35;text-wrap:balance}
+.rec p{margin:0;font-size:14.5px;color:var(--ink-2);max-width:none}
+.method{font-size:14.5px}
+.method dt{font-weight:600;margin-top:12px}
+.method dd{margin:2px 0 0;color:var(--ink-2);max-width:72ch}
+.sku{display:inline-flex;flex-wrap:wrap;gap:6px;margin:4px 0 0}
+#tip{position:fixed;z-index:10;pointer-events:none;background:var(--ink);color:var(--paper);font-size:12.5px;line-height:1.35;padding:6px 9px;border-radius:6px;max-width:260px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+@media (max-width:640px){
+  .hb,.two .hb{grid-template-columns:minmax(0,1fr) auto;gap:4px 10px}
+  .hb-l{grid-column:1/-1}
+  .hb-n{text-align:right}
+  .db{grid-template-columns:4.2rem minmax(0,1fr);gap:4px 10px}
+  .db-n{display:none}
+  .db-l span{display:none}
+  .rec{grid-template-columns:1fr}
+  .tile .v{font-size:30px}
+}
+@media (prefers-reduced-motion:no-preference){.seg,.hb-b,.dot{transition:opacity .15s}}
+</style>
+<div class="wrap">
+<header>
+  <p class="eyebrow">IMTU · Amplitude analysis · 28 Sep 2026</p>
+  <h1>Buyers keep their offer. What changes is who they top up.</h1>
+  <p class="stand">When a BOSS Revolution user tops up the same person again, 71% of the time it is the exact same offer and 92% of the time the same product type. Most offer changes between one purchase and the next happen because the next top-up is for someone else, often on another carrier.</p>
+  <div class="meta">
+    <span><b>Source</b> Amplitude BR app Prod (650506), <a href="https://app.amplitude.com/data/BOSS/650506/events/main/latest/MTUOrderStatusSuccessScr" target="_blank" rel="noopener">MTUOrderStatusSuccessScr</a></span>
+    <span><b>Cohort</b> 422,042 buyers, 1 Jul to 28 Aug 2026</span>
+    <span><b>Window</b> next purchase within 30 days</span>
+    <span><b>Evidence</b> <a href="https://app.amplitude.com/analytics/BOSS/dashboard/fcw7gsdb" target="_blank" rel="noopener">dashboard fcw7gsdb</a> (34 charts)</span>
+  </div>
+</header>
+
+<div class="tiles">
+  <div class="tile"><p class="k">Same person, same offer</p><div class="v">71.0%</div><p class="s">of repeat top-ups to the same recipient use the exact same offer ID (50,627 of 71,334).</p></div>
+  <div class="tile"><p class="k">Same person, same product type</p><div class="v">91.8%</div><p class="s">stay on bundle, airtime or data. Most of the rest is a different denomination.</p></div>
+  <div class="tile"><p class="k">Next top-up, same person</p><div class="v">30.1%</div><p class="s">of next purchases go to the same recipient. 69.9% go to someone else.</p></div>
+  <div class="tile"><p class="k">Next top-up, same offer</p><div class="v">45.4%</div><p class="s">of next purchases reuse the previous offer, whoever the recipient is.</p></div>
+</div>
+
+<section>
+  <div class="sh"><h2>The answer: repeat for the same person, change for a different one</h2></div>
+  <p>For each buyer, we took their first successful top-up after 30 June and looked at the very next one. 56% bought again within 30 days. The next purchase went to the same recipient only 30% of the time, and those repeats are highly loyal. Next purchases for a different recipient still reuse the same offer 34% of the time, and 52% of the time when the new recipient is on the same carrier.</p>
+  <figure>
+  <div class="fig-t">Where the next top-up went, for 237,041 buyers who bought again within 30 days</div>
+  <div class="lg"><span class="lg-i"><span class="sw" style="background:var(--s1)"></span>Same offer as last time</span><span class="lg-i"><span class="sw" style="background:var(--s2)"></span>Different offer, same carrier</span><span class="lg-i"><span class="sw" style="background:var(--s3)"></span>Different carrier, so the offer had to change</span></div>
+  <div class="sb">
+  <div class="sb-h"><span class="sb-l">To the same recipient</span><span class="sb-s">71,334 next purchases (30.1%) · <a href="https://app.amplitude.com/analytics/BOSS/chart/h5r3f3a0" target="_blank" rel="noopener">chart</a></span></div>
+  <div class="sb-bar"><span class="seg" style="flex:50627 1 0;background:var(--s1)" data-tip="Same offer: 71.0% (50,627 buyers)" tabindex="0"><span class="in" style="color:var(--on-s1)">71.0%</span></span><span class="seg" style="flex:20675 1 0;background:var(--s2)" data-tip="Different offer, same carrier: 29.0% (20,675 buyers)" tabindex="0"><span class="in" style="color:var(--on-s2)">29.0%</span></span><span class="seg" style="flex:32 1 0;background:var(--s3)" data-tip="Recipient changed carrier: 0.0% (32 buyers)" tabindex="0"></span></div>
+</div>
+  <div class="sb">
+  <div class="sb-h"><span class="sb-l">To a different recipient</span><span class="sb-s">165,707 next purchases (69.9%) · <a href="https://app.amplitude.com/analytics/BOSS/chart/g6r3txzr" target="_blank" rel="noopener">chart</a></span></div>
+  <div class="sb-bar"><span class="seg" style="flex:56895 1 0;background:var(--s1)" data-tip="Same offer: 34.3% (56,895 buyers)" tabindex="0"><span class="in" style="color:var(--on-s1)">34.3%</span></span><span class="seg" style="flex:52680 1 0;background:var(--s2)" data-tip="Different offer, same carrier: 31.8% (52,680 buyers)" tabindex="0"><span class="in" style="color:var(--on-s2)">31.8%</span></span><span class="seg" style="flex:56132 1 0;background:var(--s3)" data-tip="Different carrier: 33.9% (56,132 buyers)" tabindex="0"><span class="in" style="color:var(--on-s3)">33.9%</span></span></div>
+</div>
+  <figcaption><b>Read it as:</b> when the next top-up goes to the same person, 71.0% of the time it is the exact same offer. Seven in ten next top-ups go to someone else, and a third of those land on another carrier, where no offer can carry over. Built from <a href="https://app.amplitude.com/analytics/BOSS/chart/dmmwysk6" target="_blank" rel="noopener">any repeat</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/as44pz1v" target="_blank" rel="noopener">same recipient</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/h5r3f3a0" target="_blank" rel="noopener">same recipient + offer</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/g6r3txzr" target="_blank" rel="noopener">same offer</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/9j7xo0af" target="_blank" rel="noopener">same carrier</a> and <a href="https://app.amplitude.com/analytics/BOSS/chart/ghgqoyi8" target="_blank" rel="noopener">same recipient + carrier</a>.</figcaption>
+</figure>
+  <details><summary>Show the table</summary><div class="tw"><table><thead><tr><th>Next purchase</th><th class="n">Buyers</th><th class="n">Share</th></tr></thead><tbody><tr><td>Same recipient, same offer</td><td class="n">50,627</td><td class="n">21.4%</td></tr><tr><td>Same recipient, different offer</td><td class="n">20,707</td><td class="n">8.7%</td></tr><tr><td>Different recipient, same offer</td><td class="n">56,895</td><td class="n">24.0%</td></tr><tr><td>Different recipient, same carrier, different offer</td><td class="n">52,680</td><td class="n">22.2%</td></tr><tr><td>Different recipient on another carrier</td><td class="n">56,132</td><td class="n">23.7%</td></tr><tr class="tot"><td>All next purchases within 30 days</td><td class="n">237,041</td><td class="n">100.0%</td></tr></tbody></table></div></details>
+</section>
+
+<section>
+  <div class="sh"><h2>For the same person, the offer rarely changes</h2></div>
+  <p>The share of same-recipient repeats that keep the offer ID stays between 63% and 76% across tenure segments and every robustness check. It is lowest for new buyers, who are still finding their offer, and highest for established buyers and for regular (non-subscription) purchases.</p>
+  <figure>
+  <div class="fig-t">Same recipient, same offer: share of repeat top-ups to the same person that used the exact same offer</div>
+  <div class="hbs"><div class="hb ">
+  <div class="hb-l">New or lapsed (0 purchases Apr-Jun)</div>
+  <div class="hb-t"><span class="hb-b" style="width:62.98%;background:var(--s1)" data-tip="New or lapsed (0 purchases Apr-Jun): 63.0% same offer (8,660 of 13,750 same-recipient repeats)" tabindex="0"></span><span class="hb-v">63.0%</span></div>
+  <div class="hb-n">8,660 of 13,750</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Light (1-2 purchases Apr-Jun)</div>
+  <div class="hb-t"><span class="hb-b" style="width:68.70%;background:var(--s1)" data-tip="Light (1-2 purchases Apr-Jun): 68.7% same offer (10,894 of 15,857 same-recipient repeats)" tabindex="0"></span><span class="hb-v">68.7%</span></div>
+  <div class="hb-n">10,894 of 15,857</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Established (3+ purchases Apr-Jun)</div>
+  <div class="hb-t"><span class="hb-b" style="width:74.47%;background:var(--s1)" data-tip="Established (3+ purchases Apr-Jun): 74.5% same offer (31,073 of 41,727 same-recipient repeats)" tabindex="0"></span><span class="hb-v">74.5%</span></div>
+  <div class="hb-n">31,073 of 41,727</div>
+</div>
+<div class="hb strong">
+  <div class="hb-l">All buyers</div>
+  <div class="hb-t"><span class="hb-b" style="width:70.97%;background:var(--s1)" data-tip="All buyers: 71.0% same offer (50,627 of 71,334 same-recipient repeats)" tabindex="0"></span><span class="hb-v">71.0%</span></div>
+  <div class="hb-n">50,627 of 71,334</div>
+</div></div>
+  <div class="sub-h">Robustness checks, all buyers</div>
+  <div class="hbs"><div class="hb ">
+  <div class="hb-l">Regular purchases only (no subscription creations)</div>
+  <div class="hb-t"><span class="hb-b" style="width:75.55%;background:var(--s1)" data-tip="Regular purchases only (no subscription creations): 75.6% same offer (39,041 of 51,674)" tabindex="0"></span><span class="hb-v">75.6%</span></div>
+  <div class="hb-n">39,041 of 51,674</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">60-day window instead of 30</div>
+  <div class="hb-t"><span class="hb-b" style="width:73.14%;background:var(--s1)" data-tip="60-day window instead of 30: 73.1% same offer (58,223 of 79,602)" tabindex="0"></span><span class="hb-v">73.1%</span></div>
+  <div class="hb-n">58,223 of 79,602</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Other recipients allowed in between</div>
+  <div class="hb-t"><span class="hb-b" style="width:73.01%;background:var(--s1)" data-tip="Other recipients allowed in between: 73.0% same offer (80,120 of 109,736)" tabindex="0"></span><span class="hb-v">73.0%</span></div>
+  <div class="hb-n">80,120 of 109,736</div>
+</div></div>
+  <figcaption><b>Loyalty grows with tenure.</b> New or lapsed buyers repeat the same offer 63.0% of the time, established buyers 74.5%. The answer holds when subscription creations are excluded (<a href="https://app.amplitude.com/analytics/BOSS/chart/5yijrvol" target="_blank" rel="noopener">same recipient</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/meud2gwg" target="_blank" rel="noopener">same offer</a>), over 60 days (<a href="https://app.amplitude.com/analytics/BOSS/chart/zsflzpb2" target="_blank" rel="noopener">same recipient</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/tiwder3b" target="_blank" rel="noopener">same offer</a>) and when purchases to other people happen in between (<a href="https://app.amplitude.com/analytics/BOSS/chart/p7xgzbsm" target="_blank" rel="noopener">same recipient</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/tk7wnx2b" target="_blank" rel="noopener">same offer</a>).</figcaption>
+</figure>
+  <p>When the offer does change for the same person, it is mostly a different denomination within the same product type. Catalog churn and carrier changes are negligible: only 544 switches kept the same carrier and amount under a new offer ID, and 32 followed a change of the recipient's carrier (<a href="https://app.amplitude.com/analytics/BOSS/chart/5mo4xk68" target="_blank" rel="noopener">same recipient, carrier and amount</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/ghgqoyi8" target="_blank" rel="noopener">same recipient and carrier</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/s2n5xug7" target="_blank" rel="noopener">same recipient and type</a>).</p>
+  <div class="tw"><table><thead><tr><th>Same-recipient repeat</th><th class="n">Buyers</th><th class="n">Share</th></tr></thead><tbody><tr><td>Same offer</td><td class="n">50,627</td><td class="n">71.0%</td></tr><tr><td>Same product type, different offer</td><td class="n">14,838</td><td class="n">20.8%</td></tr><tr><td>Different product type</td><td class="n">5,869</td><td class="n">8.2%</td></tr><tr class="tot"><td>All repeat top-ups to the same recipient</td><td class="n">71,334</td><td class="n">100.0%</td></tr></tbody></table></div>
+</section>
+
+<section>
+  <div class="sh"><h2>When the amount changes, it moves both ways</h2></div>
+  <p>We checked the next same-recipient top-up after the five most common USD amounts. Denomination loyalty matches offer loyalty, and changes show no upward trend.</p>
+  <figure>
+  <div class="fig-t">Amount of the next top-up to the same recipient, by the amount of the previous one (USD)</div>
+  <div class="lg"><span class="lg-i"><span class="sw" style="background:var(--down)"></span>Lower amount</span><span class="lg-i"><span class="sw" style="background:var(--neutral)"></span>Same amount</span><span class="lg-i"><span class="sw" style="background:var(--s1)"></span>Higher amount</span></div>
+  <div class="sb">
+  <div class="sb-h"><span class="sb-l">After a $5 top-up</span><span class="sb-s">4,763 repeats · average next $6.01 · <a href="https://app.amplitude.com/analytics/BOSS/chart/v0m0hb27" target="_blank" rel="noopener">chart</a></span></div>
+  <div class="sb-bar"><span class="seg" style="flex:167 1 0;background:var(--down)" data-tip="Lower amount: 3.5% (167 buyers)" tabindex="0"></span><span class="seg" style="flex:3679 1 0;background:var(--neutral)" data-tip="Same amount: 77.2% (3,679 buyers)" tabindex="0"><span class="in" style="color:var(--on-neutral)">77.2%</span></span><span class="seg" style="flex:917 1 0;background:var(--s1)" data-tip="Higher amount: 19.3% (917 buyers)" tabindex="0"></span></div>
+</div><div class="sb">
+  <div class="sb-h"><span class="sb-l">After a $10 top-up</span><span class="sb-s">16,111 repeats · average next $10.65 · <a href="https://app.amplitude.com/analytics/BOSS/chart/rvsgy8i0" target="_blank" rel="noopener">chart</a></span></div>
+  <div class="sb-bar"><span class="seg" style="flex:1533 1 0;background:var(--down)" data-tip="Lower amount: 9.5% (1,533 buyers)" tabindex="0"></span><span class="seg" style="flex:12528 1 0;background:var(--neutral)" data-tip="Same amount: 77.8% (12,528 buyers)" tabindex="0"><span class="in" style="color:var(--on-neutral)">77.8%</span></span><span class="seg" style="flex:2050 1 0;background:var(--s1)" data-tip="Higher amount: 12.7% (2,050 buyers)" tabindex="0"></span></div>
+</div><div class="sb">
+  <div class="sb-h"><span class="sb-l">After a $15 top-up</span><span class="sb-s">4,665 repeats · average next $14.74 · <a href="https://app.amplitude.com/analytics/BOSS/chart/e3n8o63t" target="_blank" rel="noopener">chart</a></span></div>
+  <div class="sb-bar"><span class="seg" style="flex:1072 1 0;background:var(--down)" data-tip="Lower amount: 23.0% (1,072 buyers)" tabindex="0"><span class="in" style="color:var(--on-down)">23.0%</span></span><span class="seg" style="flex:3008 1 0;background:var(--neutral)" data-tip="Same amount: 64.5% (3,008 buyers)" tabindex="0"><span class="in" style="color:var(--on-neutral)">64.5%</span></span><span class="seg" style="flex:585 1 0;background:var(--s1)" data-tip="Higher amount: 12.5% (585 buyers)" tabindex="0"></span></div>
+</div><div class="sb">
+  <div class="sb-h"><span class="sb-l">After a $20 top-up</span><span class="sb-s">5,120 repeats · average next $18.73 · <a href="https://app.amplitude.com/analytics/BOSS/chart/182uqmpr" target="_blank" rel="noopener">chart</a></span></div>
+  <div class="sb-bar"><span class="seg" style="flex:1019 1 0;background:var(--down)" data-tip="Lower amount: 19.9% (1,019 buyers)" tabindex="0"></span><span class="seg" style="flex:3715 1 0;background:var(--neutral)" data-tip="Same amount: 72.6% (3,715 buyers)" tabindex="0"><span class="in" style="color:var(--on-neutral)">72.6%</span></span><span class="seg" style="flex:386 1 0;background:var(--s1)" data-tip="Higher amount: 7.5% (386 buyers)" tabindex="0"></span></div>
+</div><div class="sb">
+  <div class="sb-h"><span class="sb-l">After a $25 top-up</span><span class="sb-s">2,165 repeats · average next $21.82 · <a href="https://app.amplitude.com/analytics/BOSS/chart/ztd3udoq" target="_blank" rel="noopener">chart</a></span></div>
+  <div class="sb-bar"><span class="seg" style="flex:670 1 0;background:var(--down)" data-tip="Lower amount: 30.9% (670 buyers)" tabindex="0"><span class="in" style="color:var(--on-down)">30.9%</span></span><span class="seg" style="flex:1430 1 0;background:var(--neutral)" data-tip="Same amount: 66.1% (1,430 buyers)" tabindex="0"><span class="in" style="color:var(--on-neutral)">66.1%</span></span><span class="seg" style="flex:65 1 0;background:var(--s1)" data-tip="Higher amount: 3.0% (65 buyers)" tabindex="0"></span></div>
+</div>
+  <figcaption><b>No drift up or down.</b> 74.2% of same-recipient repeats keep the denomination. The rest split almost evenly: 47.3% of changes go up and 52.7% go down. Small amounts tend to move up and large ones down, toward the $10 to $20 band.</figcaption>
+</figure>
+  <details><summary>Show the table</summary><div class="tw"><table><thead><tr><th>Previous top-up</th><th class="n">Repeats</th><th class="n">Lower</th><th class="n">Same</th><th class="n">Higher</th><th class="n">Avg next</th></tr></thead><tbody><tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/v0m0hb27" target="_blank" rel="noopener">$5</a></td><td class="n">4,763</td><td class="n">3.5%</td><td class="n">77.2%</td><td class="n">19.3%</td><td class="n">$6.01</td></tr><tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/rvsgy8i0" target="_blank" rel="noopener">$10</a></td><td class="n">16,111</td><td class="n">9.5%</td><td class="n">77.8%</td><td class="n">12.7%</td><td class="n">$10.65</td></tr><tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/e3n8o63t" target="_blank" rel="noopener">$15</a></td><td class="n">4,665</td><td class="n">23.0%</td><td class="n">64.5%</td><td class="n">12.5%</td><td class="n">$14.74</td></tr><tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/182uqmpr" target="_blank" rel="noopener">$20</a></td><td class="n">5,120</td><td class="n">19.9%</td><td class="n">72.6%</td><td class="n">7.5%</td><td class="n">$18.73</td></tr><tr><td><a href="https://app.amplitude.com/analytics/BOSS/chart/ztd3udoq" target="_blank" rel="noopener">$25</a></td><td class="n">2,165</td><td class="n">30.9%</td><td class="n">66.1%</td><td class="n">3.0%</td><td class="n">$21.82</td></tr><tr class="tot"><td>Pooled</td><td class="n">32,824</td><td class="n">13.6%</td><td class="n">74.2%</td><td class="n">12.2%</td><td class="n"></td></tr></tbody></table></div></details>
+</section>
+
+<section>
+  <div class="sh"><h2>Quick-send makes repeating automatic, but browsers repeat too</h2></div>
+  <p>The entry point of the repeat purchase (<code>top_up_started_from</code>, from <a href="https://idtjira.atlassian.net/browse/DCS-4011" target="_blank" rel="noopener">DCS-4011</a>) shows how much of the loyalty is the interface and how much is choice. One-tap repeats pre-fill the last order, so they are close to 100% by design. The browse flows are the cleaner test of preference: the buyer sees the offer list and most still pick the offer they bought last time.</p>
+  <figure>
+  <div class="fig-t">Same recipient, same offer, by where the repeat top-up started (<code>top_up_started_from</code>)</div>
+  <div class="lg"><span class="lg-i"><span class="sw" style="background:var(--s1)"></span>One-tap repeat</span><span class="lg-i"><span class="sw" style="background:var(--s2)"></span>Browse the offer list</span><span class="lg-i"><span class="sw" style="background:var(--neutral)"></span>Not tracked</span></div>
+  <div class="hbs"><div class="hb ">
+  <div class="hb-l"><code>quick-send</code></div>
+  <div class="hb-t"><span class="hb-b" style="width:94.20%;background:var(--s1)" data-tip="&lt;code&gt;quick-send&lt;/code&gt;: 94.2% same offer (16,865 of 17,904)" tabindex="0"></span><span class="hb-v">94.2%</span></div>
+  <div class="hb-n">16,865 of 17,904</div>
+</div>
+<div class="hb ">
+  <div class="hb-l"><code>calling-home-quick-send</code></div>
+  <div class="hb-t"><span class="hb-b" style="width:94.79%;background:var(--s1)" data-tip="&lt;code&gt;calling-home-quick-send&lt;/code&gt;: 94.8% same offer (5,257 of 5,546)" tabindex="0"></span><span class="hb-v">94.8%</span></div>
+  <div class="hb-n">5,257 of 5,546</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Send-again buttons (people page, chat, hub)</div>
+  <div class="hb-t"><span class="hb-b" style="width:92.25%;background:var(--s1)" data-tip="Send-again buttons (people page, chat, hub): 92.2% same offer (833 of 903)" tabindex="0"></span><span class="hb-v">92.2%</span></div>
+  <div class="hb-n">833 of 903</div>
+</div>
+<div class="hb ">
+  <div class="hb-l"><code>people-page</code></div>
+  <div class="hb-t"><span class="hb-b" style="width:58.57%;background:var(--s2)" data-tip="&lt;code&gt;people-page&lt;/code&gt;: 58.6% same offer (6,825 of 11,653)" tabindex="0"></span><span class="hb-v">58.6%</span></div>
+  <div class="hb-n">6,825 of 11,653</div>
+</div>
+<div class="hb ">
+  <div class="hb-l"><code>recents-people-list</code></div>
+  <div class="hb-t"><span class="hb-b" style="width:54.26%;background:var(--s2)" data-tip="&lt;code&gt;recents-people-list&lt;/code&gt;: 54.3% same offer (12,133 of 22,360)" tabindex="0"></span><span class="hb-v">54.3%</span></div>
+  <div class="hb-n">12,133 of 22,360</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">People page offers, post-call</div>
+  <div class="hb-t"><span class="hb-b" style="width:51.62%;background:var(--s2)" data-tip="People page offers, post-call: 51.6% same offer (811 of 1,571)" tabindex="0"></span><span class="hb-v">51.6%</span></div>
+  <div class="hb-n">811 of 1,571</div>
+</div>
+<div class="hb ">
+  <div class="hb-l"><code>search</code></div>
+  <div class="hb-t"><span class="hb-b" style="width:38.54%;background:var(--s2)" data-tip="&lt;code&gt;search&lt;/code&gt;: 38.5% same offer (1,817 of 4,715)" tabindex="0"></span><span class="hb-v">38.5%</span></div>
+  <div class="hb-n">1,817 of 4,715</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Entry point not tracked (<code>"empty"</code>)</div>
+  <div class="hb-t"><span class="hb-b" style="width:93.97%;background:var(--neutral)" data-tip="Entry point not tracked (&lt;code&gt;&quot;empty&quot;&lt;/code&gt;): 94.0% same offer (5,812 of 6,185)" tabindex="0"></span><span class="hb-v">94.0%</span></div>
+  <div class="hb-n">5,812 of 6,185</div>
+</div></div>
+  <figcaption><b>One-tap repeats are 34.4% of same-recipient repeats and land on the same offer 94.3% of the time.</b> Browse flows are 56.9% of repeats, and even after seeing the full list, 53.6% of those buyers pick the offer they bought last time. Charts: <a href="https://app.amplitude.com/analytics/BOSS/chart/bh7kkfk9" target="_blank" rel="noopener">same recipient by entry point</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/5ebyk35f" target="_blank" rel="noopener">same offer by entry point</a>.</figcaption>
+</figure>
+</section>
+
+<section>
+  <div class="sh"><h2>Where buyers switch more</h2></div>
+  <p>Data packs and a few markets switch more than average. These are the places where the offer list, promotions and featured offers have the most room to change what people buy.</p>
+  <div class="two">
+<figure>
+  <div class="fig-t">Same recipient, same offer, by product type of the previous top-up</div>
+  <div class="hbs"><div class="hb ">
+  <div class="hb-l">Mobile Bundle</div>
+  <div class="hb-t"><span class="hb-b" style="width:74.58%;background:var(--s1)" data-tip="Mobile Bundle: 74.6% same offer" tabindex="0"></span><span class="hb-v">74.6%</span></div>
+  <div class="hb-n">25,727 of 34,496</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Mobile Top Up (airtime)</div>
+  <div class="hb-t"><span class="hb-b" style="width:69.27%;background:var(--s1)" data-tip="Mobile Top Up (airtime): 69.3% same offer" tabindex="0"></span><span class="hb-v">69.3%</span></div>
+  <div class="hb-n">21,383 of 30,871</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Mobile Data</div>
+  <div class="hb-t"><span class="hb-b" style="width:58.94%;background:var(--s1)" data-tip="Mobile Data: 58.9% same offer" tabindex="0"></span><span class="hb-v">58.9%</span></div>
+  <div class="hb-n">3,517 of 5,967</div>
+</div></div>
+  <figcaption>Bundles are the stickiest; data packs are the most switched. Charts: <a href="https://app.amplitude.com/analytics/BOSS/chart/1lhm7pul" target="_blank" rel="noopener">same recipient</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/wn7690u2" target="_blank" rel="noopener">same offer</a>.</figcaption>
+</figure>
+<figure>
+  <div class="fig-t">Same recipient, same offer, by destination country (top 12 by buyers)</div>
+  <div class="hbs"><div class="hb ">
+  <div class="hb-l">Liberia</div>
+  <div class="hb-t"><span class="hb-b" style="width:81.13%;background:var(--s1)" data-tip="Liberia: 81.1% same offer (5,674 buyers)" tabindex="0"></span><span class="hb-v">81.1%</span></div>
+  <div class="hb-n">1,036 of 1,277</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Nicaragua</div>
+  <div class="hb-t"><span class="hb-b" style="width:81.08%;background:var(--s1)" data-tip="Nicaragua: 81.1% same offer (11,560 buyers)" tabindex="0"></span><span class="hb-v">81.1%</span></div>
+  <div class="hb-n">1,877 of 2,315</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Guatemala</div>
+  <div class="hb-t"><span class="hb-b" style="width:78.85%;background:var(--s1)" data-tip="Guatemala: 78.9% same offer (94,033 buyers)" tabindex="0"></span><span class="hb-v">78.9%</span></div>
+  <div class="hb-n">11,217 of 14,225</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">El Salvador</div>
+  <div class="hb-t"><span class="hb-b" style="width:78.69%;background:var(--s1)" data-tip="El Salvador: 78.7% same offer (26,104 buyers)" tabindex="0"></span><span class="hb-v">78.7%</span></div>
+  <div class="hb-n">3,818 of 4,852</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Afghanistan</div>
+  <div class="hb-t"><span class="hb-b" style="width:71.49%;background:var(--s1)" data-tip="Afghanistan: 71.5% same offer (4,798 buyers)" tabindex="0"></span><span class="hb-v">71.5%</span></div>
+  <div class="hb-n">692 of 968</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Dominican Rep.</div>
+  <div class="hb-t"><span class="hb-b" style="width:70.89%;background:var(--s1)" data-tip="Dominican Rep.: 70.9% same offer (46,838 buyers)" tabindex="0"></span><span class="hb-v">70.9%</span></div>
+  <div class="hb-n">7,382 of 10,413</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Mexico</div>
+  <div class="hb-t"><span class="hb-b" style="width:70.19%;background:var(--s1)" data-tip="Mexico: 70.2% same offer (26,142 buyers)" tabindex="0"></span><span class="hb-v">70.2%</span></div>
+  <div class="hb-n">3,393 of 4,834</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Honduras</div>
+  <div class="hb-t"><span class="hb-b" style="width:68.43%;background:var(--s1)" data-tip="Honduras: 68.4% same offer (50,625 buyers)" tabindex="0"></span><span class="hb-v">68.4%</span></div>
+  <div class="hb-n">5,393 of 7,881</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Jamaica</div>
+  <div class="hb-t"><span class="hb-b" style="width:64.52%;background:var(--s1)" data-tip="Jamaica: 64.5% same offer (25,184 buyers)" tabindex="0"></span><span class="hb-v">64.5%</span></div>
+  <div class="hb-n">3,004 of 4,656</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Ethiopia</div>
+  <div class="hb-t"><span class="hb-b" style="width:63.49%;background:var(--s1)" data-tip="Ethiopia: 63.5% same offer (10,056 buyers)" tabindex="0"></span><span class="hb-v">63.5%</span></div>
+  <div class="hb-n">925 of 1,457</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Haiti</div>
+  <div class="hb-t"><span class="hb-b" style="width:63.26%;background:var(--s1)" data-tip="Haiti: 63.3% same offer (72,163 buyers)" tabindex="0"></span><span class="hb-v">63.3%</span></div>
+  <div class="hb-n">5,757 of 9,100</div>
+</div>
+<div class="hb ">
+  <div class="hb-l">Nigeria</div>
+  <div class="hb-t"><span class="hb-b" style="width:61.30%;background:var(--s1)" data-tip="Nigeria: 61.3% same offer (11,332 buyers)" tabindex="0"></span><span class="hb-v">61.3%</span></div>
+  <div class="hb-n">1,177 of 1,920</div>
+</div></div>
+  <figcaption>Central America repeats most; Haiti, Jamaica, Nigeria and Ethiopia switch most. Charts: <a href="https://app.amplitude.com/analytics/BOSS/chart/fkgq1v9e" target="_blank" rel="noopener">same recipient</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/yqr0zftt" target="_blank" rel="noopener">same offer</a>.</figcaption>
+</figure>
+</div>
+</section>
+
+<section>
+  <div class="sh"><h2>Over a whole quarter, the same pattern</h2></div>
+  <p>Across 506,743 buyers and 2,070,629 purchases from 1 July to 27 September, the average buyer uses fewer distinct offers than they have recipients, whatever their frequency. Among buyers with exactly two purchases, 48% bought the same offer twice, even though 59% of them topped up two different people.</p>
+  <figure>
+  <div class="fig-t">Distinct recipients, offers and carriers per buyer over 89 days, by how many times they bought</div>
+  <div class="lg"><span class="lg-i"><span class="sw" style="background:var(--s3)"></span>Distinct carriers</span><span class="lg-i"><span class="sw" style="background:var(--s1)"></span>Distinct offers</span><span class="lg-i"><span class="sw" style="background:var(--s2)"></span>Distinct recipients</span></div>
+  <div class="dbs"><div class="db">
+  <div class="db-l">1 <span>purchase</span></div>
+  <div class="db-t"><span class="db-r" style="left:11.13%;width:0.03%"></span><span class="dot" style="left:11.13%;background:var(--s3)" data-tip="1 purchases: carriers 1.00 per buyer" tabindex="0"></span><span class="dot" style="left:11.15%;background:var(--s1)" data-tip="1 purchases: offers 1.00 per buyer" tabindex="0"></span><span class="dot" style="left:11.16%;background:var(--s2)" data-tip="1 purchases: recipients 1.00 per buyer" tabindex="0"></span></div>
+  <div class="db-n">170,973 buyers</div>
+</div><div class="db">
+  <div class="db-l">2 <span>purchases</span></div>
+  <div class="db-t"><span class="db-r" style="left:13.25%;width:4.36%"></span><span class="dot" style="left:13.25%;background:var(--s3)" data-tip="2 purchases: carriers 1.19 per buyer" tabindex="0"></span><span class="dot" style="left:16.88%;background:var(--s1)" data-tip="2 purchases: offers 1.52 per buyer" tabindex="0"></span><span class="dot" style="left:17.62%;background:var(--s2)" data-tip="2 purchases: recipients 1.59 per buyer" tabindex="0"></span></div>
+  <div class="db-n">97,224 buyers</div>
+</div><div class="db">
+  <div class="db-l">3 <span>purchases</span></div>
+  <div class="db-t"><span class="db-r" style="left:14.61%;width:8.38%"></span><span class="dot" style="left:14.61%;background:var(--s3)" data-tip="3 purchases: carriers 1.31 per buyer" tabindex="0"></span><span class="dot" style="left:21.28%;background:var(--s1)" data-tip="3 purchases: offers 1.92 per buyer" tabindex="0"></span><span class="dot" style="left:22.98%;background:var(--s2)" data-tip="3 purchases: recipients 2.07 per buyer" tabindex="0"></span></div>
+  <div class="db-n">62,076 buyers</div>
+</div><div class="db">
+  <div class="db-l">4 <span>purchases</span></div>
+  <div class="db-t"><span class="db-r" style="left:15.75%;width:12.48%"></span><span class="dot" style="left:15.75%;background:var(--s3)" data-tip="4 purchases: carriers 1.42 per buyer" tabindex="0"></span><span class="dot" style="left:25.30%;background:var(--s1)" data-tip="4 purchases: offers 2.28 per buyer" tabindex="0"></span><span class="dot" style="left:28.23%;background:var(--s2)" data-tip="4 purchases: recipients 2.54 per buyer" tabindex="0"></span></div>
+  <div class="db-n">41,841 buyers</div>
+</div><div class="db">
+  <div class="db-l">5-7 <span>purchases</span></div>
+  <div class="db-t"><span class="db-r" style="left:17.04%;width:19.32%"></span><span class="dot" style="left:17.04%;background:var(--s3)" data-tip="5-7 purchases: carriers 1.53 per buyer" tabindex="0"></span><span class="dot" style="left:30.96%;background:var(--s1)" data-tip="5-7 purchases: offers 2.79 per buyer" tabindex="0"></span><span class="dot" style="left:36.36%;background:var(--s2)" data-tip="5-7 purchases: recipients 3.27 per buyer" tabindex="0"></span></div>
+  <div class="db-n">66,961 buyers</div>
+</div><div class="db">
+  <div class="db-l">8-12 <span>purchases</span></div>
+  <div class="db-t"><span class="db-r" style="left:19.11%;width:32.68%"></span><span class="dot" style="left:19.11%;background:var(--s3)" data-tip="8-12 purchases: carriers 1.72 per buyer" tabindex="0"></span><span class="dot" style="left:40.10%;background:var(--s1)" data-tip="8-12 purchases: offers 3.61 per buyer" tabindex="0"></span><span class="dot" style="left:51.79%;background:var(--s2)" data-tip="8-12 purchases: recipients 4.66 per buyer" tabindex="0"></span></div>
+  <div class="db-n">40,391 buyers</div>
+</div><div class="db">
+  <div class="db-l">13+ <span>purchases</span></div>
+  <div class="db-t"><span class="db-r" style="left:22.07%;width:71.16%"></span><span class="dot" style="left:22.07%;background:var(--s3)" data-tip="13+ purchases: carriers 1.99 per buyer" tabindex="0"></span><span class="dot" style="left:55.32%;background:var(--s1)" data-tip="13+ purchases: offers 4.98 per buyer" tabindex="0"></span><span class="dot" style="left:93.23%;background:var(--s2)" data-tip="13+ purchases: recipients 8.39 per buyer" tabindex="0"></span></div>
+  <div class="db-n">27,277 buyers</div>
+</div>
+    <div class="db axis"><div class="db-l"></div><div class="db-t ticks"><span style="left:0.00%">0</span><span style="left:11.11%">1</span><span style="left:22.22%">2</span><span style="left:33.33%">3</span><span style="left:44.44%">4</span><span style="left:55.56%">5</span><span style="left:66.67%">6</span><span style="left:77.78%">7</span><span style="left:88.89%">8</span><span style="left:100.00%">9</span></div><div class="db-n">per buyer</div></div>
+  </div>
+  <figcaption><b>Buyers use fewer distinct offers than they have recipients, at every frequency.</b> A buyer with 13 or more purchases tops up 8.4 people but uses only 5.0 offers, so the same offer goes to several people. Charts: <a href="https://app.amplitude.com/analytics/BOSS/chart/qoa8llpm" target="_blank" rel="noopener">buyers</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/iv81w3kq" target="_blank" rel="noopener">recipients</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/tyiyf209" target="_blank" rel="noopener">offers</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/in1hm5p3" target="_blank" rel="noopener">carriers</a>, <a href="https://app.amplitude.com/analytics/BOSS/chart/kntuco9b" target="_blank" rel="noopener">amounts</a>.</figcaption>
+</figure>
+  <details><summary>Show the table</summary><div class="tw"><table><thead><tr><th>Purchases, 1 Jul to 27 Sep</th><th class="n">Buyers</th><th class="n">Purchases per buyer</th><th class="n">Recipients</th><th class="n">Offers</th><th class="n">Amounts</th><th class="n">Carriers</th></tr></thead><tbody><tr><td>1</td><td class="n">170,973</td><td class="n">1.01</td><td class="n">1.00</td><td class="n">1.00</td><td class="n">1.00</td><td class="n">1.00</td></tr><tr><td>2</td><td class="n">97,224</td><td class="n">2.01</td><td class="n">1.59</td><td class="n">1.52</td><td class="n">1.47</td><td class="n">1.19</td></tr><tr><td>3</td><td class="n">62,076</td><td class="n">3.02</td><td class="n">2.07</td><td class="n">1.92</td><td class="n">1.81</td><td class="n">1.31</td></tr><tr><td>4</td><td class="n">41,841</td><td class="n">4.02</td><td class="n">2.54</td><td class="n">2.28</td><td class="n">2.12</td><td class="n">1.42</td></tr><tr><td>5-7</td><td class="n">66,961</td><td class="n">5.83</td><td class="n">3.27</td><td class="n">2.79</td><td class="n">2.53</td><td class="n">1.53</td></tr><tr><td>8-12</td><td class="n">40,391</td><td class="n">9.59</td><td class="n">4.66</td><td class="n">3.61</td><td class="n">3.14</td><td class="n">1.72</td></tr><tr><td>13+</td><td class="n">27,277</td><td class="n">20.88</td><td class="n">8.39</td><td class="n">4.98</td><td class="n">4.03</td><td class="n">1.99</td></tr></tbody></table></div></details>
+</section>
+
+<section>
+  <div class="sh"><h2>What this means for the product</h2></div>
+  <div class="recs">
+    <div class="rec"><h3>Put the last offer first in the browse flows</h3><p>In the recents list, people page and search, 54% of same-recipient repeats end on the same offer after scrolling the full list. Showing "last sent to this person" at the top of the offer list would shorten the path for most of them. Check what the list pre-selects today before building.</p></div>
+    <div class="rec"><h3>Subscriptions automate a habit that already exists</h3><p>50,627 buyers in this cohort repeated the exact same offer to the same person within 30 days. They are the natural audience for a subscription offer on that recipient, and the offer to propose is the one they just bought.</p></div>
+    <div class="rec"><h3>Upselling needs a nudge</h3><p>Denomination changes split 47% up and 53% down, so amounts do not rise on their own. The 29% of same-recipient repeats that already change offer, and the data-pack and Haiti, Jamaica and Nigeria buyers, are the most open to featured offers and promotions.</p></div>
+    <div class="rec"><h3>Senders have a go-to offer</h3><p>24% of all next purchases send the same offer to a different person on the same carrier. Promotions set at offer level therefore reach more than one recipient per sender.</p></div>
+    <div class="rec"><h3>Close the measurement gaps</h3><p>Offer-list position and a "pre-selected" flag on the order would separate accepted defaults from active choices; neither is tracked today (see the <a href="https://claude.ai/code/artifact/4658de01-5f22-408f-bfd7-f4cb63805cb5" target="_blank" rel="noopener">IMTU Amplitude events audit</a>). Subscription renewals are server-side and never reach Amplitude, so the true repeat rate of the same offer is higher than shown here.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><h2>Method and caveats</h2></div>
+  <dl class="method">
+    <dt>Pairing each purchase with the next one</dt>
+    <dd>Amplitude funnels with the Nth-time filter on <a href="https://app.amplitude.com/data/BOSS/650506/events/main/latest/MTUOrderStatusSuccessScr" target="_blank" rel="noopener">MTUOrderStatusSuccessScr</a>: step 1 is a buyer's 1st purchase counted from 30 June (1-day lookback), step 2 their 2nd, within 30 days. The anchoring was validated: the "2nd purchase" step returned 148,089 users against 145,580 users with 2+ purchases in the same window. Each buyer contributes one pair, so heavy buyers are not over-weighted.</dd>
+    <dt>What "same" means</dt>
+    <dd>Each chart holds one or more properties constant across the two steps: <code>recipient_phone_number</code>, <code>offer_id</code>, <code>recipient_carrier</code>, <code>offer_amount</code>, <code>offer_type</code>. All are populated on 100% of successful orders in the last 30 days. Recipient numbers are consistently E.164 (99.96% carry a "+" prefix), so one person is not split across formats. Offer IDs are carrier SKUs such as <code>TIGO_GT-US-PAQUETIGO-10</code> or <code>CLARO_DO_6</code>; amounts are in the sender's currency (98% USD).</dd>
+    <dt>Segments</dt>
+    <dd>Established = 3+ purchases from 1 April to 29 June 2026 (201,967 buyers), light = 1-2 (111,171), new or lapsed = none (108,904).</dd>
+    <dt>Not covered</dt>
+    <dd>The Money app (project 420385), subscription renewals (server-side, not in Amplitude) and anything before July 2026. Subscription creations are 25% of successful orders in the last 30 days; excluding them raises same-recipient loyalty from 71.0% to 75.6%. The Tableau connector failed to connect in this session, so this analysis uses Amplitude only. The <code>"empty"</code> entry point is a known tracking defect listed in the <a href="https://claude.ai/code/artifact/4658de01-5f22-408f-bfd7-f4cb63805cb5" target="_blank" rel="noopener">events audit</a>.</dd>
+  </dl>
+</section>
+</div>
+<div id="tip" hidden></div>
+<script>
+(function(){
+  var tip=document.getElementById('tip');
+  function show(e){var t=e.target.closest('[data-tip]');if(!t)return;tip.textContent=t.getAttribute('data-tip');tip.hidden=false;move(e,t)}
+  function move(e,t){var x,y;if(e.clientX!==undefined&&e.type!=='focusin'){x=e.clientX;y=e.clientY}else{var r=(t||e.target).getBoundingClientRect();x=r.left+r.width/2;y=r.top}
+    var w=tip.offsetWidth,h=tip.offsetHeight;var nx=Math.min(Math.max(8,x-w/2),window.innerWidth-w-8);var ny=y-h-12;if(ny<8)ny=y+18;tip.style.left=nx+'px';tip.style.top=ny+'px'}
+  function hide(){tip.hidden=true}
+  document.addEventListener('mouseover',show);document.addEventListener('focusin',show);
+  document.addEventListener('mousemove',function(e){if(!tip.hidden&&e.target.closest('[data-tip]'))move(e)});
+  document.addEventListener('mouseout',function(e){if(e.target.closest('[data-tip]'))hide()});
+  document.addEventListener('focusout',hide);
+})();
+</script>
