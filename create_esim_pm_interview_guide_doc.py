@@ -19,7 +19,9 @@ import time
 from pathlib import Path
 
 from google.oauth2.credentials import Credentials
+from google.auth.exceptions import RefreshError
 from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
 from linkify_refs import LINK_MAP, linkify
@@ -37,10 +39,13 @@ LINKS = {
     "DCS FY27 Initiative Plan":
         "https://docs.google.com/document/d/1oxHLqsnsfQ4qObTfFYzwPgrxDrT5i25erhlFL2GOn-I/edit",
     "eSIM Amplitude dashboard": "https://app.amplitude.com/analytics/BOSS/dashboard/024gnsog",
+    "IMTU gamification test": "https://app.amplitude.com/analytics/BOSS/dashboard/1dp0yzo6",
+    "IMTU events audit": "https://app.amplitude.com/analytics/BOSS/dashboard/bm14j7e2",
 }
 
 # kinds: h1, h2, h3, p, meta, lead (bold lead-in), bl (bullet, bold lead), b (plain bullet),
-#        q (question, bold), lf / rf (indented "Listen for" / "Red flag"), note, table
+#        h4, q (question, bold), pr / lf / rf (indented "Probe" / "Listen for" / "Red flag"),
+#        cx (indented "Why we ask" context, grey italic), table
 BLOCKS = [
     ("h1", "Travel eSIM PM Interview Guide (DCS)"),
     ("meta", "Prepared by João Tanaka, 28 September 2026. Senior Product Manager, Travel eSIM, req 3260. "
@@ -96,11 +101,13 @@ BLOCKS = [
            "escalation."),
     ("bl", "Measurement is part of the story.", "Every feature ships with its Amplitude events defined up front. "
            "The eSIM events in the app already have traps: the Buy button is an entry tile, not checkout."),
+    ("bl", "Releases are app versions.", "Features ship in versioned app builds with a phased store rollout, "
+           "and users move to a new version over weeks. A launch or campaign needs a flag and a version filter."),
     ("bl", "Distributed teams.", "Core hours are CET with a 9am to 1pm New York overlap, so decisions have to "
            "live in writing."),
     ("h3", "Where the eSIM app funnel stands today"),
     ("p", "From eSIM: What Amplitude Says About the Journey and the eSIM Amplitude dashboard, 90 days to "
-          "3 September 2026, BR app. Questions 13 to 15 use these. Give the candidate rounded figures only."),
+          "3 September 2026, BR app. Questions 17 to 19 use these. Give the candidate rounded figures only."),
     ("table", "FUNNEL"),
 
     ("h2", "4. The 30 minutes"),
@@ -108,92 +115,157 @@ BLOCKS = [
 
     ("h2", "5. Questions"),
     ("h3", "A. Agile and working with DCS (my filter)"),
-    ("q", "1. Walk me through one feature you owned from idea to production. What did you hand the team at each "
-          "step, and what came back to you?"),
-    ("lf", "Listen for.", "Problem and metric first, then PRD, design review, refinement, stories with acceptance "
-           "criteria, sprint planning, QA, release, and a look at the numbers after launch. Knows who does what."),
-    ("rf", "Red flag.", "The story ends at \"I gave engineering the requirements\", or never mentions QA or "
-           "post-launch data."),
-    ("q", "2. You will be a stakeholder for two scrum teams, DPC and DCS, and neither reports to you. DCS is "
-          "already over capacity on backend this year. How do you get an eSIM feature into the next sprint?"),
-    ("lf", "Listen for.", "Works with the DCS PM and the other product owners, brings a business case and names "
-           "what moves out, arrives with groomed stories, sequences backend and provider work first."),
-    ("rf", "Red flag.", "Escalation as the first move, or assumes the team takes priorities straight from them."),
-    ("q", "3. Our team estimates stories in grooming, and PMs never set the points. Tell me about a time an "
-          "estimate came back much bigger than you expected."),
-    ("lf", "Listen for.", "Asks why, slices the scope, finds a smaller first release, keeps the team's number."),
-    ("rf", "Red flag.", "Negotiates the estimate down, or treats it as padding."),
-    ("q", "4. Write acceptance criteria out loud for: \"Check that the customer's phone supports eSIM before "
-          "checkout.\""),
+    ("p", "Ask for a real example first, then use the probe. Strong answers name the artifact (PRD, story, flag, "
+          "dashboard) and who owned each step. Answers that stay hypothetical are a weak signal. Must ask: 1, 3, "
+          "5, 7 and 9."),
+
+    ("h4", "How they deliver"),
+    ("q", "1. Pick one feature you shipped in a mobile app in the last year. Walk me through it from the first "
+          "PRD to the week after release. What did you hand the team at each step?"),
+    ("pr", "Probe.", "What was in the PRD that was not in the stories? Who wrote the stories? When did QA first "
+           "see it?"),
+    ("lf", "Listen for.", "Problem and success metric first. The PRD and the stories are different documents. "
+           "Design finished and the API agreed before app work started. QA involved in refinement, not only at "
+           "the end. Checked the numbers after release."),
+    ("rf", "Red flag.", "Ends at \"I gave engineering the requirements\", cannot say who wrote the stories, or "
+           "never looked at the data after launch."),
+    ("q", "2. At DCS an app story cannot start until its design is final and the backend API is documented. What "
+          "does \"ready for sprint planning\" mean to you, and what do you do when a story you need is not ready?"),
+    ("pr", "Probe.", "Tell me about a story you pulled out of a sprint because it was not ready."),
+    ("lf", "Listen for.", "A checklist in their own words: acceptance criteria, design link, API contract, "
+           "dependencies, feature flag, analytics. Refines one or two sprints ahead of the team. Would rather slip "
+           "a sprint than start half-ready."),
+    ("rf", "Red flag.", "\"The developers work out the details during the sprint.\""),
+    ("q", "3. Write acceptance criteria out loud, three to five items, for: \"Check that the customer's phone "
+          "supports eSIM before checkout.\""),
+    ("pr", "Probe.", "What happens on an iPad? On a phone locked to a carrier? When the check cannot tell?"),
     ("lf", "Listen for.", "Criteria QA can pass or fail. Covers supported, unsupported and unknown devices, "
-           "carrier-locked phones, iOS and Android, what the customer sees on failure, and the event to track."),
-    ("rf", "Red flag.", "\"It should work well and be clear to the user.\""),
-    ("q", "5. Halfway through a sprint, a partner changes a plan price or an API, and sales wants it live this "
-          "week. What happens to the sprint?"),
-    ("lf", "Listen for.", "Separates real urgency from noise, agrees it with the team, swaps out equal scope "
-           "instead of adding, protects the sprint goal."),
-    ("rf", "Red flag.", "Adds it on top and expects the same delivery."),
-    ("q", "6. Tell me about a release that went wrong in production. How did you find out, and what did you "
-          "change afterwards?"),
-    ("lf", "Listen for.", "Dashboards or alerts, feature flags or a staged rollout, a retro with a concrete "
-           "action. Owns their part."),
+           "carrier-locked phones, iOS and Android, what the customer sees and can do on failure, and the event "
+           "to track. Says what is out of scope."),
+    ("rf", "Red flag.", "\"It should work well and be clear to the user\", or describes the screen instead of "
+           "testable behavior."),
+    ("q", "4. Which scrum meetings do you attend, what do you bring to each, and what do you keep in writing "
+          "when the team spans CET to New York?"),
+    ("pr", "Probe.", "Have you ever rejected a story in sprint review? Why?"),
+    ("lf", "Listen for.", "Arrives at refinement and planning with prepared stories. Accepts or rejects work in "
+           "review against the acceptance criteria. Joins the retro when invited. Decisions and PRDs live in "
+           "writing; live time is kept for planning and hard trade-offs."),
+    ("rf", "Red flag.", "Skips refinement, treats the review as a demo only, or decisions live in calls."),
+
+    ("h4", "Working inside our constraints"),
+    ("q", "5. You will bring eSIM work to two scrum teams, DPC and DCS, and neither reports to you. DCS already "
+          "has more backend work planned this year than it can deliver. You need an eSIM feature in the next "
+          "sprint. Walk me through the week before sprint planning."),
+    ("pr", "Probe.", "What would you offer to take out? Who do you talk to first?"),
+    ("lf", "Listen for.", "Talks to the DCS PM before planning, not during it. Brings a business case in numbers "
+           "and names what moves out. Arrives with groomed stories. Accepts a later sprint if the case loses."),
+    ("rf", "Red flag.", "Escalation as the first move, \"everything is P1\", or assumes the team takes "
+           "priorities straight from them."),
+    ("q", "6. The team estimates in grooming, and PMs never set the points. You bring \"recommend a plan from "
+          "the traveler's destination and dates, then remind them to install before departure\", and it comes "
+          "back at three sprints. What do you do?"),
+    ("pr", "Probe.", "What is the smallest version you would ship first, and how would you know it worked?"),
+    ("lf", "Listen for.", "Asks what drives the size. Splits into vertical slices that each ship, for example "
+           "destination-only recommendations first and the reminder later. Keeps the team's number. Sets the "
+           "metric for the first slice."),
+    ("rf", "Red flag.", "Negotiates the estimate down, treats it as padding, or slices by layer (all backend "
+           "first, screens in sprint three) so nothing ships on its own."),
+    ("q", "7. DPC owns the eSIM backend. DCS sprint planning is tomorrow, and the DPC endpoint your app story "
+          "needs is late. What do you do?"),
+    ("pr", "Probe.", "Would you let the app team build against a mocked API?"),
+    ("lf", "Listen for.", "Saw the risk before planning because the dependency was tracked and linked. Options "
+           "ready: an agreed contract plus a mock, a flag, or swapping in another ready story. Tells both teams "
+           "and the stakeholders early. Does not leave DCS idle."),
+    ("rf", "Red flag.", "Finds out in planning, pushes the app team to start without a contract, or blames the "
+           "other team."),
+    ("q", "8. Halfway through a sprint, a wholesale partner changes a plan price or an API, and sales wants it "
+          "live this week. What happens to the sprint?"),
+    ("pr", "Probe.", "Who decides whether it goes in?"),
+    ("lf", "Listen for.", "Separates real urgency from noise and asks whether a price change is configuration "
+           "rather than code. Agrees it with the team, swaps out equal scope, protects the sprint goal."),
+    ("rf", "Red flag.", "Adds it on top and expects the same delivery, or goes straight to a developer."),
+
+    ("h4", "Mobile releases and measurement"),
+    ("q", "9. Your eSIM feature shipped in the latest app release. Marketing wants to launch a campaign pointing "
+          "to it on Monday. What do you check first?"),
+    ("pr", "Probe.", "What share of users do you expect on the new version a week after release?"),
+    ("lf", "Listen for.", "Phased store rollout and slow version adoption. The feature flag state and who "
+           "switches it on. A campaign audience filtered to app versions that have the feature. Proof in "
+           "production analytics by app version."),
+    ("rf", "Red flag.", "Assumes \"released\" means every user has it, with no idea of version adoption or "
+           "flags."),
+    ("cx", "Why we ask.", "In September the IMTU gamification test reached 2 of 5,000 entrants, because its "
+           "trigger only shipped in 26.9.1 and almost nobody had that version yet."),
+    ("q", "10. How do you specify analytics for a new feature? Who decides the event names, and how do you check "
+          "them after release?"),
+    ("pr", "Probe.", "Our eSIM Buy button is an entry tile, but a funnel built on it reads like checkout and "
+           "reports conversion about 7 times too low. How would you catch that before it misleads anyone?"),
+    ("lf", "Listen for.", "Events and properties written into the story before build, against a tracking plan. "
+           "QA checks the events. The first days of production data compared with expected volumes. Knows a "
+           "button name is not a funnel step."),
+    ("rf", "Red flag.", "\"The developers add the tracking\", or analytics only after launch."),
+    ("cx", "Why we ask.", "The IMTU events audit found 179 events, none documented and 71% never queried."),
+    ("q", "11. The same eSIM catalog can be sold in our app, on the web and through partners. A pricing rule "
+          "changes, or the compatibility check has a bug. How do you decide whether to fix it in the app, on the "
+          "web, or in the backend?"),
+    ("pr", "Probe.", "What does fixing it only in the app cost you?"),
+    ("lf", "Listen for.", "A backend fix covers every surface and does not wait for a store release. An app fix "
+           "waits for rollout and adoption. Keeps app and web in step. One owner per rule."),
+    ("rf", "Red flag.", "No view on the difference, or fixes it wherever the bug was reported."),
+    ("cx", "Why we ask.", "The delete-card warning shipped in one app and still needed a server-side fix, "
+           "DTCBE-2903, to cover the other screens and apps."),
+    ("q", "12. Tell me about a release that went wrong in production. How did you find out, and what changed "
+          "afterwards?"),
+    ("pr", "Probe.", "What would you watch in the first 48 hours after an eSIM release?"),
+    ("lf", "Listen for.", "Dashboards or alerts, a staged rollout or a flag to switch it off, a retro with a "
+           "concrete action. Owns their part. For eSIM: purchase success, install success, failed orders, "
+           "support contacts."),
     ("rf", "Red flag.", "Blames engineering or QA, or heard about it from customers weeks later."),
-    ("q", "7. The traveler enters where and when they are going, and gets a recommended plan plus an install "
-          "reminder before departure. How would you split that into pieces that each deliver something in a "
-          "sprint?"),
-    ("lf", "Listen for.", "Vertical slices, backend and catalog first, a flag to hide unfinished work, the "
-           "smallest release that proves demand."),
-    ("rf", "Red flag.", "One big release after months, or slices by layer that deliver nothing alone."),
-    ("q", "8. Core hours are CET with a 9am to 1pm New York overlap, and the teams sit in several time zones. "
-          "What do you keep async, and what needs a live meeting?"),
-    ("lf", "Listen for.", "Written PRDs and decisions, recorded demos, live time kept for planning, refinement "
-           "and hard trade-offs."),
-    ("rf", "Red flag.", "Everything is a meeting, or nothing gets written down."),
 
     ("h3", "B. Roadmap ownership (Emilio's criterion 2)"),
-    ("q", "9. Show me a roadmap you personally owned. What was on it, what did you cut, and who disagreed?"),
+    ("q", "13. Show me a roadmap you personally owned. What was on it, what did you cut, and who disagreed?"),
     ("lf", "Listen for.", "They made the calls, can name what they killed and why, tie it to a metric, and "
            "handled a senior stakeholder who disagreed."),
     ("rf", "Red flag.", "Only \"we\", a roadmap handed down from above, or cannot name a single cut."),
-    ("q", "10. Sales, marketing and a wholesale partner each want something in the same quarter. How do you "
+    ("q", "14. Sales, marketing and a wholesale partner each want something in the same quarter. How do you "
           "decide?"),
     ("lf", "Listen for.", "A stated method tied to revenue, margin or conversion, the trade-off made visible, "
            "and a no given with a reason."),
     ("rf", "Red flag.", "Tries to fit everything in, or the loudest voice wins."),
 
     ("h3", "C. P&L and pricing (Emilio's criterion 3)"),
-    ("q", "11. Have you owned a P&L or a margin number? Which lines were yours, and how much did you move them?"),
+    ("q", "15. Have you owned a P&L or a margin number? Which lines were yours, and how much did you move them?"),
     ("lf", "Listen for.", "Specific lines (revenue, cost of goods, marketing spend, gross margin), real numbers, "
            "and a decision that moved one of them."),
     ("rf", "Red flag.", "\"I influenced revenue\", no numbers, or finance owned it."),
-    ("q", "12. How would you price a Europe 10 GB, 30-day plan? What inputs do you need?"),
+    ("q", "16. How would you price a Europe 10 GB, 30-day plan? What inputs do you need?"),
     ("lf", "Listen for.", "Wholesale cost, competitor prices, what a local SIM costs on arrival, the margin "
            "target, price tests, and differences by corridor."),
     ("rf", "Red flag.", "Cost plus a markup only, or just \"cheaper than the market leader\"."),
 
     ("h3", "D. Travel eSIM, the app side (Emilio's criterion 1; David goes deeper)"),
-    ("q", "13. About 6 in 10 people who reach our order review screen leave without buying. That screen has a "
+    ("q", "17. About 6 in 10 people who reach our order review screen leave without buying. That screen has a "
           "device compatibility checkbox. What do you look at first, and what would you test?"),
     ("lf", "Listen for.", "Splits by platform, device, and new versus returning buyers; watches session "
            "replays; forms a hypothesis about the checkbox; weighs conversion against refunds from incompatible "
            "phones; proposes an A/B test with a guardrail metric."),
     ("rf", "Red flag.", "Removes the checkbox straight away, or redesigns the screen with no data."),
-    ("q", "14. Android buyers convert at a little over half the iOS rate. Why might that happen with eSIM in "
+    ("q", "18. Android buyers convert at a little over half the iOS rate. Why might that happen with eSIM in "
           "particular?"),
     ("lf", "Listen for.", "Different install flows on iOS and Android, a fragmented Android device base, "
            "carrier-locked phones, weaker automatic compatibility detection, QR versus one-tap install."),
     ("rf", "Red flag.", "A generic answer about Android users with no eSIM-specific reason."),
-    ("q", "15. About 1 in 5 buyers never taps Install. What is going on, and what would you do?"),
+    ("q", "19. About 1 in 5 buyers never taps Install. What is going on, and what would you do?"),
     ("lf", "Listen for.", "People buy days before the trip; activation, not purchase, is the success metric; "
            "install reminders timed to the trip; clearer install guidance; the support cost of failed installs."),
     ("rf", "Red flag.", "Treats the sale as the finish line."),
 
     ("h3", "E. Ready from day one"),
-    ("q", "16. What would your first 30 days here look like?"),
+    ("q", "20. What would your first 30 days here look like?"),
     ("lf", "Listen for.", "Reads the funnel data, uses our app and the competitors', meets DPC, DCS, support and "
            "sales, and ships one small improvement early."),
     ("rf", "Red flag.", "A three-month research phase before any output."),
-    ("q", "17. What would you like to ask me?"),
+    ("q", "21. What would you like to ask me?"),
     ("lf", "Listen for.", "Questions about how the teams plan, their capacity, the data, and the eSIM supply "
            "side."),
     ("rf", "Red flag.", "Nothing about the work itself."),
@@ -225,12 +297,12 @@ TABLES = {
     "EMILIO": [
         ["Criterion", "What it means for this role", "Who tests it"],
         ["1. eSIM ecosystem, ideally travel eSIM", "Knows the path from purchase to first connection and where "
-         "travelers get stuck; knows the major players", "David Phelps in depth; me on the app funnel (13 to 15)"],
-        ["2. PM owning a roadmap", "Built the roadmap, made the cuts, pushed it into sprints", "Me (9, 10) and "
+         "travelers get stuck; knows the major players", "David Phelps in depth; me on the app funnel (17 to 19)"],
+        ["2. PM owning a roadmap", "Built the roadmap, made the cuts, pushed it into sprints", "Me (13, 14) and "
          "Emilio"],
         ["3. Ideally a product P&L", "Accountable for margin by corridor, catalog and pricing", "Emilio; me "
-         "briefly (11, 12)"],
-        ["DCS filter", "Knows agile and how to get work through DCS", "Me (1 to 8)"],
+         "briefly (15, 16)"],
+        ["DCS filter", "Knows agile and how to get work through DCS", "Me (1 to 12)"],
     ],
     "FUNNEL": [
         ["Measure", "Value", "Say to the candidate"],
@@ -243,15 +315,15 @@ TABLES = {
     "PLAN": [
         ["Time", "Block", "Must ask", "If time"],
         ["0 to 2 min", "Intro: who I am and how DCS works with this role", "", ""],
-        ["2 to 8 min", "Roadmap and P&L", "9, 11", "10, 12"],
-        ["8 to 20 min", "Agile and working with DCS", "1, 2, 4, 5", "3, 6, 7, 8"],
-        ["20 to 26 min", "eSIM case from our app", "13", "14, 15"],
-        ["26 to 30 min", "Day one and their questions", "16, 17", ""],
+        ["2 to 7 min", "Roadmap and P&L", "13, 15", "14, 16"],
+        ["7 to 22 min", "Agile and working with DCS", "1, 3, 5, 7, 9", "2, 4, 6, 8, 10 to 12"],
+        ["22 to 27 min", "eSIM case from our app", "17", "18, 19"],
+        ["27 to 30 min", "Day one and their questions", "20, 21", ""],
     ],
     "SCORE": [
         ["Area", "Strong", "Red flag", "Score", "Notes"],
         ["Agile and DCS fit", "Describes a sprint from the team's side, writes testable criteria, trades scope "
-         "instead of pushing the team", "Hands over requirements and waits, or escalates first", "", ""],
+         "instead of pushing the team, knows a shipped release is not an adopted one", "Hands over requirements and waits, or escalates first", "", ""],
         ["eSIM and travel eSIM", "Knows where travelers get stuck; gives eSIM-specific reasons for funnel gaps",
          "Generic e-commerce answers, or telecom detail with no customer view", "", ""],
         ["Roadmap ownership", "Made and defended the cuts personally", "Executed someone else's roadmap", "", ""],
@@ -262,14 +334,20 @@ TABLES = {
     ],
 }
 
-STYLE = {"h1": "HEADING_1", "h2": "HEADING_2", "h3": "HEADING_3"}
-LEADS = ("lead", "bl", "lf", "rf")
+STYLE = {"h1": "HEADING_1", "h2": "HEADING_2", "h3": "HEADING_3", "h4": "HEADING_4"}
+LEADS = ("lead", "bl", "pr", "lf", "rf", "cx")
+INDENTED = ("pr", "lf", "rf", "cx")
 
 
 def creds():
     c = Credentials.from_authorized_user_file(str(BASE / "token.json"), SCOPES)
-    if not c.valid and c.refresh_token:
-        c.refresh(Request())
+    if not c.valid:
+        try:
+            c.refresh(Request())
+        except RefreshError:
+            # Revoked or expired refresh token: re-authorize in the browser.
+            flow = InstalledAppFlow.from_client_secrets_file(str(BASE / "credentials.json"), SCOPES)
+            c = flow.run_local_server(port=0)
         (BASE / "token.json").write_text(c.to_json())
     return c
 
@@ -286,12 +364,12 @@ def build_requests():
         reqs.append({"insertText": {"location": {"index": cur}, "text": line}})
         rng = {"startIndex": cur, "endIndex": cur + len(line)}
         pstyle = {"namedStyleType": STYLE.get(kind, "NORMAL_TEXT"),
-                  "spaceBelow": {"magnitude": 2 if kind in ("q", "lf") else 4, "unit": "PT"}}
+                  "spaceBelow": {"magnitude": 2 if kind in ("q", "pr", "lf") else 4, "unit": "PT"}}
         fields = "namedStyleType,spaceBelow"
         if kind == "q":
             pstyle["spaceAbove"] = {"magnitude": 8, "unit": "PT"}
             fields += ",spaceAbove"
-        if kind in ("lf", "rf"):
+        if kind in INDENTED:
             pstyle["indentStart"] = {"magnitude": 18, "unit": "PT"}
             pstyle["indentFirstLine"] = {"magnitude": 18, "unit": "PT"}
             fields += ",indentStart,indentFirstLine"
@@ -309,6 +387,12 @@ def build_requests():
                                              "textStyle": {"foregroundColor": {"color": {"rgbColor": {
                                                  "red": 0.72, "green": 0.11, "blue": 0.11}}}},
                                              "fields": "foregroundColor"}})
+        if kind == "cx":
+            reqs.append({"updateTextStyle": {"range": {"startIndex": cur, "endIndex": cur + len(line) - 1},
+                                             "textStyle": {"italic": True, "fontSize": {"magnitude": 9.5, "unit": "PT"},
+                                                           "foregroundColor": {"color": {"rgbColor": {
+                                                               "red": 0.4, "green": 0.4, "blue": 0.4}}}},
+                                             "fields": "italic,fontSize,foregroundColor"}})
         if kind == "meta":
             reqs.append({"updateTextStyle": {"range": {"startIndex": cur, "endIndex": cur + len(line) - 1},
                                              "textStyle": {"italic": True, "fontSize": {"magnitude": 9.5, "unit": "PT"}},
