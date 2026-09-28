@@ -41,6 +41,10 @@ LINKS = {
     "eSIM Amplitude dashboard": "https://app.amplitude.com/analytics/BOSS/dashboard/024gnsog",
     "IMTU gamification test": "https://app.amplitude.com/analytics/BOSS/dashboard/1dp0yzo6",
     "IMTU events audit": "https://app.amplitude.com/analytics/BOSS/dashboard/bm14j7e2",
+    "David Phelps's CV review":
+        "https://idt.slack.com/archives/C09FHTV2TN2/p1790624404283029",
+    "CV excerpt Emilio shared":
+        "https://idt.slack.com/archives/C09FHTV2TN2/p1790624873230489?thread_ts=1790624404.283029&cid=C09FHTV2TN2",
 }
 
 # kinds: h1, h2, h3, p, meta, lead (bold lead-in), bl (bullet, bold lead), b (plain bullet),
@@ -50,7 +54,8 @@ BLOCKS = [
     ("h1", "Travel eSIM PM Interview Guide (DCS)"),
     ("meta", "Prepared by João Tanaka, 28 September 2026. Senior Product Manager, Travel eSIM, req 3260. "
              "Interview step 4 of 6, 30 minutes, after David Phelps and before Emilio del Rio. "
-             "Sources: the job req and Emilio del Rio's Slack thread."),
+             "Sources: the job req and Emilio del Rio's Slack thread. Section 3 covers the first candidate, "
+             "anonymised as Candidate A."),
     ("lead", "Bottom line.", "Emilio wants three things: eSIM ecosystem knowledge (ideally travel eSIM), "
              "experience owning a roadmap, and ideally a product P&L. Emilio added me as the DCS filter: does this "
              "person know agile and what it takes to get work through DCS. David Phelps quizzes eSIM fluency "
@@ -89,7 +94,73 @@ BLOCKS = [
     ("p", "Emilio's overall bar: someone ready to hit the ground running, who adds travel eSIM product "
           "knowledge to the team and helps execute the eSIM vision."),
 
-    ("h2", "3. What working with DCS takes (my filter)"),
+    ("h2", "3. Candidate A"),
+    ("p", "Built from the Slack thread only: David Phelps's CV review and the CV excerpt Emilio shared. The full "
+          "CV was not available when this section was written, so read it before the call and correct anything "
+          "below that it contradicts. The candidate's name, employers and CV details are kept out of this guide: "
+          "read them in the CV and the Slack thread."),
+    ("h3", "What we know"),
+    ("table", "CANDIDATE"),
+    ("h3", "Fit against the role"),
+    ("table", "CANDIDATE_FIT"),
+    ("h3", "Where to push"),
+    ("bl", "Which eSIM product, and what was live when they left.", "The CV names one travel eSIM app but "
+           "links to a different one. The app named in the text appears to have launched publicly after they "
+           "left, so they may have led the build and launch groundwork rather than run the live product. "
+           "Most likely a typo, but settle it in the first minutes."),
+    ("bl", "Builder or owner.", "\"Founding PM\" and \"owned technical feasibility, UI/UX and integrations\" "
+           "read as zero-to-one delivery. Emilio's criteria 2 and 3 are about running a product after launch: "
+           "the roadmap, the metrics, the margin."),
+    ("bl", "Did the design themselves.", "They \"owned end-to-end UI/UX design\". At DCS, Design is its own "
+           "step and the design is final before app stories start. Check that they hand problems to a designer, "
+           "not finished screens to developers."),
+    ("bl", "P&L is unproven.", "Nothing in the excerpt mentions revenue or margin. The airline vacation-packages "
+           "program is their most likely P&L story, so ask for its numbers."),
+    ("bl", "Tenure.", "Under a year in the eSIM role. Ask neutrally what happened to the eSIM app after they "
+           "left."),
+    ("h3", "Questions for Candidate A"),
+    ("p", "Use these in place of the generic questions noted in brackets. The DCS block (1, 3, 5, 7, 9) stays "
+          "as written. David Phelps has 45 minutes and will go deep on eSIM, so keep C1 and C2 on ownership and "
+          "delivery, not telecom detail."),
+    ("q", "C1. [Replaces 13] Walk me through the eSIM app from the day you joined to the day you left. What "
+          "existed when you started, what had shipped when you left, and what were the numbers?"),
+    ("pr", "Probe.", "Your CV names one eSIM app and links to another. Which one did you work on? Who owned the "
+           "roadmap after launch?"),
+    ("lf", "Listen for.", "A clear timeline, the providers by name and why they were chosen, the launch date, "
+           "and at least one metric: countries, plans, conversion, activation or revenue. Names what was cut to "
+           "get to launch."),
+    ("rf", "Red flag.", "\"A leading global eSIM provider\" with no metric of their own, or cannot say what "
+           "was live on their last day."),
+    ("q", "C2. [After 7] You integrated several connectivity providers. Which parts of that work were backend "
+          "and which were app, and in what order did they ship?"),
+    ("pr", "Probe.", "What did you do when a provider's API was late or changed its behaviour?"),
+    ("lf", "Listen for.", "Provider API contract first, then order, provisioning and install in the app. Mocks "
+           "or a flag while the provider lagged. Knows what the app needs from the backend (plan catalog, "
+           "order status, install payload, usage). Maps directly to DPC then DCS here."),
+    ("rf", "Red flag.", "Only the commercial side of the deal, or the app and the integration built in the "
+           "same sprint with no contract."),
+    ("q", "C3. [After 1] You owned the UI/UX end to end in your eSIM role. How did design work there, and how "
+          "would you work with a dedicated designer on our team?"),
+    ("pr", "Probe.", "What do you give the designer at the start, and who has the final say on a screen?"),
+    ("lf", "Listen for.", "Brings the problem, the flow and the constraints. Lets the designer own the screens. "
+           "Reviews against the success metric, not personal taste."),
+    ("rf", "Red flag.", "Plans to hand developers their own mockups, or treats the design step as optional."),
+    ("q", "C4. [Replaces 15] At the airline, what did the vacation-packages program earn, and which numbers "
+          "were yours: revenue, margin, attach rate?"),
+    ("pr", "Probe.", "How would you sell a travel eSIM through an airline or OTA booking flow?"),
+    ("lf", "Listen for.", "Real figures and one decision that moved them. For the probe: placement in the "
+           "booking journey, attach rate, revenue share with the partner, and B2B onboarding."),
+    ("rf", "Red flag.", "Program delivery only, with finance or commercial owning every number."),
+    ("q", "C5. [Probe on 9] Your previous company ran a consumer app with millions of daily users. How did "
+          "releases work there: release cadence, feature flags, phased store rollout?"),
+    ("lf", "Listen for.", "Specific practice at that scale: staged rollouts, kill switches, version adoption "
+           "curves, and watching crash and conversion numbers after release."),
+    ("rf", "Red flag.", "\"Engineering handled releases.\""),
+    ("q", "C6. [Close, before 21] What happened to the eSIM app after you left?"),
+    ("lf", "Listen for.", "A clean handover and an honest, short answer. Keep the tone neutral: this is context "
+           "for C1, not a trap."),
+
+    ("h2", "4. What working with DCS takes (my filter)"),
     ("p", "DCS is one of the two scrum teams this PM leans on, alongside DPC. They will not manage either team, "
           "so everything they want built reaches us through the backlog. What that means in practice:"),
     ("bl", "Ready work, not ideas.", "A PRD and a design, then stories with acceptance criteria that QA can "
@@ -110,10 +181,10 @@ BLOCKS = [
           "3 September 2026, BR app. Questions 17 to 19 use these. Give the candidate rounded figures only."),
     ("table", "FUNNEL"),
 
-    ("h2", "4. The 30 minutes"),
+    ("h2", "5. The 30 minutes"),
     ("table", "PLAN"),
 
-    ("h2", "5. Questions"),
+    ("h2", "6. Questions"),
     ("h3", "A. Agile and working with DCS (my filter)"),
     ("p", "Ask for a real example first, then use the probe. Strong answers name the artifact (PRD, story, flag, "
           "dashboard) and who owned each step. Answers that stay hypothetical are a weak signal. Must ask: 1, 3, "
@@ -270,12 +341,12 @@ BLOCKS = [
            "side."),
     ("rf", "Red flag.", "Nothing about the work itself."),
 
-    ("h2", "6. Scorecard"),
+    ("h2", "7. Scorecard"),
     ("p", "Score 1 to 4: 1 no evidence, 2 some evidence, 3 clear evidence, 4 strong evidence with numbers. "
           "The first row is the DCS filter Emilio asked me for."),
     ("table", "SCORE"),
 
-    ("h2", "7. Hand-off to Emilio"),
+    ("h2", "8. Hand-off to Emilio"),
     ("b", "Read David Phelps's notes from step 3 first and skip what David already covered."),
     ("b", "Send Emilio a DCS verdict (pass, pass with concerns, or fail) with the reason in one sentence."),
     ("b", "Add one line on each of Emilio's three criteria: eSIM, roadmap and P&L."),
@@ -284,6 +355,28 @@ BLOCKS = [
 ]
 
 TABLES = {
+    "CANDIDATE": [
+        ["Area", "What the thread shows"],
+        ["Travel background", "Built out a vacation-packages program for an airline (David's read of the CV)"],
+        ["Consumer app", "Senior Product Manager for under a year at a large-scale consumer mobile app "
+                         "(millions of daily users, several markets)"],
+        ["eSIM", "Founding PM of a travel eSIM app: worked with eSIM connectivity providers to integrate their "
+                 "services; owned technical feasibility, end-to-end UI/UX design and the technical integrations"],
+        ["Location", "Last role was inside the req's Europe scope. Confirm the current base"],
+        ["How they came in", "Internal referral, per Emilio. David has extended the step-3 slot to 45 minutes"],
+    ],
+    "CANDIDATE_FIT": [
+        ["Criterion", "Evidence so far", "Read", "Test with"],
+        ["1. eSIM, ideally travel eSIM", "Founding PM of a travel eSIM app, with provider integrations",
+         "Strong on paper; launch-phase only", "C1, C2, and David"],
+        ["2. PM owning a roadmap", "Founding PM implies they set the first roadmap", "Likely; confirm they owned "
+         "it after launch", "C1, 13, 14"],
+        ["3. Ideally a product P&L", "None in the excerpt; the airline program is the best candidate",
+         "Unproven", "C4, 16"],
+        ["DCS filter", "Large-scale consumer app; did the design themselves",
+         "Unknown; check how they work with Design", "1, 3, 5, 7, 9, C3, C5"],
+        ["Nice to have: travel", "Airline vacation packages", "Yes", "C4 probe"],
+    ],
     "ROLE": [
         ["Role facts", "From the job req"],
         ["Title", "Senior Product Manager, Travel eSIM (req 3260), 1 headcount"],
