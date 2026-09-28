@@ -25,6 +25,7 @@ from felix_recarga_evidence_content import (
 
 BASE = Path(__file__).parent
 OUT = BASE / "Felix_WhatsApp_TopUp_Real_Flow.html"
+PAGE_TITLE = "Félix WhatsApp Top-Up Teardown"   # gallery / tab name; the H1 carries the full title
 IMG_DIR = BASE / "felix_evidence"
 
 JIRA = re.compile(r"\b([A-Z]{2,8}-\d+)\b")
@@ -64,10 +65,10 @@ def linkify(text):
 
 
 def lead_bold(text):
-    """'Lead  ::  rest' -> <strong>Lead</strong> rest (same convention as the doc generator)."""
+    """'Lead  ::  rest' -> <strong>Lead:</strong> rest (same convention as the doc generator)."""
     if "  ::  " in text:
         lead, rest = text.split("  ::  ", 1)
-        return f"<strong>{linkify(lead)}</strong> {linkify(rest)}"
+        return f"<strong>{linkify(lead)}:</strong> {linkify(rest)}"
     return linkify(text)
 
 
@@ -111,7 +112,12 @@ def render():
         nonlocal fig_row
         if fig_row:
             n = len(fig_row)
-            body.append(f'<div class="figrow figrow-{min(n,4)}">' + "".join(fig_row) + "</div>")
+            if n == 1:
+                # a lone figure is capped near its print width instead of stretching to 1080px
+                fig, width_pt = fig_row[0]
+                body.append(f'<div class="figrow figrow-1" style="max-width:{int(width_pt * 2.2)}px">{fig}</div>')
+            else:
+                body.append(f'<div class="figrow figrow-{min(n,4)}">' + "".join(f for f, _ in fig_row) + "</div>")
             fig_row = []
 
     for kind, text in BLOCKS:
@@ -119,7 +125,7 @@ def render():
             flush_figs()
         if kind not in ("b", "n"):
             close_list()
-        if kind == "h1":
+        if kind in ("h1", "meta"):
             continue  # rendered in the hero
         if kind == "h2":
             sec_id += 1
@@ -159,13 +165,13 @@ def render():
             fname, w, nw, nh = images[text]
             uri, size = data_uri(fname)
             cap = IMAGE_CAPTIONS.get(text, "")
-            fig_row.append(
+            fig_row.append((
                 f'<figure><img src="{uri}" alt="{html.escape(cap or fname)}" width="{size[0]}" height="{size[1]}" loading="lazy">'
-                + (f"<figcaption>{linkify(cap)}</figcaption>" if cap else "") + "</figure>")
+                + (f"<figcaption>{linkify(cap)}</figcaption>" if cap else "") + "</figure>", w))
     flush_figs(); close_list()
 
     toc_html = "".join(f'<a href="#{sid}">{html.escape(t)}</a>' for sid, t in toc)
-    return f"""<title>{html.escape(TITLE)}</title>
+    return f"""<title>{html.escape(PAGE_TITLE)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
@@ -181,14 +187,14 @@ def render():
   --accent:#3fbf86; --accent-ink:#9fe3c2; --accent-soft:#16342a; --marker:#22d3c5;
   --real:#3fbf86; --real-bg:#16342a; --video:#6ea3e0; --video-bg:#1a2a3d; --mock:#d9a441; --mock-bg:#3a2d12; --doc:#9aa39d; --doc-bg:#232e29; --risk:#e07373; --risk-bg:#3d1c1c;
   --bubble-bot:#1f2c27; --bubble-user:#1f3a2a; --bubble-web:#1c2622; --bubble-ink:#e6ece8; --link:#8fb8ea;
-  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35); color-scheme:dark;
 }} }}
 :root[data-theme="dark"]{{
   --paper:#0e1a17; --ink:#e6ece8; --ink-2:#b6c2bb; --ink-3:#8b978f; --rule:#243530; --surface:#15241f; --surface-2:#1b2c26;
   --accent:#3fbf86; --accent-ink:#9fe3c2; --accent-soft:#16342a; --marker:#22d3c5;
   --real:#3fbf86; --real-bg:#16342a; --video:#6ea3e0; --video-bg:#1a2a3d; --mock:#d9a441; --mock-bg:#3a2d12; --doc:#9aa39d; --doc-bg:#232e29; --risk:#e07373; --risk-bg:#3d1c1c;
   --bubble-bot:#1f2c27; --bubble-user:#1f3a2a; --bubble-web:#1c2622; --bubble-ink:#e6ece8; --link:#8fb8ea;
-  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35); color-scheme:dark;
 }}
 *{{box-sizing:border-box}}
 body{{margin:0;background:var(--paper);color:var(--ink);font:17px/1.55 "Source Sans 3",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}}
@@ -201,7 +207,7 @@ a{{color:var(--link);text-decoration-thickness:1px;text-underline-offset:2px}}
 .hero p.sub{{font-size:19px;line-height:1.45;max-width:760px;color:#c9d6cf;margin:0 0 22px}}
 .hero .meta{{font-size:14px;color:#9fb0a7;display:flex;flex-wrap:wrap;gap:8px 22px}}
 .hero .meta a{{color:#22d3c5}}
-nav.toc{{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--rule);overflow-x:auto}}
+nav.toc{{position:sticky;top:env(safe-area-inset-top, 0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--rule);overflow-x:auto}}
 nav.toc .in{{max-width:1080px;margin:0 auto;display:flex;gap:4px;padding:6px 16px;white-space:nowrap}}
 nav.toc a{{font:600 13px/1 "Source Sans 3",sans-serif;color:var(--ink-2);text-decoration:none;padding:9px 10px;border-radius:6px}}
 nav.toc a:hover,nav.toc a:focus-visible{{background:var(--surface-2);color:var(--ink);outline:none}}
@@ -249,7 +255,7 @@ footer{{max-width:1080px;margin:0 auto;padding:24px;border-top:1px solid var(--r
 html{{scroll-behavior:smooth}}
 </style>
 <header class="hero"><div class="in">
-<p class="eyebrow">Competitive teardown · IMTU · WhatsApp channel (A8)</p>
+<p class="eyebrow">Competitive teardown · IMTU · FY27 WhatsApp MTU chatbot</p>
 <h1>{html.escape(TITLE)}</h1>
 <p class="sub">{linkify(SUBTITLE)}</p>
 <div class="meta">{linkify(META_LINE)}</div>
